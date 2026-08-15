@@ -1,0 +1,17 @@
+[
+  {
+    "task_id": "fibonacci",
+    "candidate_code": "def fib(n):\n    a, b = 0, 1\n    for _ in range(n):\n        a, b = b, a + b\n    return a\n",
+    "tests": "from candidate import fib\n\ndef test_base():\n    assert fib(0) == 0 and fib(1) == 1\n\ndef test_ten():\n    assert fib(10) == 55\n"
+  },
+  {
+    "task_id": "slugify",
+    "candidate_code": "import re\n\ndef slugify(s):\n    return re.sub(r'[^a-z0-9]+', '-', s.lower()).strip('-')\n",
+    "tests": "from candidate import slugify\n\ndef test_basic():\n    assert slugify('Hello, World!') == 'hello-world'\n\ndef test_spaces():\n    assert slugify('  A  B  ') == 'a-b'\n"
+  },
+  {
+    "task_id": "broken-on-purpose",
+    "candidate_code": "def add(a, b):\n    return a - b\n",
+    "tests": "from candidate import add\n\ndef test_add():\n    assert add(2, 2) == 4\n"
+  }
+]
