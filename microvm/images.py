@@ -111,7 +111,6 @@ class ImageBuilder:
         """Create (or version-bump) an image from a local app directory and wait for the build."""
         uri = self.upload(name, self.package(app_dir))
         params: dict = {
-            "name": name,
             "baseImageArn": self.cfg.base_image_arn,
             "buildRoleArn": self._require("build_role_arn"),
             "codeArtifact": {"uri": uri},
@@ -129,9 +128,10 @@ class ImageBuilder:
 
         started = time.time()
         if self._image_exists(name):
+            # update accepts neither `name` nor `tags` — they are create-only
             resp = self.api.update_microvm_image(imageIdentifier=self.arn(name), **params)
         else:
-            resp = self.api.create_microvm_image(**params)
+            resp = self.api.create_microvm_image(name=name, **params)
         built = BuiltImage(image_arn=resp["imageArn"], name=name, version=resp["imageVersion"])
         if wait:
             self.wait_for_build(built, started)
