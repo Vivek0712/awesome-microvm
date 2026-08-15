@@ -147,4 +147,4 @@ At rest, a suspended VM is just snapshot storage: the pdf-service snapshot is 0.
 
 ---
 
-*Code: `github.com/vivekrajaps/awesome-microvm` — this post covers `examples/pdf-service`. Series: sandboxed code execution, AI code runner, agent evals, notebooks, data analytics, CI runners, PDF rendering (this post), multi-tenant agents.*
+*Code: [awesome-microvm](https://github.com/vivekrajaps/awesome-microvm) — this post covers `examples/pdf-service`; the plane: [microvm-ctl](https://github.com/vivekrajaps/microvm-ctl) (`pip install microvm-ctl`). Series: sandboxed code execution, AI code runner, agent evals, notebooks, data analytics, CI runners, PDF rendering (this post), multi-tenant agents.*

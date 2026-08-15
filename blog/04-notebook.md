@@ -146,4 +146,4 @@ One honest number pushing the other way: a suspend/resume cycle isn't free — a
 
 ---
 
-*Code, transcripts, and benchmark harness: `github.com/vivekrajaps/awesome-microvm` — see [`examples/notebook`](../examples/notebook/). Series: [Control and scale microVMs like a pro](00-control-and-scale-microvms-like-a-pro.md).*
+*Code and transcripts: [awesome-microvm](https://github.com/vivekrajaps/awesome-microvm) — see [`examples/notebook`](../examples/notebook/); the plane: [microvm-ctl](https://github.com/vivekrajaps/microvm-ctl) (`pip install microvm-ctl`). Series: [Control and scale microVMs like a pro](00-control-and-scale-microvms-like-a-pro.md).*

@@ -175,6 +175,6 @@ The real tenant-count ceiling is not price, it's the **memory quota**. `Max allo
 
 ---
 
-Code, benchmark harness, and all eight example images: [github.com/vivekrajaps/awesome-microvm](https://github.com/vivekrajaps/awesome-microvm)
+This example and all eight images: [awesome-microvm](https://github.com/vivekrajaps/awesome-microvm) · the plane and benchmark harness: [microvm-ctl](https://github.com/vivekrajaps/microvm-ctl) (`pip install microvm-ctl`)
 
 *Series: [00 — Control and scale MicroVMs like a pro](00-control-and-scale-microvms-like-a-pro.md) · [02 — AI code runner](02-ai-code-runner.md) · [07 — PDF service](07-pdf-service.md) · **08 — Multi-tenant agents***

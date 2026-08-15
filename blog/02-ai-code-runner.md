@@ -164,6 +164,6 @@ A suspend/resume cycle on the 0.61 GB snapshot costs about $0.0034 in snapshot w
 
 ---
 
-Code, benchmark harness, and all eight example images: [github.com/vivekrajaps/awesome-microvm](https://github.com/vivekrajaps/awesome-microvm)
+This example and all eight images: [awesome-microvm](https://github.com/vivekrajaps/awesome-microvm) · the plane and benchmark harness: [microvm-ctl](https://github.com/vivekrajaps/microvm-ctl) (`pip install microvm-ctl`)
 
 *Series: [00 — Control and scale MicroVMs like a pro](00-control-and-scale-microvms-like-a-pro.md) · [01 — Code sandbox](01-code-sandbox.md) · **02 — AI code runner** · [03 — Agent eval](03-agent-eval.md)*

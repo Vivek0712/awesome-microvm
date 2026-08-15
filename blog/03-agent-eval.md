@@ -153,4 +153,4 @@ Now the part specific to eval fleets: **terminate, don't suspend.** Suspend/resu
 
 ---
 
-Code, CLI, and the benchmark harness behind every number: [github.com/vivekrajaps/awesome-microvm](https://github.com/vivekrajaps/awesome-microvm). Series: [overview](00-control-and-scale-microvms-like-a-pro.md) · [code sandbox](01-code-sandbox.md) · [AI code runner](02-ai-code-runner.md) · **agent eval** · [notebook](04-notebook.md) · [data analytics](05-data-analytics.md) · [CI runner](06-ci-runner.md) · [PDF service](07-pdf-service.md) · [multi-tenant agents](08-multi-tenant-agents.md).
+The eval worker, harness, and tasks: [awesome-microvm](https://github.com/vivekrajaps/awesome-microvm) · the plane and CLI behind every number: [microvm-ctl](https://github.com/vivekrajaps/microvm-ctl) (`pip install microvm-ctl`). Series: [overview](00-control-and-scale-microvms-like-a-pro.md) · [code sandbox](01-code-sandbox.md) · [AI code runner](02-ai-code-runner.md) · **agent eval** · [notebook](04-notebook.md) · [data analytics](05-data-analytics.md) · [CI runner](06-ci-runner.md) · [PDF service](07-pdf-service.md) · [multi-tenant agents](08-multi-tenant-agents.md).

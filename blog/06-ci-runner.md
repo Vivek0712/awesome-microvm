@@ -148,4 +148,4 @@ Under half a cent per job. The naive alternative — an always-on 2 GB runner �
 
 ---
 
-Code, CLI, and the benchmark harness behind every number: [github.com/vivekrajaps/awesome-microvm](https://github.com/vivekrajaps/awesome-microvm). This is part 6 of the series — start with [the control plane overview](00-control-and-scale-microvms-like-a-pro.md), or see the neighboring patterns: [sandboxed data analytics](05-data-analytics.md) and [an HTML-to-PDF service](07-pdf-service.md).
+The runner example: [awesome-microvm](https://github.com/vivekrajaps/awesome-microvm) · the plane, CLI, and benchmark harness: [microvm-ctl](https://github.com/vivekrajaps/microvm-ctl) (`pip install microvm-ctl`). This is part 6 of the series — start with [the control plane overview](00-control-and-scale-microvms-like-a-pro.md), or see the neighboring patterns: [sandboxed data analytics](05-data-analytics.md) and [an HTML-to-PDF service](07-pdf-service.md).

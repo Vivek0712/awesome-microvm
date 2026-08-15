@@ -4,7 +4,7 @@
 
 AWS Lambda MicroVMs hands you the primitive that has been running under Lambda for eight years — a Firecracker VM — with the controls exposed: run it, suspend it, resume it with every byte of memory intact, terminate it. What it doesn't hand you is everything around that primitive: there is no load balancer (one HTTPS endpoint per VM), no fleet abstraction, no token management, no monitoring view, and the account you start with enforces quotas far below the published defaults.
 
-We built [awesome-microvm](https://github.com/vivekrajaps/awesome-microvm), an open-source control & execution plane that fills that gap, deployed it against the live service in `us-east-1`, and measured everything. The headline numbers, all reproducible with the benchmark harness in the repo:
+We built [microvm-ctl](https://github.com/vivekrajaps/microvm-ctl), an open-source control & execution plane that fills that gap (`pip install microvm-ctl`), deployed it against the live service in `us-east-1`, and measured everything. The headline numbers, all reproducible with the benchmark harness that ships in the package repo:
 
 | What | Measured |
 |---|---|
@@ -152,4 +152,4 @@ A fleet you can't see is a bill you can't explain. `mvm top --watch` renders a l
 
 This plane exists to be built on. We shipped eight production-shaped examples on top of it, each with its own deep-dive post: a [code execution sandbox](01-code-sandbox.md), an [AI code runner with a self-repair loop](02-ai-code-runner.md), an [agent evaluation harness](03-agent-eval.md), a [stateful notebook kernel](04-notebook.md), [sandboxed data analytics](05-data-analytics.md), an [ephemeral CI runner](06-ci-runner.md), an [HTML-to-PDF service](07-pdf-service.md), and [multi-tenant AI agents](08-multi-tenant-agents.md).
 
-Everything — the plane, the CLI, the examples, the benchmark harness that produced every number above — is in [github.com/vivekrajaps/awesome-microvm](https://github.com/vivekrajaps/awesome-microvm). `mvm bootstrap` and go.
+The plane — SDK, `mvm` CLI, hook runtime, benchmark harness — is [microvm-ctl](https://github.com/vivekrajaps/microvm-ctl) (Apache-2.0, `pip install microvm-ctl`). The eight examples, this series, and every recorded transcript live in [awesome-microvm](https://github.com/vivekrajaps/awesome-microvm). `pip install microvm-ctl`, `mvm bootstrap`, and go.

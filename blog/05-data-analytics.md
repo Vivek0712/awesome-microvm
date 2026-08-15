@@ -143,4 +143,4 @@ The 30-minute shape *is* the analyst: load a table, fire a burst of questions, l
 
 ---
 
-*Code, transcripts, and benchmark harness: `github.com/vivekrajaps/awesome-microvm` — see [`examples/data-analytics`](../examples/data-analytics/). Series: [Control and scale microVMs like a pro](00-control-and-scale-microvms-like-a-pro.md).*
+*Code and transcripts: [awesome-microvm](https://github.com/vivekrajaps/awesome-microvm) — see [`examples/data-analytics`](../examples/data-analytics/); the plane: [microvm-ctl](https://github.com/vivekrajaps/microvm-ctl) (`pip install microvm-ctl`). Series: [Control and scale microVMs like a pro](00-control-and-scale-microvms-like-a-pro.md).*

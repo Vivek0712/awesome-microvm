@@ -148,4 +148,4 @@ One shape-specific decision matters here: **terminate one-shots, suspend convers
 
 ---
 
-Code, benchmarks, and the transcript above: [github.com/vivekrajaps/awesome-microvm](https://github.com/vivekrajaps/awesome-microvm) · Series: [00 — control & scale](00-control-and-scale-microvms-like-a-pro.md) · **01 — code sandbox** (this post)
+The sandbox app and transcript: [awesome-microvm](https://github.com/vivekrajaps/awesome-microvm) · the plane it runs on: [microvm-ctl](https://github.com/vivekrajaps/microvm-ctl) (`pip install microvm-ctl`) · Series: [00 — control & scale](00-control-and-scale-microvms-like-a-pro.md) · **01 — code sandbox** (this post)
