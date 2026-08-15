@@ -1,0 +1,88 @@
+{
+  "image": "code-sandbox",
+  "region": "us-east-1",
+  "date": "2026-08-15",
+  "launch": {
+    "samples": [
+      {
+        "api_s": 1.3,
+        "running_s": 3.61,
+        "first_byte_s": 4.49
+      },
+      {
+        "api_s": 0.27,
+        "running_s": 2.57,
+        "first_byte_s": 3.46
+      },
+      {
+        "api_s": 0.28,
+        "running_s": 2.6,
+        "first_byte_s": 3.65
+      },
+      {
+        "api_s": 0.42,
+        "running_s": 2.72,
+        "first_byte_s": 3.54
+      },
+      {
+        "api_s": 0.3,
+        "running_s": 2.59,
+        "first_byte_s": 3.54
+      }
+    ],
+    "running_p50_s": 2.6,
+    "running_p95_s": 3.61,
+    "first_byte_p50_s": 3.54,
+    "first_byte_p95_s": 4.49
+  },
+  "warm_request_ms": {
+    "p50": 111.0,
+    "p95": 122.9,
+    "min": 108.2,
+    "samples": 20
+  },
+  "suspend_resume": {
+    "suspend_s": 2.47,
+    "resume_to_serving_s": 2.57,
+    "pid_before": 1,
+    "pid_after": 1,
+    "state_preserved": true
+  },
+  "auto_resume": {
+    "first_request_s": 0.67,
+    "status": 200
+  },
+  "scale": {
+    "target": 6,
+    "reached": 6,
+    "scale_out_wall_s": 9.7,
+    "drain_wall_s": 0.7,
+    "drained": 6
+  },
+  "economics": {
+    "8s one-shot job (terminate)": {
+      "running_usd": 0.00028,
+      "suspend_cycles_usd": 0.0,
+      "suspended_storage_usd": 0.0,
+      "total_usd": 0.00028,
+      "vs_always_on_usd": 0.00028,
+      "savings_pct": 0.0
+    },
+    "30 min active + 8 h suspended": {
+      "running_usd": 0.06305,
+      "suspend_cycles_usd": 0.003263,
+      "suspended_storage_usd": 0.000542,
+      "total_usd": 0.066856,
+      "vs_always_on_usd": 1.071851,
+      "savings_pct": 93.8
+    },
+    "2 h active + 22 h suspended": {
+      "running_usd": 0.2522,
+      "suspend_cycles_usd": 0.006527,
+      "suspended_storage_usd": 0.001491,
+      "total_usd": 0.260218,
+      "vs_always_on_usd": 3.026402,
+      "savings_pct": 91.4
+    }
+  }
+}

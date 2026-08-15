@@ -9,11 +9,12 @@ We built [awesome-microvm](https://github.com/vivekrajaps/awesome-microvm), an o
 | What | Measured |
 |---|---|
 | Image build (Dockerfile → runnable snapshot) | 123–145 s |
-| RunMicrovm → serving authenticated traffic | **p50 4.65 s**, best 3.50 s |
-| Warm authenticated request (real Python exec inside VM) | **p50 119 ms** |
-| Explicit suspend / resume | 2.4 s / 2.6 s — **same PID, all state intact** |
+| RunMicrovm → serving authenticated traffic | **p50 3.54 s**, p95 4.49 s |
+| Warm authenticated request (real Python exec inside VM) | **p50 111 ms** |
+| Explicit suspend / resume | 2.5 s / 2.6 s — **same PID, all state intact** |
 | Auto-resume (first request to a suspended VM) | **200 OK in 0.7 s** |
-| 30 min active + 8 h suspended session | **93% cheaper** than always-on |
+| Fleet scale-out, 0 → 6 running VMs | **9.7 s wall** (drain: 0.7 s) |
+| 30 min active + 8 h suspended session | **93.8% cheaper** than always-on |
 
 ## Why a control plane at all
 
@@ -100,7 +101,9 @@ fleet.drain()                # terminate everything
 
 Scale-down logic is opinionated, and the reasons are billing-shaped: suspended VMs are terminated first (they cost only storage but **still consume the regional memory quota**), then the youngest running VMs — the oldest hold the warmest state.
 
-![benchmark run](../benchmarks/results/BENCHMARK_SVG)
+We measured the scale path end to end on a fresh account: `scale_to(6)` took a fleet from zero to **6 RUNNING microVMs in 9.7 seconds** of wall time — with every launch throttled to the account's applied 1-request/second quota — and `drain()` terminated all six in 0.7 s.
+
+![benchmark run](../benchmarks/results/benchmark-20260815-182207.svg)
 
 ## The suspend/resume magic, verified
 
@@ -108,7 +111,7 @@ We ran 21 executions against a sandbox VM, wrote a marker file, then suspended i
 
 ```
 before suspend: pid=1 executions=21 files=['marker.txt']
-suspend 2.4s · resume-to-serving 2.6s · pid 1 → 1 · STATE PRESERVED
+suspend 2.5s · resume-to-serving 2.6s · pid 1 → 1 · STATE PRESERVED
 ```
 
 Same PID. Same process. Counter intact, file intact. Then we suspended it again and — without calling `ResumeMicrovm` at all — just sent it a request: **200 OK in 0.7 seconds.** The `EndpointClient` treats `502` as "possibly mid-resume" and retries patiently, so callers never learn the VM was asleep.
@@ -117,8 +120,9 @@ This is the economic engine of the whole service. Our cost model (rates in the r
 
 | Session shape (2 GB / 1 vCPU) | Cost | vs. always-on |
 |---|---|---|
-| 8-second one-shot job, terminate | ~$0.0005 | — |
-| 30 min active + 8 h suspended | $0.0755 | $1.07 → **93% saved** |
+| 8-second one-shot job, terminate | ~$0.0003 | — |
+| 30 min active + 8 h suspended | $0.0669 | $1.07 → **93.8% saved** |
+| 2 h active + 22 h suspended | $0.2602 | $3.03 → **91.4% saved** |
 | Running 24/7 | ~$3.03/day | the shape where you should use Fargate instead |
 
 Two honest caveats the pricing page won't emphasize: a suspend/resume cycle on our 0.61 GB snapshot costs ~$0.0034 in snapshot write+read — **cycling isn't free**, so one-shot jobs should terminate, not suspend. And idle detection keys off *endpoint traffic*: an async agent that goes quiet mid-task will be suspended mid-task unless you disable auto-suspend or heartbeat.

@@ -12,7 +12,7 @@ mvm scale code-sandbox 10
 mvm top --watch
 ```
 
-Verified end-to-end against the live service (us-east-1): image builds in ~2 minutes, VMs serve traffic in seconds, suspend/resume preserves the process byte-for-byte (same PID), and an idle-heavy session costs ~90%+ less than always-on compute. Full numbers in [benchmarks/](benchmarks/).
+Verified end-to-end against the live service (us-east-1): image builds in ~2 minutes; **p50 3.5 s** from `RunMicrovm` to serving authenticated traffic; warm requests at **111 ms**; suspend/resume preserves the process byte-for-byte (same PID, 2.5 s/2.6 s); auto-resume answers a suspended VM's first request in **0.7 s**; a fleet scales 0→6 running VMs in **9.7 s**; an idle-heavy session costs **~94% less** than always-on. Full numbers + SVG transcripts in [benchmarks/](benchmarks/).
 
 ---
 
