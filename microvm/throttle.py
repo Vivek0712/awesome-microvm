@@ -56,5 +56,10 @@ class Throttled:
                 code = e.response.get("Error", {}).get("Code", "")
                 if code not in RETRYABLE or attempt == self.max_attempts:
                     raise
-                time.sleep(delay + random.uniform(0, delay))
-                delay = min(delay * 2, 8.0)
+                if code == "ServiceQuotaExceededException":
+                    # capacity quotas (e.g. fleet memory) free up on the order of
+                    # minutes as terminations settle — wait much longer than for TPS
+                    time.sleep(min(10 * attempt, 45) + random.uniform(0, 5))
+                else:
+                    time.sleep(delay + random.uniform(0, delay))
+                    delay = min(delay * 2, 8.0)

@@ -36,6 +36,9 @@ def main():
     ap.add_argument("--launches", type=int, default=5)
     ap.add_argument("--warm-calls", type=int, default=20)
     ap.add_argument("--scale-to", type=int, default=3)
+    ap.add_argument("--scale-image", default=None,
+                    help="image for the scale section (default: --image); use a "
+                         "small-baseline image to fit dense fleets in the memory quota")
     args = ap.parse_args()
 
     console = Console(record=True, width=100)
@@ -140,15 +143,17 @@ def main():
                   f"(the request itself woke the VM)")
 
     # 5 — fleet scale-out --------------------------------------------------------
-    console.rule(f"[bold]5 · fleet scale: → {args.scale_to} VMs, then drain")
+    scale_image = args.scale_image or args.image
+    console.rule(f"[bold]5 · fleet scale: {scale_image} → {args.scale_to} VMs, then drain")
     fm.terminate(probe.microvm_id)  # free quota; the scale test owns the fleet now
-    # TERMINATING VMs still count against the memory quota — wait for them to clear.
+    # Freed memory lags termination by minutes on reduced-quota accounts — settle hard.
     deadline = time.time() + 300
     while time.time() < deadline:
-        if all(v.state == "TERMINATED" for v in fm.list(args.image)):
+        if all(v.state == "TERMINATED" for v in fm.list()):
             break
         time.sleep(5)
-    fleet = Fleet(fm, args.image, idle_policy=IdlePolicy(max_idle=1800, suspended_for=3600))
+    time.sleep(60)
+    fleet = Fleet(fm, scale_image, idle_policy=IdlePolicy(max_idle=1800, suspended_for=3600))
     t0 = time.time()
     fleet.scale_to(args.scale_to, wait_running=True)
     t_scale = time.time() - t0
