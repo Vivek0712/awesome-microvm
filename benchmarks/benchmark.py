@@ -48,6 +48,13 @@ def main():
     launches = []
     vms = []
     for i in range(args.launches):
+        # stay inside the memory quota: TERMINATING samples still count
+        deadline = time.time() + 180
+        while time.time() < deadline:
+            live = [v for v in fm.list(args.image) if v.state != "TERMINATED"]
+            if len(live) <= len(vms):
+                break
+            time.sleep(5)
         t0 = time.time()
         vm = fm.run(args.image, idle_policy=IdlePolicy(max_idle=1800, suspended_for=7200))
         t_api = time.time() - t0
@@ -135,6 +142,12 @@ def main():
     # 5 — fleet scale-out --------------------------------------------------------
     console.rule(f"[bold]5 · fleet scale: → {args.scale_to} VMs, then drain")
     fm.terminate(probe.microvm_id)  # free quota; the scale test owns the fleet now
+    # TERMINATING VMs still count against the memory quota — wait for them to clear.
+    deadline = time.time() + 300
+    while time.time() < deadline:
+        if all(v.state == "TERMINATED" for v in fm.list(args.image)):
+            break
+        time.sleep(5)
     fleet = Fleet(fm, args.image, idle_policy=IdlePolicy(max_idle=1800, suspended_for=3600))
     t0 = time.time()
     fleet.scale_to(args.scale_to, wait_running=True)
