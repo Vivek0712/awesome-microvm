@@ -21,14 +21,19 @@ def ready(_ctx):
     global _db
     import duckdb
     _db = duckdb.connect("/tmp/analytics.db")
-    _db.execute("INSTALL httpfs; LOAD httpfs;")
+    _db.execute("INSTALL httpfs; LOAD httpfs; INSTALL aws; LOAD aws;")
     return True
 
 
 @app.on_run
 def on_run(_ctx):
     # Credentials come from the execution role at run time — never the snapshot.
-    _db.execute("CREATE OR REPLACE SECRET aws (TYPE S3, PROVIDER CREDENTIAL_CHAIN);")
+    # Never let credential setup fail the /run hook: a non-200 terminates the VM;
+    # a VM without S3 access can still serve local queries.
+    try:
+        _db.execute("CREATE OR REPLACE SECRET aws (TYPE s3, PROVIDER credential_chain);")
+    except Exception as e:
+        print(f"s3 secret setup skipped: {e}", flush=True)
 
 
 @app.on_resume
