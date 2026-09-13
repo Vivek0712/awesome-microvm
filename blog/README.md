@@ -39,3 +39,7 @@ Nine articles, written for the AWS Builder Center in series mode. Each markdown 
 - Every number is measured on the live service in us-east-1, and the transcripts in `img/demo-*.png` are the recordings.
 - One paragraph per line, plain ASCII punctuation, no decorative unicode outside literal terminal output.
 - Diagrams are PNGs under `img/`, rendered with headless Chrome from the mermaid sources in `img/src/`. The part 1 diagram is hand-drawn SVG, shared with the microvm-ctl docs.
+
+## Credits
+
+The series was inspired by [lambda-microvm-starter](https://github.com/vidanov/lambda-microvm-starter) by Alexey Vidanov. Parts 1 and 9 credit it in the body.

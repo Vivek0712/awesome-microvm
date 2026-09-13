@@ -61,6 +61,10 @@ benchmarks/     capture_demos.py + recorded results (JSON, SVG transcripts, a re
 
 The plane itself (SDK, mvm CLI, quota-aware fleet manager, endpoint client, hook runtime, docs) lives in [microvm-ctl](https://github.com/Vivek0712/microvm-ctl) under Apache-2.0.
 
+## Credits and inspiration
+
+The whole effort started from [lambda-microvm-starter](https://github.com/vidanov/lambda-microvm-starter) by [Alexey Vidanov](https://github.com/vidanov): one command to take any Dockerfile to a running Firecracker microVM with a public CloudFront URL, plus a troubleshooting guide that saved us a week. If you want to deploy a web app to a MicroVM today, start there. This repo and microvm-ctl pick up where it leaves off, with fleets, tokens, quotas, cost, and workload-shaped examples.
+
 ## License
 
 MIT for the examples and content. The plane is Apache-2.0 in its own repo.

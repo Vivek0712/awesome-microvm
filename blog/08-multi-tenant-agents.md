@@ -163,4 +163,4 @@ The real tenant-count ceiling is the memory quota rather than price. Max allocat
 
 Nine articles, one plane, eight workloads, and every number measured on the live service. The recurring lessons: put uniqueness and secrets in /run rather than the image, suspend conversations and terminate one-shots, move bulk data over S3 rather than the endpoint, cap every launch, and read your applied quotas before you plan a fleet.
 
-This example and all eight images are in [awesome-microvm](https://github.com/Vivek0712/awesome-microvm). The plane and benchmark harness are [microvm-ctl](https://github.com/Vivek0712/microvm-ctl). If you build something on it, open an issue or a pull request; the examples directory is meant to grow.
+This example and all eight images are in [awesome-microvm](https://github.com/Vivek0712/awesome-microvm). The plane and benchmark harness are [microvm-ctl](https://github.com/Vivek0712/microvm-ctl). If you build something on it, open an issue or a pull request; the examples directory is meant to grow. Thanks to Alexey Vidanov, whose [lambda-microvm-starter](https://github.com/vidanov/lambda-microvm-starter) was the on-ramp for this whole series.
