@@ -1,0 +1,20 @@
+flowchart LR
+    subgraph control["Control plane: mvm CLI / Fleet"]
+        IB["ImageBuilder<br/>one tenant-agnostic image"]
+        FM["Fleet + run_payload_factory<br/>one RunMicrovm per tenant"]
+        TK["CreateMicrovmAuthToken<br/>port-scoped JWE per VM"]
+    end
+    subgraph acme["microVM: tenant acme"]
+        HA1["HookApp :8080<br/>/run receives runHookPayload"]
+        H1["HISTORY in RAM"]
+    end
+    subgraph globex["microVM: tenant globex"]
+        HA2["HookApp :8080"]
+        H2["HISTORY in RAM"]
+    end
+    BR["Bedrock nova-lite<br/>via execution role"]
+    FM -->|"runHookPayload = tenant_id ..."| HA1
+    FM --> HA2
+    TK -.->|"X-aws-proxy-auth"| HA1
+    HA1 --> BR
+    HA2 --> BR

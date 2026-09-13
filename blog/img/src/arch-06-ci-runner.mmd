@@ -1,0 +1,11 @@
+flowchart LR
+    subgraph cp["Control plane"]
+        GH["git push / webhook"] --> D["dispatcher"]
+        D -->|"RunMicrovm + runHookPayload<br/>maximumDurationInSeconds"| VM
+        D -->|"TerminateMicrovm on report"| VM
+    end
+    subgraph ep["Execution plane"]
+        D -->|"POST /job with JWE token"| EPT["per-VM HTTPS endpoint"]
+        EPT --> VM["microVM<br/>/run, clone, steps, report"]
+        VM -->|"git clone"| REPO[("repository")]
+    end

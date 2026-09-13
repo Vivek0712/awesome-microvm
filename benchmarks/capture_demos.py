@@ -4,7 +4,7 @@ Runs one VM at a time (fits the reduced 8 GB new-account quota), drives the
 app's signature flow, prints a rich-rendered transcript, and saves it as
 benchmarks/results/demo-<name>.svg.
 
-    MVM_PROFILE=heisenberg python3 benchmarks/capture_demos.py [--only notebook]
+    MVM_PROFILE=my-profile python3 benchmarks/capture_demos.py [--only notebook]
 """
 
 from __future__ import annotations

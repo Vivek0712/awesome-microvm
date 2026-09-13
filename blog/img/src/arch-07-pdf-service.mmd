@@ -1,0 +1,13 @@
+flowchart LR
+    subgraph control["Control plane"]
+        CLI["mvm CLI"] --> IB["ImageBuilder<br/>zip to S3 to build to ACTIVE"]
+        CLI --> FM["FleetManager<br/>run / suspend / resume / terminate"]
+        CLI --> TOK["CreateMicrovmAuthToken<br/>port-scoped JWE"]
+    end
+    subgraph vm["Execution plane: one Firecracker VM"]
+        EP["HTTPS endpoint<br/>id.lambda-microvm.us-east-1.on.aws"] --> HOOKS["HookApp<br/>/ready /validate /resume"]
+        HOOKS --> APP["app.py<br/>POST /render with WeasyPrint"]
+    end
+    CLIENT["Internal caller"] -->|"X-aws-proxy-auth"| EP
+    TOK -.->|"token"| CLIENT
+    FM -.->|"lifecycle"| vm

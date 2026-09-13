@@ -1,0 +1,14 @@
+flowchart LR
+    subgraph cp["Control plane"]
+        CLI["mvm CLI"] --> IB["ImageBuilder<br/>zip to S3 to ACTIVE"]
+        CLI --> FM["FleetManager<br/>run / suspend / resume<br/>idle policy, quotas"]
+        CLI --> TK["CreateMicrovmAuthToken<br/>port-scoped JWE"]
+    end
+    subgraph ep["Execution plane"]
+        EP["EndpointClient<br/>retries 502 during auto-resume"] -->|"X-aws-proxy-auth"| VM
+        subgraph VM["microVM, one HTTPS endpoint"]
+            HK["HookApp<br/>/ready /validate /run"] --> APP["app.py<br/>NS dict = the kernel"]
+        end
+        LIFE["Service lifecycle"] -.->|"POST hooks"| HK
+    end
+    TK --> EP

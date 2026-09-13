@@ -1,0 +1,14 @@
+flowchart LR
+    subgraph cp["Control plane"]
+        CLI["mvm CLI"] --> IB["ImageBuilder<br/>zip to S3 to ACTIVE"]
+        CLI --> FM["FleetManager<br/>run / suspend / resume<br/>quota-aware throttling"]
+        CLI --> TK["CreateMicrovmAuthToken<br/>port-scoped JWE"]
+    end
+    subgraph ep["Execution plane"]
+        EP["EndpointClient<br/>SQL in, small result sets out"] -->|"X-aws-proxy-auth"| VM
+        subgraph VM["microVM, one HTTPS endpoint"]
+            HK["HookApp<br/>/ready /run /resume"] --> DB["app.py<br/>DuckDB at /tmp/analytics.db"]
+        end
+        DB -->|"execution role credentials<br/>bulk parquet"| S3[("S3")]
+    end
+    TK --> EP

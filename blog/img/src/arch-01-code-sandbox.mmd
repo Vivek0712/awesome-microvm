@@ -1,0 +1,16 @@
+flowchart LR
+    subgraph cp["Control plane"]
+        B["mvm image build<br/>Dockerfile to snapshot"]
+        R["mvm run / terminate<br/>one VM per session"]
+        T["CreateMicrovmAuthToken<br/>port-scoped JWE"]
+    end
+    subgraph vm["Execution plane: one Firecracker VM per session"]
+        H["HookApp, stdlib only<br/>/ready /validate /run /suspend"]
+        E["POST /execute<br/>POST /pip<br/>GET /state"]
+        W["/tmp/workspace<br/>plus runtime pip installs"]
+    end
+    A["Agent or product backend"] -->|"X-aws-proxy-auth"| E
+    B --> R
+    R --> H
+    T --> A
+    E --> W

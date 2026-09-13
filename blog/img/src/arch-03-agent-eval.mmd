@@ -1,0 +1,15 @@
+flowchart LR
+    subgraph control["Control plane: harness.py"]
+        H["harness"] --> FM["FleetManager<br/>quota-aware throttle"]
+        FM -->|"RunMicrovm x N"| F["Fleet.scale_to"]
+        H -->|"drain()"| T["TerminateMicrovm x N"]
+    end
+    subgraph exec["Execution plane"]
+        H --> EC["EndpointClient x N<br/>one token per VM"]
+        EC -->|"POST /evaluate"| V1["VM 1, clone"]
+        EC -->|"POST /evaluate"| V2["VM 2, clone"]
+        EC -->|"POST /evaluate"| VN["VM N, clone"]
+    end
+    S[("one snapshot<br/>602 MB memory, 24 MB disk")] -.->|"byte-identical restore"| V1
+    S -.-> V2
+    S -.-> VN

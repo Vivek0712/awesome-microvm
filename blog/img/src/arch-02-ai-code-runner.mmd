@@ -1,0 +1,18 @@
+flowchart LR
+    subgraph control["Control plane: mvm CLI"]
+        IB["ImageBuilder<br/>zip to S3 to ACTIVE image"]
+        FM["FleetManager<br/>run / suspend / resume / terminate"]
+        TK["Token minting<br/>CreateMicrovmAuthToken"]
+    end
+    subgraph vm["Execution plane: one microVM per session"]
+        HA["HookApp :8080<br/>/ready /run /resume"]
+        SOLVE["POST /solve loop<br/>generate, execute, repair"]
+        WS[("/tmp/workspace<br/>solution.py + artifacts")]
+        HA --> SOLVE --> WS
+    end
+    BR["Amazon Bedrock<br/>nova-lite"]
+    CLIENT["Caller"] -->|"X-aws-proxy-auth"| HA
+    FM --> vm
+    IB --> FM
+    TK --> CLIENT
+    SOLVE -->|"converse() via execution role"| BR
