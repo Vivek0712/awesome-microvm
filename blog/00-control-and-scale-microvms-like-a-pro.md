@@ -157,6 +157,6 @@ Credit where it is due: Alexey Vidanov's [lambda-microvm-starter](https://github
 The plane itself (SDK, mvm CLI, hook runtime, benchmark harness) is [microvm-ctl](https://github.com/Vivek0712/microvm-ctl), Apache-2.0. The eight examples, this series, and every recorded transcript live in [awesome-microvm](https://github.com/Vivek0712/awesome-microvm).
 
 ```console
-pip install git+https://github.com/Vivek0712/microvm-ctl
+pip install microvm-ctl
 mvm bootstrap
 ```

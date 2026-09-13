@@ -9,7 +9,7 @@ Lambda MicroVMs hands you a Firecracker VM with a controllable lifecycle (run, s
 ## Get started
 
 ```console
-pip install git+https://github.com/Vivek0712/microvm-ctl
+pip install microvm-ctl
 mvm bootstrap                  # one time: S3 artifact bucket + IAM roles
 mvm image build code-sandbox examples/code-sandbox
 mvm run code-sandbox --wait
