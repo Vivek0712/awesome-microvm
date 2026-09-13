@@ -4,7 +4,7 @@ description: "A per-session Python sandbox for untrusted and AI-generated code w
 series: "Building on AWS Lambda MicroVMs"
 part: 2
 tags: ["lambda", "sandbox", "firecracker", "python", "ai"]
-cover: "https://raw.githubusercontent.com/Vivek0712/awesome-microvm/main/blog/img/cover-01.png"
+cover: "img/cover-01.png"
 ---
 
 Every AI product that runs model-generated code pays someone for the same primitive: a hardware-isolated VM per session, booted in seconds, with a filesystem and pip environment that persist between calls. E2B and Vercel Sandbox built businesses on it. AWS Lambda MicroVMs now sells the raw primitive directly, and in this article we build the sandbox on top of it. The measured result is a p50 of 3.54 seconds from API call to serving authenticated traffic, 111 ms per warm execution, and $0.0003 for an 8 second one-shot job.
@@ -23,7 +23,7 @@ Sessions are bursty. An always-on 2 GB container per user costs about $3.03 per 
 
 ## Architecture
 
-![Code sandbox architecture: control plane builds and launches, one Firecracker VM per session serves /execute, /pip, and /state](https://raw.githubusercontent.com/Vivek0712/awesome-microvm/main/blog/img/arch-01-code-sandbox.png)
+![Code sandbox architecture: control plane builds and launches, one Firecracker VM per session serves /execute, /pip, and /state](img/arch-01-code-sandbox.png)
 
 The control plane builds the image once (your Dockerfile runs on a build VM, then the running process is snapshotted), launches one VM per session, and mints the JWE tokens your backend attaches as X-aws-proxy-auth. The execution plane is the app inside the VM: a zero-dependency HTTP server that answers the service's lifecycle hooks and exposes the three routes a sandbox needs. Each VM gets its own dedicated HTTPS endpoint. There is no load balancer, which is fine here because a session maps one to one to a VM anyway.
 
@@ -100,7 +100,7 @@ $ mvm call <id> /execute -X POST -d '{"code":"print(2+2)"}'
 
 The live transcript against the deployed service:
 
-![Code sandbox live demo: launch, two executions, state check, terminate](https://raw.githubusercontent.com/Vivek0712/awesome-microvm/main/blog/img/demo-code-sandbox.png)
+![Code sandbox live demo: launch, two executions, state check, terminate](img/demo-code-sandbox.png)
 
 `mvm run code-sandbox --wait` had the VM running and serving in 4.8 s on this launch. Across our five-sample benchmark the p50 was 3.54 s, the p95 4.49 s, and the best 3.46 s to first authenticated byte. The first /execute, untrusted numpy eigenvalue code, completed in 1,197.5 ms including the subprocess spawn on a cold page cache. The second call writes model.bin to the workspace in 10.4 ms of in-VM time. End-to-end warm request latency over 20 samples was p50 111.0 ms and p95 122.9 ms, including TLS, proxy auth, and the Python subprocess. GET /state confirms the contract: same session ID, executions at 2, model.bin in the workspace, PID 1. Then we terminate, and the session and everything the untrusted code did vanish with the VM.
 

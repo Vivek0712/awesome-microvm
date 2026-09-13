@@ -4,7 +4,7 @@ description: "An open-source control and execution plane for Firecracker microVM
 series: "Building on AWS Lambda MicroVMs"
 part: 1
 tags: ["lambda", "serverless", "firecracker", "python", "sandbox"]
-cover: "https://raw.githubusercontent.com/Vivek0712/awesome-microvm/main/blog/img/cover-00.png"
+cover: "img/cover-00.png"
 ---
 
 AWS Lambda MicroVMs hands you the primitive that has run under Lambda for eight years, a Firecracker VM, with the controls exposed. You can run it, suspend it, resume it with every byte of memory intact, and terminate it. The service stops there on purpose. There is no load balancer, because each VM gets its own HTTPS endpoint. There is no fleet abstraction, no token management, and no monitoring view, and a fresh account enforces quotas well below the published defaults.
@@ -34,11 +34,15 @@ The service API is small: RunMicrovm, SuspendMicrovm, ResumeMicrovm, TerminateMi
 
 ## Architecture
 
-![microvm-ctl architecture: your side, the control plane, and the execution plane](https://raw.githubusercontent.com/Vivek0712/awesome-microvm/main/blog/img/arch-00-plane.png)
+![microvm-ctl architecture: your side, the control plane, and the execution plane](img/arch-00-plane.png)
 
 The design splits into a control plane that talks SigV4 to the service API and an execution plane that talks HTTPS to each VM's endpoint. Nothing in the execution plane holds AWS credentials beyond what token minting needs, and nothing in the control plane touches workload data.
 
 ## From zero to a serving VM in four commands
+
+After the eight example images in this series are built, `mvm image ls` looks like this:
+
+![mvm image ls listing the nine images used in the series](img/mvm-image-ls.png)
 
 ```console
 $ mvm bootstrap                     # S3 artifact bucket + build/execution IAM roles
@@ -91,9 +95,11 @@ Scale-down has an opinion, and the reason is billing. Suspended VMs are terminat
 
 We measured the scale path end to end on that account. scale_to(6) took a fleet from zero to six RUNNING microVMs in 9.7 seconds of wall time, with every launch throttled to the applied one-per-second quota, and drain() terminated all six in 0.7 seconds.
 
-![Benchmark transcript: launch latency, warm requests, suspend and resume, auto-resume, fleet scale, and session economics](https://raw.githubusercontent.com/Vivek0712/awesome-microvm/main/blog/img/benchmark.png)
+![Benchmark transcript: launch latency, warm requests, suspend and resume, auto-resume, fleet scale, and session economics](img/benchmark.png)
 
 ## Suspend and resume, verified
+
+![microVM lifecycle states and what each one costs](img/lifecycle.png)
 
 We ran 21 executions against a sandbox VM, wrote a marker file, and suspended it. Compute billing stopped. On resume:
 
@@ -113,6 +119,8 @@ This is the economic engine of the whole service. Our cost model uses the publis
 | 2 h active + 22 h suspended | $0.2602 | $3.03, 91.4% saved |
 | Running 24/7 | about $3.03 per day | the shape where Fargate wins |
 
+![mvm cost pricing the 30 minutes active plus 8 hours suspended shape](img/mvm-cost.png)
+
 Two caveats keep this honest. A suspend and resume cycle on our 0.61 GB snapshot costs about $0.0033 in snapshot write plus read, so one-shot jobs should terminate rather than suspend. And idle detection keys off endpoint traffic, so an asynchronous agent that goes quiet mid-task will be suspended mid-task unless you lengthen the idle window or send a heartbeat.
 
 ## The quota walls
@@ -124,7 +132,9 @@ Fresh accounts run a reduced profile. Ours had 8 GB of total microVM memory and 
 
 Both lessons are now encoded in the plane: quota-aware throttling, settle-waits in the benchmark harness, and a scale_to that terminates suspended members first. We filed a RunMicrovm raise from one to five per second with a single request-service-quota-increase call. The case closed with the applied value unchanged, so every fleet number in this series was produced at one launch per second. File yours on day one and treat quota headroom as a launch deliverable.
 
-`mvm quotas` prints the published default, the applied value, and the rate the plane will throttle at, so you can see this before you plan a fleet.
+`mvm quotas` prints the published default, the applied value, and the rate the plane will throttle at, so you can see this before you plan a fleet. This is our account:
+
+![mvm quotas on a fresh account: 1 launch per second and 8 GB applied against 5 per second and 1,024 GB published](img/mvm-quotas.png)
 
 ## Monitoring
 

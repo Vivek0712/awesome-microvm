@@ -4,7 +4,7 @@ description: "One Firecracker VM per customer, each running a private Bedrock-ba
 series: "Building on AWS Lambda MicroVMs"
 part: 9
 tags: ["lambda", "bedrock", "ai", "multi-tenant", "firecracker"]
-cover: "https://raw.githubusercontent.com/Vivek0712/awesome-microvm/main/blog/img/cover-08.png"
+cover: "img/cover-08.png"
 ---
 
 Every ISV building an AI assistant hits the same fork. Tenant Acme's conversation history, credentials, and prompts must never be reachable from tenant Globex's process, and the usual answer is a Kubernetes-shaped platform with namespaces, network policies, and row-level security. In this article we take the blunt approach instead: one Firecracker microVM per tenant. Acme gets a kernel. Globex gets a different kernel. The bill stays sane because a tenant who is not talking costs snapshot storage only.
@@ -23,7 +23,7 @@ The rationale in one line: hard per-tenant isolation with per-second billing tha
 
 ## Architecture
 
-![Multi-tenant architecture: one tenant-agnostic image, one RunMicrovm per tenant with identity in runHookPayload, each VM calling Bedrock through its execution role](https://raw.githubusercontent.com/Vivek0712/awesome-microvm/main/blog/img/arch-08-multi-tenant.png)
+![Multi-tenant architecture: one tenant-agnostic image, one RunMicrovm per tenant with identity in runHookPayload, each VM calling Bedrock through its execution role](img/arch-08-multi-tenant.png)
 
 There is exactly one image, and it knows nothing about any tenant. The control plane launches one VM per tenant and injects identity at run time through runHookPayload. Each VM gets its own dedicated HTTPS endpoint (there is no shared load balancer to misroute a request) and calls Bedrock through the VM's execution role. Tokens are port-scoped JWEs minted per VM, so an Acme token is useless against Globex's endpoint.
 
@@ -110,7 +110,7 @@ The IdlePolicy does the operational heavy lifting. max_idle=300 suspends any ten
 
 ## Run it
 
-![Multi-tenant live demo: launch with a tenant payload, /whoami reports the tenant from runHookPayload, /chat answers through Bedrock in 565 ms](https://raw.githubusercontent.com/Vivek0712/awesome-microvm/main/blog/img/demo-multi-tenant-agents.png)
+![Multi-tenant live demo: launch with a tenant payload, /whoami reports the tenant from runHookPayload, /chat answers through Bedrock in 565 ms](img/demo-multi-tenant-agents.png)
 
 The capture above is a real run. `mvm run multi-tenant-agents --wait` reached RUNNING and serving in 12.5 s for this VM. GET /whoami then returned:
 

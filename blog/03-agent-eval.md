@@ -4,7 +4,7 @@ description: "Fan an eval suite across pristine Firecracker clones: 0 to 6 runni
 series: "Building on AWS Lambda MicroVMs"
 part: 4
 tags: ["lambda", "ai", "firecracker", "python", "testing"]
-cover: "https://raw.githubusercontent.com/Vivek0712/awesome-microvm/main/blog/img/cover-03.png"
+cover: "img/cover-03.png"
 ---
 
 Contamination ruins eval pipelines quietly. Task 47 installs a package, task 48 inherits it and passes tests it should have failed. A previous run leaves a file in /tmp and your pass rate drifts by two points between Tuesday and Thursday. Labs that take agent evaluation seriously insist on one disposable, identical environment per task. AWS Lambda MicroVMs gives you that primitive natively: every VM you launch from an image is a restored copy of the same memory-and-disk snapshot. That is stronger than "same Dockerfile, rebuilt"; it is the same bytes.
@@ -19,7 +19,7 @@ A microVM clone restores the entire machine state from a snapshot: every process
 
 ## Architecture
 
-![Agent eval architecture: the harness scales a fleet through the quota-aware FleetManager and round-robins /evaluate calls over per-VM clients, every VM restored from one snapshot](https://raw.githubusercontent.com/Vivek0712/awesome-microvm/main/blog/img/arch-03-agent-eval.png)
+![Agent eval architecture: the harness scales a fleet through the quota-aware FleetManager and round-robins /evaluate calls over per-VM clients, every VM restored from one snapshot](img/arch-03-agent-eval.png)
 
 The control plane builds the image once, launches N clones through a token-bucket throttle read from your applied Service Quotas, and terminates them at the end. The execution plane mints a port-scoped JWE auth token per VM (there is no load balancer; each VM gets its own HTTPS endpoint) and round-robins tasks over the fleet. Every worker restores from the same 602 MB memory / 24 MB disk snapshot, built once in 133.3 s.
 
@@ -108,7 +108,7 @@ An eval harness that has never been seen to fail is an eval harness you cannot t
 
 The demo transcript runs the suite against a single worker:
 
-![Agent eval live demo: launch, three tasks, two pass and the canary fails, terminate](https://raw.githubusercontent.com/Vivek0712/awesome-microvm/main/blog/img/demo-agent-eval.png)
+![Agent eval live demo: launch, three tasks, two pass and the canary fails, terminate](img/demo-agent-eval.png)
 
 `mvm run agent-eval --wait` has the VM RUNNING and serving authenticated traffic in 3.5 s. Then the scoreboard, exactly as the tasks predict: PASS fibonacci (2 passed in 0.01 s), PASS slugify (2 passed in 0.00 s), FAIL broken-on-purpose (1 failed in 0.00 s). The canary is caught, the score is 2 of 3, and the VM is terminated.
 

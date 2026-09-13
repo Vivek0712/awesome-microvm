@@ -31,8 +31,61 @@ Nine articles, written for the AWS Builder Center in series mode. Each markdown 
 3. Upload the article's cover PNG from `img/` (1200 x 675, well under the 2 MB limit).
 4. Add the five `tags` from the front matter.
 5. Under Series, pick Building on AWS Lambda MicroVMs (create it once with the series cover).
-6. Images in the body use absolute raw.githubusercontent.com URLs, so they render as soon as this repo is public. If the editor rejects remote images, upload the same PNGs from `img/` through the editor and replace the URLs.
+6. Builder Center accepts uploaded images only, not remote or relative links. Every image reference in the body is `![alt](img/<file>.png)`; at each one, upload that file from `blog/img/` through the editor's image button and it replaces the placeholder. The per-article list below tells you which files, in order.
 7. Cross-references to other parts are plain text ("part 3 of this series") rather than hyperlinks, because Builder Center links only resolve between published articles. Add links after each article is live if you want them.
+
+## Images to upload, per article
+
+In body order. The cover goes in the cover field, not the body.
+
+**00-control-and-scale-microvms-like-a-pro.md**: cover `img/cover-00.png`
+
+- `img/arch-00-plane.png`
+- `img/mvm-image-ls.png`
+- `img/benchmark.png`
+- `img/lifecycle.png`
+- `img/mvm-cost.png`
+- `img/mvm-quotas.png`
+
+**01-code-sandbox.md**: cover `img/cover-01.png`
+
+- `img/arch-01-code-sandbox.png`
+- `img/demo-code-sandbox.png`
+
+**02-ai-code-runner.md**: cover `img/cover-02.png`
+
+- `img/arch-02-ai-code-runner.png`
+- `img/demo-ai-code-runner.png`
+
+**03-agent-eval.md**: cover `img/cover-03.png`
+
+- `img/arch-03-agent-eval.png`
+- `img/demo-agent-eval.png`
+
+**04-notebook.md**: cover `img/cover-04.png`
+
+- `img/arch-04-notebook.png`
+- `img/demo-notebook.png`
+
+**05-data-analytics.md**: cover `img/cover-05.png`
+
+- `img/arch-05-data-analytics.png`
+- `img/demo-data-analytics.png`
+
+**06-ci-runner.md**: cover `img/cover-06.png`
+
+- `img/arch-06-ci-runner.png`
+- `img/demo-ci-runner.png`
+
+**07-pdf-service.md**: cover `img/cover-07.png`
+
+- `img/arch-07-pdf-service.png`
+- `img/demo-pdf-service.png`
+
+**08-multi-tenant-agents.md**: cover `img/cover-08.png`
+
+- `img/arch-08-multi-tenant.png`
+- `img/demo-multi-tenant-agents.png`
 
 ## Style rules the series follows
 

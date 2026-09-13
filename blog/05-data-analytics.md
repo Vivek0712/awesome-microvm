@@ -4,7 +4,7 @@ description: "One DuckDB engine per user or agent inside a Firecracker VM: loade
 series: "Building on AWS Lambda MicroVMs"
 part: 6
 tags: ["lambda", "data", "duckdb", "python", "ai"]
-cover: "https://raw.githubusercontent.com/Vivek0712/awesome-microvm/main/blog/img/cover-05.png"
+cover: "img/cover-05.png"
 ---
 
 An LLM that writes SQL is an untrusted user with a keyboard. DuckDB will happily COPY to any path, read any file the process can see, and load extensions. Sanitizing the SQL does not contain that; the boundary around the process does. At the same time, analytics sessions are stateful. An analyst loads a parquet file once and then asks it forty questions, and re-scanning S3 for every question is the tax you pay for statelessness. We wanted hard isolation per user and a warm engine that keeps tables loaded between queries, without paying for a fleet of always-on database containers. On Lambda MicroVMs, our measured burst-analyst session shape (30 minutes active, 8 hours suspended) cost $0.0669 against $1.0719 always-on, a 93.8% saving.
@@ -19,7 +19,7 @@ A microVM is a per-user process boundary that sleeps. Each engine is a Firecrack
 
 ## Architecture
 
-![Data analytics architecture: SQL and small result sets cross the endpoint, bulk parquet moves between DuckDB and S3 over the execution role](https://raw.githubusercontent.com/Vivek0712/awesome-microvm/main/blog/img/arch-05-data-analytics.png)
+![Data analytics architecture: SQL and small result sets cross the endpoint, bulk parquet moves between DuckDB and S3 over the execution role](img/arch-05-data-analytics.png)
 
 One rule makes the whole design work: bulk data never crosses the endpoint. The per-VM endpoint is bandwidth-capped by VM size (1 MB/s on a 0.5 GB VM up to 16 MB/s on an 8 GB VM), which would make it a miserable pipe for a parquet file. So datasets ride the S3 side channel. DuckDB's httpfs extension reads s3:// URIs directly using the VM's execution-role credentials, and only two things cross the capped endpoint: the SQL going in and the result set coming out, capped at 1,000 rows. Both are small by construction.
 
@@ -98,7 +98,7 @@ The image built in 133.7 s with a 680 MB memory snapshot, the largest of our eig
 
 The live transcript against the real service:
 
-![Data analytics live demo: a query that fails cleanly on a missing module, then a one-million-row aggregation in 1.2 seconds](https://raw.githubusercontent.com/Vivek0712/awesome-microvm/main/blog/img/demo-data-analytics.png)
+![Data analytics live demo: a query that fails cleanly on a missing module, then a one-million-row aggregation in 1.2 seconds](img/demo-data-analytics.png)
 
 `mvm run data-analytics --wait` had the VM RUNNING and serving in 6.4 s in this capture, slower than our fleet-wide p50 of 3.54 s (p95 4.49 s). Launches vary, and this one drew a long straw.
 

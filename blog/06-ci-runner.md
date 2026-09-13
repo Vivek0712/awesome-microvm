@@ -4,7 +4,7 @@ description: "Every CI job gets a pre-warmed Firecracker VM restored from a snap
 series: "Building on AWS Lambda MicroVMs"
 part: 7
 tags: ["lambda", "ci-cd", "firecracker", "python", "devops"]
-cover: "https://raw.githubusercontent.com/Vivek0712/awesome-microvm/main/blog/img/cover-06.png"
+cover: "img/cover-06.png"
 ---
 
 Your self-hosted CI runner is the most trusted and least audited machine in your infrastructure. It holds clone credentials, package registry tokens, and deploy keys. It executes whatever arrives in a pull request. Because provisioning is slow, it lives for weeks, accumulating poisoned caches, leftover containers, and cross-job contamination from every workload it has ever run. When no jobs are queued, it sits on EC2 billing you for the privilege. We rebuilt the runner on AWS Lambda MicroVMs so that every job executes in a VM no other job has ever touched, pre-warmed from a snapshot to serving traffic in a measured p50 of 3.54 s and terminated the moment the report is returned.
@@ -19,7 +19,7 @@ A Lambda MicroVM is a Firecracker VM with a full AL2023 userland: hardware-virtu
 
 ## Architecture
 
-![CI runner architecture: a dispatcher answers a webhook with RunMicrovm plus a job payload, calls /job over the per-VM endpoint, and terminates on report](https://raw.githubusercontent.com/Vivek0712/awesome-microvm/main/blog/img/arch-06-ci-runner.png)
+![CI runner architecture: a dispatcher answers a webhook with RunMicrovm plus a job payload, calls /job over the per-VM endpoint, and terminates on report](img/arch-06-ci-runner.png)
 
 The control plane owns lifecycle. The dispatcher answers a push webhook with one RunMicrovm call, carrying the job context as runHookPayload and a maximumDurationInSeconds cap, and one TerminateMicrovm when the report lands. The execution plane is the VM's own dedicated HTTPS endpoint, authenticated per request with a port-scoped JWE token. The runner never holds long-lived credentials. Clone tokens arrive with the job, and anything AWS-side comes from the VM's execution role.
 
@@ -100,7 +100,7 @@ $ mvm run ci-runner --max-duration 900 --payload '{"repo_url": "...", "ref": "ma
 
 The live transcript, against a real public repository:
 
-![CI runner live demo: clone psf/requests, run ruff, syntax-check the tree, report, terminate](https://raw.githubusercontent.com/Vivek0712/awesome-microvm/main/blog/img/demo-ci-runner.png)
+![CI runner live demo: clone psf/requests, run ruff, syntax-check the tree, report, terminate](img/demo-ci-runner.png)
 
 `mvm run ci-runner --wait` went from API call to RUNNING and serving authenticated traffic in 3.5 s, consistent with our five-sample benchmark of p50 3.54 s and p95 4.49 s. We then POSTed a job that shallow-cloned psf/requests live off the internet (4.7 s), ran ruff across src/requests with --statistics (6.2 s, suffixed with `|| true` in the demo so upstream lint findings do not fail someone else's repo), and ran an ast-based syntax check over the tree (0.1 s, syntax OK). The report came back with passed set to true and per-step exit codes and durations, and the dispatcher terminated the VM. Total useful work: about eleven seconds on a machine that did not exist fifteen seconds earlier and ceased to exist immediately after.
 
