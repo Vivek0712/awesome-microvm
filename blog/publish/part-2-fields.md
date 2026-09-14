@@ -10,7 +10,7 @@ Tags: ["lambda", "firecracker", "python", "ai", "sandbox"]
 Series: Building on AWS Lambda MicroVMs
 Cover image: blog/img/cover-01.png
 
-Images to upload, in body order (each replaces the matching ![...](img/...) line):
+Images to upload, in body order (each replaces its < upload ... > marker in the body):
   1. blog/img/arch-01-code-sandbox.png
   2. blog/img/demo-code-sandbox.png
   3. blog/img/demo-ai-code-runner.png

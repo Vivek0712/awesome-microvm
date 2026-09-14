@@ -12,7 +12,7 @@ A dedicated container or EC2 instance per tenant has both, but bills around the 
 
 ## Architecture
 
-![Multi-tenant architecture: one tenant-agnostic image, one RunMicrovm per tenant with identity in runHookPayload, each VM calling Bedrock through its execution role](img/arch-08-multi-tenant.png)
+< upload arch-08-multi-tenant.png here: Multi-tenant architecture: one tenant-agnostic image, one RunMicrovm per tenant with identity in runHookPayload, each VM calling Bedrock through its execution role >
 
 There is exactly one image, and it knows nothing about any tenant. The control plane launches one VM per tenant and injects identity at run time through runHookPayload. Each VM gets its own dedicated HTTPS endpoint, so there is no shared load balancer to misroute a request, and calls Bedrock through the VM's execution role. Tokens are port-scoped JWEs minted per VM, so an Acme token is useless against Globex's endpoint.
 
@@ -96,7 +96,7 @@ The IdlePolicy does the operational heavy lifting. max_idle=300 suspends any ten
 
 ## Run it
 
-![Multi-tenant live demo: launch with a tenant payload, /whoami reports the tenant from runHookPayload, /chat answers through Bedrock in 565 ms](img/demo-multi-tenant-agents.png)
+< upload demo-multi-tenant-agents.png here: Multi-tenant live demo: launch with a tenant payload, /whoami reports the tenant from runHookPayload, /chat answers through Bedrock in 565 ms >
 
 `mvm run multi-tenant-agents --wait` reached RUNNING and serving in 12.5 s for this VM. GET /whoami then returned:
 
@@ -132,7 +132,7 @@ Between sessions, a fully idle tenant is a suspended snapshot: 0.61 GB at $0.08 
 
 The real tenant-count ceiling is the memory quota rather than price. Max allocated MicroVM memory counts RUNNING and SUSPENDED (and TERMINATING, and image-build) VMs, and my fresh account's applied quota was 8 GB against a published default of 1,024 GB: four 2 GB tenants in total, including the sleeping ones. Even the published default caps you at 512 tenants at 2 GB each. My RunMicrovm raise request was filed with a single API call and closed without a change, so start the memory raise conversation early and plan for it to take time.
 
-![mvm quotas on a fresh account: 1 launch per second and 8 GB applied against 5 per second and 1,024 GB published](img/mvm-quotas.png)
+< upload mvm-quotas.png here: mvm quotas on a fresh account: 1 launch per second and 8 GB applied against 5 per second and 1,024 GB published >
 
 ## The gotchas specific to tenancy
 

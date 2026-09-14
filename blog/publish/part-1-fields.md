@@ -10,7 +10,7 @@ Tags: ["lambda", "serverless", "firecracker", "python", "sandbox"]
 Series: Building on AWS Lambda MicroVMs
 Cover image: blog/img/cover-00.png
 
-Images to upload, in body order (each replaces the matching ![...](img/...) line):
+Images to upload, in body order (each replaces its < upload ... > marker in the body):
   1. blog/img/arch-00-plane.png
   2. blog/img/mvm-image-ls.png
   3. blog/img/benchmark.png

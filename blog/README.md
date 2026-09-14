@@ -26,7 +26,7 @@ Three articles, written for the AWS Builder Center in series mode. Each markdown
 3. Upload the article's cover PNG from `img/` (1200 x 675, well under the 2 MB limit).
 4. Add the five `tags` from the front matter.
 5. Under Series, pick Building on AWS Lambda MicroVMs (create it once with the series cover).
-6. Builder Center accepts uploaded images only, not remote or relative links. Every image reference in the body is `![alt](img/<file>.png)`; at each one, upload that file from `blog/img/` through the editor's image button and it replaces the placeholder. The per-article list below tells you which files, in order.
+6. Builder Center accepts uploaded images only, not remote or relative links. Paste the body from `publish/part-N-body.md`, which carries a visible `< upload <file> here: <caption> >` marker at every figure position; at each marker, upload that file from `blog/img/` through the editor's image button and delete the marker line. `publish/part-N-fields.md` lists the files in order. Regenerate both with `python3 blog/publish/make_bundle.py` after editing an article.
 7. Cross-references to other parts are plain text ("part 2 of this series") rather than hyperlinks, because Builder Center links only resolve between published articles. Links to GitHub for the code are real hyperlinks and work as is.
 8. After all three are live, put the Builder Center URLs in the table at the top of the repository README.
 
