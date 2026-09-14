@@ -1,10 +1,6 @@
 ---
 title: "Run model-written code safely: an AI code runner on AWS Lambda MicroVMs"
 description: "An LLM writes Python, a Firecracker VM runs it, and tracebacks feed back to the model until the script exits cleanly. The whole self-repair loop lives inside one disposable Lambda MicroVM with no credentials in the image."
-series: "Building on AWS Lambda MicroVMs"
-part: 3
-tags: ["lambda", "bedrock", "firecracker", "python", "ai"]
-cover: "img/cover-02.png"
 ---
 
 Every agentic coding product has the same uncomfortable step: an LLM emits code nobody has reviewed, and something has to execute it. That something usually shares a kernel, a filesystem, or a credential set with things you care about. In this article we put the whole loop (Bedrock call, code execution, traceback, retry) inside one Lambda MicroVM. If the model writes shutil.rmtree("/"), it destroys a Firecracker VM we were going to terminate anyway.
@@ -25,7 +21,7 @@ The decision for this use case in one line: kernel-level isolation per session, 
 
 ## Architecture
 
-![AI code runner architecture: control plane launches the VM and mints tokens, the /solve loop inside the VM calls Bedrock through the execution role](img/arch-02-ai-code-runner.png)
+![AI code runner architecture: control plane launches the VM and mints tokens, the /solve loop inside the VM calls Bedrock through the execution role](../img/arch-02-ai-code-runner.png)
 
 The control plane builds the image, launches, suspends, and terminates VMs, and mints the port-scoped JWE auth tokens (1 to 60 minute TTL) that callers present as X-aws-proxy-auth at the VM's dedicated endpoint. Each VM gets its own hostname of the form id.lambda-microvm.us-east-1.on.aws. The execution plane is a single standard-library Python server inside the VM that answers the platform's lifecycle hooks (/ready, /run, /resume) and one application route, POST /solve, where the entire generate, execute, repair loop runs. The only thing that leaves the VM during a session is the Bedrock API call.
 
@@ -97,7 +93,7 @@ There is no sandboxing inside the VM, no import allowlist, and no seccomp work. 
 
 The captured transcript:
 
-![AI code runner live demo: launch, one /solve call, the model's first draft runs clean](img/demo-ai-code-runner.png)
+![AI code runner live demo: launch, one /solve call, the model's first draft runs clean](../img/demo-ai-code-runner.png)
 
 The VM went from `mvm run ai-code-runner --wait` to serving in 15.7 s in this capture. The --wait flag polls conservatively; the measured p50 from launch to first authenticated byte is 3.54 s. We posted the task "Compute the first 8 Fibonacci numbers and print them as a Python list", and one POST /solve returned:
 

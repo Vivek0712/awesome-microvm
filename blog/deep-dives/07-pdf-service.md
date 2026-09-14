@@ -1,10 +1,6 @@
 ---
 title: "An HTML to PDF service on AWS Lambda MicroVMs that sleeps between bursts"
 description: "Untrusted markup rendered inside a Firecracker VM with WeasyPrint: launched from snapshot in 3.4 seconds, a real invoice rendered in 186 ms, suspended between bursts, and woken by the next request in 0.7 seconds."
-series: "Building on AWS Lambda MicroVMs"
-part: 8
-tags: ["lambda", "firecracker", "python", "security", "serverless"]
-cover: "img/cover-07.png"
 ---
 
 Someone on your team wants a small endpoint that turns HTML into invoice PDFs. The HTML comes from users: template fields, rich-text editors, sometimes whole documents pasted in. An HTML renderer is a parser for markup, CSS, images, and fonts, all of it attacker-controlled, and every one of those parsers has a CVE history. Add resource loading and you get SSRF for free; an img tag pointing at 169.254.169.254 is the classic. Rendering user-supplied markup deserves the same boundary you would give arbitrary code execution.
@@ -25,7 +21,7 @@ Suspend semantics. The platform's idle detection keys off endpoint traffic. No r
 
 ## Architecture
 
-![PDF service architecture: control plane builds and manages lifecycle, an internal caller hits the per-VM endpoint with a token, HookApp serves /render with WeasyPrint](img/arch-07-pdf-service.png)
+![PDF service architecture: control plane builds and manages lifecycle, an internal caller hits the per-VM endpoint with a token, HookApp serves /render with WeasyPrint](../img/arch-07-pdf-service.png)
 
 The control plane builds the image and manages lifecycle. The execution plane is the VM itself, fronted by its dedicated endpoint. Our zero-dependency HookApp, auto-injected into every image zip, serves both the platform's lifecycle hooks and the app's /render route on port 8080.
 
@@ -91,7 +87,7 @@ base_url=None refuses relative resource resolution, the first line of SSRF defen
 
 ## Run it
 
-![PDF service live demo: launch in 3.4 s, one render in 186.3 ms, PDF written to disk, terminate](img/demo-pdf-service.png)
+![PDF service live demo: launch in 3.4 s, one render in 186.3 ms, PDF written to disk, terminate](../img/demo-pdf-service.png)
 
 ```
 $ mvm run pdf-service --wait

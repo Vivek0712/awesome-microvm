@@ -9,7 +9,7 @@ cover: "img/cover-00.png"
 
 AWS Lambda MicroVMs hands you the primitive that has run under Lambda for eight years, a Firecracker VM, with the controls exposed. You can run it, suspend it, resume it with every byte of memory intact, and terminate it. The service stops there on purpose. There is no load balancer, because each VM gets its own HTTPS endpoint. There is no fleet abstraction, no token management, and no monitoring view, and a fresh account enforces quotas well below the published defaults.
 
-We built [microvm-ctl](https://github.com/Vivek0712/microvm-ctl), an open-source control and execution plane that fills that gap, deployed it against the live service in us-east-1, and measured everything. This article is part 1 of the series Building on AWS Lambda MicroVMs. The eight articles that follow each build one production-shaped application on top of this plane.
+We built [microvm-ctl](https://github.com/Vivek0712/microvm-ctl), an open-source control and execution plane that fills that gap, deployed it against the live service in us-east-1, and measured everything. This article is part 1 of the series Building on AWS Lambda MicroVMs. Part 2 puts seven workloads on top of this plane, and part 3 builds the one that stresses every rule at once, a microVM per tenant, and closes with the decision guide.
 
 The headline numbers, all reproducible with the benchmark harness that ships in the package repo:
 
@@ -150,11 +150,11 @@ Both lessons are now encoded in the plane: quota-aware throttling, settle-waits 
 
 ## The series
 
-This plane exists to be built on. The next eight articles in Building on AWS Lambda MicroVMs each take one workload and build it end to end with measured numbers: a code execution sandbox, an AI code runner with a self-repair loop, an agent evaluation fleet, a stateful notebook kernel, sandboxed data analytics, an ephemeral CI runner, an HTML to PDF service, and multi-tenant AI agents.
+This plane exists to be built on. Part 2 of Building on AWS Lambda MicroVMs takes seven workloads through build, run, cost, and gotchas with measured numbers: a code execution sandbox, an AI code runner with a self-repair loop, an agent evaluation fleet, a stateful notebook kernel, sandboxed DuckDB analytics, an ephemeral CI runner, and an HTML to PDF service. Part 3 builds multi-tenant AI agents with one microVM per tenant and distills the whole series into a decision guide.
 
 Credit where it is due: Alexey Vidanov's [lambda-microvm-starter](https://github.com/vidanov/lambda-microvm-starter) was our first working map of the service. It deploys any Dockerfile to a MicroVM behind a public CloudFront URL in one command, and its troubleshooting guide documented several of the gotchas above before we hit them. If your goal is one web app on a MicroVM, start there; this series is about what comes after.
 
-The plane itself (SDK, mvm CLI, hook runtime, benchmark harness) is [microvm-ctl](https://github.com/Vivek0712/microvm-ctl), Apache-2.0. The eight examples, this series, and every recorded transcript live in [awesome-microvm](https://github.com/Vivek0712/awesome-microvm).
+The plane itself (SDK, mvm CLI, hook runtime, benchmark harness) is [microvm-ctl](https://github.com/Vivek0712/microvm-ctl), Apache-2.0. The eight examples, this series, the longer write-up of each workload, and every recorded transcript live in [awesome-microvm](https://github.com/Vivek0712/awesome-microvm); the code for each example is under `examples/` there.
 
 ```console
 pip install microvm-ctl

@@ -8,4 +8,4 @@ mvm run pdf-service --wait
 mvm call <id> /render -X POST -d '{"html":"<h1>Invoice</h1>"}'
 ```
 
-Article: [An HTML to PDF service on AWS Lambda MicroVMs that sleeps between bursts](../../blog/07-pdf-service.md). Live transcript: [demo-pdf-service.png](../../blog/img/demo-pdf-service.png). The rendered invoice from the demo is [demo-invoice.pdf](../../benchmarks/results/demo-invoice.pdf).
+Series: [part 2, section 7 of Building on AWS Lambda MicroVMs](../../blog/01-seven-workloads.md). Full write-up: [An HTML to PDF service on AWS Lambda MicroVMs that sleeps between bursts](../../blog/deep-dives/07-pdf-service.md). Code: [github.com/Vivek0712/awesome-microvm/tree/main/examples/pdf-service](https://github.com/Vivek0712/awesome-microvm/tree/main/examples/pdf-service). Live transcript: [demo-pdf-service.png](../../blog/img/demo-pdf-service.png). The rendered invoice from the demo is [demo-invoice.pdf](../../benchmarks/results/demo-invoice.pdf).

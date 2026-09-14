@@ -10,4 +10,4 @@ mvm call <id> /pip -X POST -d '{"packages":["httpx"]}'
 mvm call <id> /state
 ```
 
-Article: [Build a code execution sandbox on AWS Lambda MicroVMs](../../blog/01-code-sandbox.md). Live transcript: [demo-code-sandbox.png](../../blog/img/demo-code-sandbox.png).
+Series: [part 2, section 1 of Building on AWS Lambda MicroVMs](../../blog/01-seven-workloads.md). Full write-up: [Build a code execution sandbox on AWS Lambda MicroVMs](../../blog/deep-dives/01-code-sandbox.md). Code: [github.com/Vivek0712/awesome-microvm/tree/main/examples/code-sandbox](https://github.com/Vivek0712/awesome-microvm/tree/main/examples/code-sandbox). Live transcript: [demo-code-sandbox.png](../../blog/img/demo-code-sandbox.png).

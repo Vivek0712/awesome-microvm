@@ -1,10 +1,6 @@
 ---
 title: "A stateful notebook kernel that suspends for free on AWS Lambda MicroVMs"
 description: "A Python kernel whose namespace lives in VM memory: the dataframe you built before lunch is intact after, same process and same PID, and while you were away it billed as storage rather than compute. 93.8% cheaper than an always-on kernel, measured."
-series: "Building on AWS Lambda MicroVMs"
-part: 5
-tags: ["lambda", "python", "firecracker", "data", "notebooks"]
-cover: "img/cover-04.png"
 ---
 
 Every hosted notebook platform faces the same ratio: users think for hours and compute for seconds, but the kernel holding their variables must stay resident the whole time. Kill it to save money and df is gone. Keep it warm and you pay for a 2 GB Python process to do nothing. In our measured session shape, 30 minutes active and 8 hours suspended, a microVM kernel cost $0.0669 against $1.0719 for the always-on equivalent, a 93.8% saving, and the user never noticed the kernel had been asleep.
@@ -19,7 +15,7 @@ A Lambda MicroVM suspends. The service snapshots the entire guest, every process
 
 ## Architecture
 
-![Notebook kernel architecture: control plane launches with an idle policy, the EndpointClient retries 502s during auto-resume, the kernel is a dict inside a HookApp server](img/arch-04-notebook.png)
+![Notebook kernel architecture: control plane launches with an idle policy, the EndpointClient retries 502s during auto-resume, the kernel is a dict inside a HookApp server](../img/arch-04-notebook.png)
 
 The control plane builds the notebook image, launches VMs with an idle policy, and mints port-scoped auth tokens. The execution plane is one dedicated HTTPS endpoint per VM plus the lifecycle hooks the service POSTs into your app. The kernel itself is a module-level dict in a standard-library HTTP server.
 
@@ -96,7 +92,7 @@ The notebook image built in 133.4 s and produced a 660 MB memory snapshot plus 2
 
 The live transcript, captured against the real service:
 
-![Notebook live demo: four cells, a suspend, and a dataframe that survives the resume](img/demo-notebook.png)
+![Notebook live demo: four cells, a suspend, and a dataframe that survives the resume](../img/demo-notebook.png)
 
 `mvm run notebook --wait` had the VM RUNNING and serving authenticated traffic in 3.6 s (fleet-wide we measured p50 3.54 s, p95 4.49 s to first authenticated byte). Then four cells:
 

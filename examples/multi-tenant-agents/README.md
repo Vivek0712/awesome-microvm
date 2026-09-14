@@ -9,4 +9,4 @@ mvm call <id> /whoami
 mvm call <id> /chat -X POST -d '{"message":"hello"}'
 ```
 
-Article: [Multi-tenant AI agents with one AWS Lambda MicroVM per tenant](../../blog/08-multi-tenant-agents.md). Live transcript: [demo-multi-tenant-agents.png](../../blog/img/demo-multi-tenant-agents.png).
+Series: [part 3 of Building on AWS Lambda MicroVMs](../../blog/02-multi-tenant-agents.md). Full write-up: [Multi-tenant AI agents with one AWS Lambda MicroVM per tenant](../../blog/deep-dives/08-multi-tenant-agents.md). Code: [github.com/Vivek0712/awesome-microvm/tree/main/examples/multi-tenant-agents](https://github.com/Vivek0712/awesome-microvm/tree/main/examples/multi-tenant-agents). Live transcript: [demo-multi-tenant-agents.png](../../blog/img/demo-multi-tenant-agents.png).

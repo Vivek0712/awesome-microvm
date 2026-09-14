@@ -9,4 +9,4 @@ mvm call <id> /load -X POST -d '{"table":"trips","s3_uri":"s3://bucket/trips.par
 mvm call <id> /query -X POST -d '{"sql":"SELECT COUNT(*) FROM trips"}'
 ```
 
-Article: [Sandboxed data analytics with DuckDB on AWS Lambda MicroVMs](../../blog/05-data-analytics.md). Live transcript: [demo-data-analytics.png](../../blog/img/demo-data-analytics.png).
+Series: [part 2, section 5 of Building on AWS Lambda MicroVMs](../../blog/01-seven-workloads.md). Full write-up: [Sandboxed data analytics with DuckDB on AWS Lambda MicroVMs](../../blog/deep-dives/05-data-analytics.md). Code: [github.com/Vivek0712/awesome-microvm/tree/main/examples/data-analytics](https://github.com/Vivek0712/awesome-microvm/tree/main/examples/data-analytics). Live transcript: [demo-data-analytics.png](../../blog/img/demo-data-analytics.png).

@@ -7,4 +7,4 @@ mvm image build agent-eval examples/agent-eval
 python3 examples/agent-eval/harness.py --image agent-eval --workers 3 --tasks examples/agent-eval/tasks.json
 ```
 
-Article: [Evaluate agents on a fleet of identical AWS Lambda MicroVMs](../../blog/03-agent-eval.md). Live transcript: [demo-agent-eval.png](../../blog/img/demo-agent-eval.png).
+Series: [part 2, section 3 of Building on AWS Lambda MicroVMs](../../blog/01-seven-workloads.md). Full write-up: [Evaluate agents on a fleet of identical AWS Lambda MicroVMs](../../blog/deep-dives/03-agent-eval.md). Code: [github.com/Vivek0712/awesome-microvm/tree/main/examples/agent-eval](https://github.com/Vivek0712/awesome-microvm/tree/main/examples/agent-eval). Live transcript: [demo-agent-eval.png](../../blog/img/demo-agent-eval.png).

@@ -2,10 +2,7 @@
 import random, pathlib
 OUT = pathlib.Path(__file__).parent
 W, H = 1200, 675
-ARTICLES = {
-    "00": "control plane", "01": "code sandbox", "02": "AI code runner", "03": "agent eval fleet",
-    "04": "notebook kernel", "05": "data analytics", "06": "CI runners", "07": "HTML to PDF", "08": "multi-tenant agents",
-}
+ARTICLES = {"00": "control plane", "01": "seven workloads", "02": "multi-tenant agents"}
 RUN, SUS, OFF, HOT = "#34d399", "#60a5fa", "#334155", "#f472b6"
 
 def tiles(seed, cols=14, rows=7, size=52, gap=14, x0=None, y0=None, hot=None):
