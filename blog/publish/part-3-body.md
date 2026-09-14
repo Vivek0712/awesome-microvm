@@ -144,7 +144,7 @@ Sleeping is where the model wins. A tenant who stops talking is suspended after 
 
 | Tenants | Idle storage per month | Launch time at 1/s applied | Launch time at 5/s published | Memory quota needed at 2 GB |
 |---|---|---|---|---|
-| 10 | $0.49 | 13 s | 3 s | 20 GB |
+| 10 | $0.49 | 12 s | 2 s | 20 GB |
 | 100 | $4.88 | 2 min | 25 s | 200 GB |
 | 1,000 | $48.80 | 21 min | 4 min | 2,000 GB |
 
