@@ -16,7 +16,7 @@ Three articles, written for the AWS Builder Center in series mode. Each markdown
 | Part | File | Title | Cover |
 |---|---|---|---|
 | 1 | [00-control-and-scale.md](00-control-and-scale.md) | Control and scale AWS Lambda MicroVMs with microvm-ctl | [cover-00.png](img/cover-00.png) |
-| 2 | [01-seven-workloads.md](01-seven-workloads.md) | Seven workloads on AWS Lambda MicroVMs: sandboxes, agents, kernels, analytics, CI, and PDFs | [cover-01.png](img/cover-01.png) |
+| 2 | [01-seven-workloads.md](01-seven-workloads.md) | Seven workloads Lambda could never run, until MicroVMs | [cover-01.png](img/cover-01.png) |
 | 3 | [02-multi-tenant-agents.md](02-multi-tenant-agents.md) | One AWS Lambda MicroVM per tenant: multi-tenant AI agents and what the series taught us | [cover-02.png](img/cover-02.png) |
 
 ## Publishing checklist, per article

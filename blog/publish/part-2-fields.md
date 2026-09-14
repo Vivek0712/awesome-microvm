@@ -1,10 +1,10 @@
 # Part 2: form fields
 
-Title (91 chars):
-Seven workloads on AWS Lambda MicroVMs: sandboxes, agents, kernels, analytics, CI, and PDFs
+Title (54 chars):
+Seven workloads Lambda could never run, until MicroVMs
 
-Description (295 chars):
-Seven production-shaped apps built on one control plane and measured on the live service: a code sandbox, an AI code runner, an agent evaluation fleet, a notebook kernel, DuckDB analytics, an ephemeral CI runner, and an HTML to PDF service. One cost model, one set of gotchas, seven transcripts.
+Description (373 chars):
+Untrusted code with a persistent filesystem, an agent that lives for hours, a kernel that sleeps for free, a database engine per user, a CI runner nobody has touched, a renderer that wakes on demand. Seven customer-shaped workloads that needed a server, rebuilt on AWS Lambda MicroVMs and measured: 3.5 second launches, 93.8% cheaper sessions, under half a cent per CI job.
 
 Tags: ["lambda", "firecracker", "python", "ai", "sandbox"]
 Series: Building on AWS Lambda MicroVMs

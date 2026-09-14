@@ -1,13 +1,13 @@
 ---
-title: "Seven workloads on AWS Lambda MicroVMs: sandboxes, agents, kernels, analytics, CI, and PDFs"
-description: "Seven production-shaped apps built on one control plane and measured on the live service: a code sandbox, an AI code runner, an agent evaluation fleet, a notebook kernel, DuckDB analytics, an ephemeral CI runner, and an HTML to PDF service. One cost model, one set of gotchas, seven transcripts."
+title: "Seven workloads Lambda could never run, until MicroVMs"
+description: "Untrusted code with a persistent filesystem, an agent that lives for hours, a kernel that sleeps for free, a database engine per user, a CI runner nobody has touched, a renderer that wakes on demand. Seven customer-shaped workloads that needed a server, rebuilt on AWS Lambda MicroVMs and measured: 3.5 second launches, 93.8% cheaper sessions, under half a cent per CI job."
 series: "Building on AWS Lambda MicroVMs"
 part: 2
 tags: ["lambda", "firecracker", "python", "ai", "sandbox"]
 cover: "img/cover-01.png"
 ---
 
-Part 1 of this series built [microvm-ctl](https://github.com/Vivek0712/microvm-ctl), a control and execution plane for AWS Lambda MicroVMs, and measured the primitive: p50 3.54 s from RunMicrovm to serving authenticated traffic, 111 ms warm requests, suspend and resume with the same PID, and a 93.8% saving on a bursty session. This part puts seven workloads on top of it. They are the seven shapes customers ask me about most often in my work as a Solutions Architect at Aivar, so I built each one as a reference I can hand over. Each one is a Dockerfile plus a single-file app, deployed and exercised on the live service in us-east-1, and each transcript below is a real recording.
+Part 1 of this series built [microvm-ctl](https://github.com/Vivek0712/microvm-ctl), a control and execution plane for AWS Lambda MicroVMs, and measured the primitive: p50 3.54 s from RunMicrovm to serving authenticated traffic, 111 ms warm requests, suspend and resume with the same PID, and a 93.8% saving on a bursty session. This part puts seven workloads on top of it, and every one of them was out of reach for a Lambda function until now: they need a persistent filesystem, a process that outlives a request, a kernel boundary around untrusted code, or a working set that stays loaded between calls. They are the seven shapes customers ask me about most often in my work as a Solutions Architect at Aivar, so I built each one as a reference I can hand over. Each one is a Dockerfile plus a single-file app, deployed and exercised on the live service in us-east-1, and each transcript below is a real recording.
 
 The code for every example is in the [awesome-microvm repository](https://github.com/Vivek0712/awesome-microvm) under `examples/`, and each section links to its directory. Longer write-ups of each workload live in the same repo under `blog/deep-dives/`.
 
