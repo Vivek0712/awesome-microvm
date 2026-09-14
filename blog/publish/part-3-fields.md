@@ -1,7 +1,7 @@
 # Part 3: form fields
 
-Title (94 chars):
-A kernel for every customer: scaling private AI agents to 1,000 tenants on AWS Lambda MicroVMs
+Title (103 chars):
+A kernel for every customer: scaling AI agents to 1,000 tenants on AWS Lambda MicroVMs with microvm-ctl
 
 Description (355 chars):
 The finale. One Firecracker microVM per tenant, identity injected at launch, conversation memory in RAM, a fleet that scales with one call and sleeps for five cents per tenant per month. What a thousand private AI agents cost when they are idle and when they are busy, the quota math to get there, and the decision guide from building all eight workloads.
