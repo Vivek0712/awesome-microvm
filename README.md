@@ -1,6 +1,6 @@
 # awesome-microvm
 
-Everything we have built, measured, and written about [AWS Lambda MicroVMs](https://docs.aws.amazon.com/lambda/latest/dg/lambda-microvms-guide.html): eight production-shaped example apps, the nine-part article series **Building on AWS Lambda MicroVMs**, and the recorded transcripts and benchmark results behind every number. All of it runs on [microvm-ctl](https://github.com/Vivek0712/microvm-ctl), our open-source control and execution plane for the service, available as [microvm-ctl on PyPI](https://pypi.org/project/microvm-ctl/).
+Everything I have built, measured, and written about [AWS Lambda MicroVMs](https://docs.aws.amazon.com/lambda/latest/dg/lambda-microvms-guide.html): eight production-shaped example apps, the nine-part article series **Building on AWS Lambda MicroVMs**, and the recorded transcripts and benchmark results behind every number. All of it runs on [microvm-ctl](https://github.com/Vivek0712/microvm-ctl), my open-source control and execution plane for the service, available as [microvm-ctl on PyPI](https://pypi.org/project/microvm-ctl/).
 
 ![Building on AWS Lambda MicroVMs](blog/img/cover-series.png)
 
@@ -33,7 +33,7 @@ Each example is a Dockerfile plus a single-file app on the plane's zero-dependen
 
 ## The article series
 
-Three parts. Part 1, [Control and scale AWS Lambda MicroVMs with microvm-ctl](blog/00-control-and-scale.md), builds and measures the plane. Part 2, [Seven workloads on AWS Lambda MicroVMs](blog/01-seven-workloads.md), takes the first seven examples through build, run, cost, and gotchas. Part 3, [One AWS Lambda MicroVM per tenant](blog/02-multi-tenant-agents.md), builds the multi-tenant finale and closes with the decision guide. The full-length write-up of each example is under [blog/deep-dives/](blog/deep-dives/). The house rule for the series: every number is measured on the live service, and every gotcha is one we hit. The articles are written for the AWS Builder Center; see [blog/README.md](blog/README.md) for the publishing checklist, series metadata, and cover images.
+Three parts. Part 1, [Control and scale AWS Lambda MicroVMs with microvm-ctl](blog/00-control-and-scale.md), builds and measures the plane. Part 2, [Seven workloads on AWS Lambda MicroVMs](blog/01-seven-workloads.md), takes the first seven examples through build, run, cost, and gotchas. Part 3, [One AWS Lambda MicroVM per tenant](blog/02-multi-tenant-agents.md), builds the multi-tenant finale and closes with the decision guide. The full-length write-up of each example is under [blog/deep-dives/](blog/deep-dives/). The house rule for the series: every number is measured on the live service, and every gotcha is one I hit. The articles are written for the AWS Builder Center; see [blog/README.md](blog/README.md) for the publishing checklist, series metadata, and cover images.
 
 Headline measurements in us-east-1, reproducible with the plane's [benchmark harness](https://github.com/Vivek0712/microvm-ctl/blob/main/benchmarks/benchmark.py):
 

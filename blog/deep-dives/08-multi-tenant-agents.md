@@ -3,7 +3,7 @@ title: "Multi-tenant AI agents with one AWS Lambda MicroVM per tenant"
 description: "One Firecracker VM per customer, each running a private Bedrock-backed assistant. Identity is injected at launch via runHookPayload, conversation history lives in VM memory, and a tenant who walks away bills as snapshot storage."
 ---
 
-Every ISV building an AI assistant hits the same fork. Tenant Acme's conversation history, credentials, and prompts must never be reachable from tenant Globex's process, and the usual answer is a Kubernetes-shaped platform with namespaces, network policies, and row-level security. In this article we take the blunt approach instead: one Firecracker microVM per tenant. Acme gets a kernel. Globex gets a different kernel. The bill stays sane because a tenant who is not talking costs snapshot storage only.
+Every ISV building an AI assistant hits the same fork. Tenant Acme's conversation history, credentials, and prompts must never be reachable from tenant Globex's process, and the usual answer is a Kubernetes-shaped platform with namespaces, network policies, and row-level security. In this article I take the blunt approach instead: one Firecracker microVM per tenant. Acme gets a kernel. Globex gets a different kernel. The bill stays sane because a tenant who is not talking costs snapshot storage only.
 
 This is part 9, the final part, of the series Building on AWS Lambda MicroVMs. Everything here was run against the live service in us-east-1 in August 2026.
 
@@ -76,7 +76,7 @@ resp = _bedrock.converse(
 )
 ```
 
-No database. When the idle policy suspends the VM, the snapshot captures the memory of every process, HISTORY included. Our suspend and resume fidelity run measured PID 1 before suspend and PID 1 after resume, the same process with in-memory state preserved, which is why /whoami reports its pid. It is the tenant-visible proof that the conversation never left RAM. The one thing that does not survive the freeze is TCP. Pre-suspend connections are stale, so the resume hook rebuilds the client:
+No database. When the idle policy suspends the VM, the snapshot captures the memory of every process, HISTORY included. My suspend and resume fidelity run measured PID 1 before suspend and PID 1 after resume, the same process with in-memory state preserved, which is why /whoami reports its pid. It is the tenant-visible proof that the conversation never left RAM. The one thing that does not survive the freeze is TCP. Pre-suspend connections are stale, so the resume hook rebuilds the client:
 
 ```python
 @app.on_resume
@@ -117,7 +117,7 @@ The capture above is a real run. `mvm run multi-tenant-agents --wait` reached RU
 
 That JSON is the whole thesis in one response. The string acme appears nowhere in the image. It arrived in runHookPayload on this launch, and a sibling VM launched seconds later from the identical snapshot would report a different tenant.
 
-Then we ask the tenant's assistant why it gets its own VM. POST /chat comes back in 565 ms end to end through Bedrock:
+Then I ask the tenant's assistant why it gets its own VM. POST /chat comes back in 565 ms end to end through Bedrock:
 
 ```json
 {"tenant": "acme",
@@ -136,17 +136,17 @@ The system prompt that made nova-lite say "Acme Corp" was assembled from the pay
 | Snapshot write / read | $0.0038 / $0.00155 per GB |
 | Suspended and image storage | $0.08 per GB-month |
 
-The tenant workload shape is bursts of chat with long gaps. Our cost model's worked example on a 2 GB / 1 vCPU VM with a 0.61 GB snapshot: 30 min active plus 8 h suspended costs $0.0669, versus $1.0719 for the same VM always-on, 93.8% cheaper. A heavier tenant (2 h active plus 22 h suspended) still saves 91.4%.
+The tenant workload shape is bursts of chat with long gaps. My cost model's worked example on a 2 GB / 1 vCPU VM with a 0.61 GB snapshot: 30 min active plus 8 h suspended costs $0.0669, versus $1.0719 for the same VM always-on, 93.8% cheaper. A heavier tenant (2 h active plus 22 h suspended) still saves 91.4%.
 
 Between sessions, a fully idle tenant is a suspended snapshot: 0.61 GB at $0.08 per GB-month is about $0.05 per tenant per month. A thousand dormant tenants sit at roughly $49 per month of storage, which is what "near-zero idle cost" means with the units attached. Two caveats keep it honest. Each suspend and resume cycle costs about $0.0033 in snapshot I/O on this size, so do not set max_idle so aggressive that a chatty tenant cycles every minute. And the always-on shape ($3.03 per day) is where microVMs lose to Fargate; if a tenant genuinely talks all day, give them a container.
 
-The real tenant-count ceiling is the memory quota rather than price. Max allocated MicroVM memory counts RUNNING and SUSPENDED (and TERMINATING, and image-build) VMs, and our fresh account's applied quota was 8 GB against a published default of 1,024 GB: four 2 GB tenants in total, including the sleeping ones. Even the published default caps you at 512 tenants at 2 GB each. Treat quota headroom as a launch deliverable. Our RunMicrovm raise request was filed with a single API call and closed without a change, so start the memory raise conversation early.
+The real tenant-count ceiling is the memory quota rather than price. Max allocated MicroVM memory counts RUNNING and SUSPENDED (and TERMINATING, and image-build) VMs, and my fresh account's applied quota was 8 GB against a published default of 1,024 GB: four 2 GB tenants in total, including the sleeping ones. Even the published default caps you at 512 tenants at 2 GB each. Treat quota headroom as a launch deliverable. My RunMicrovm raise request was filed with a single API call and closed without a change, so start the memory raise conversation early.
 
 ## The gotchas
 
 - Suspended tenants occupy quota. The economics say keep 1,000 tenants suspended; the memory quota says those 1,000 count as allocated. Size the quota request for peak allocated tenants rather than peak concurrent chatters, or let suspendedDurationSeconds terminate the long tail and re-launch on demand.
 - 8 hour lifetime ceiling. Total VM lifetime maxes out at 28,800 s, so a tenant VM is a session-scale object, not a permanent home. Durable tenancy means checkpointing HISTORY to S3 in the /suspend or /terminate hook and re-launching with the same runHookPayload plus a history pointer.
-- Onboarding is rate-limited. At our fresh account's applied 1 per second RunMicrovm quota, launching 1,000 tenant VMs is about a 17 minute serial exercise. FleetManager reads applied quotas at startup and throttles to 80% so the burst degrades gracefully instead of erroring.
+- Onboarding is rate-limited. At my fresh account's applied 1 per second RunMicrovm quota, launching 1,000 tenant VMs is about a 17 minute serial exercise. FleetManager reads applied quotas at startup and throttles to 80% so the burst degrades gracefully instead of erroring.
 - The snapshot clones everything. Anything with per-VM uniqueness (RNG state, generated IDs, open connections) is copied into every tenant's VM. The hook server reseeds RNG on /run. Your job is to keep tenant data out of build time entirely, which is the environment-variable anti-pattern in a different form.
 
 ## Take it further

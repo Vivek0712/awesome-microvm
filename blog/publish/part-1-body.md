@@ -1,6 +1,8 @@
 AWS Lambda MicroVMs hands you the primitive that has run under Lambda for eight years, a Firecracker VM, with the controls exposed. You can run it, suspend it, resume it with every byte of memory intact, and terminate it. The service stops there on purpose. There is no load balancer, because each VM gets its own HTTPS endpoint. There is no fleet abstraction, no token management, and no monitoring view, and a fresh account enforces quotas well below the published defaults.
 
-We built [microvm-ctl](https://github.com/Vivek0712/microvm-ctl), an open-source control and execution plane that fills that gap (`pip install microvm-ctl`, [microvm-ctl on PyPI](https://pypi.org/project/microvm-ctl/)), deployed it against the live service in us-east-1, and measured everything. This article is part 1 of the series Building on AWS Lambda MicroVMs. Part 2 puts seven workloads on top of this plane, and part 3 builds the one that stresses every rule at once, a microVM per tenant, and closes with the decision guide.
+I built [microvm-ctl](https://github.com/Vivek0712/microvm-ctl), an open-source control and execution plane that fills that gap (`pip install microvm-ctl`, [microvm-ctl on PyPI](https://pypi.org/project/microvm-ctl/)), deployed it against the live service in us-east-1, and measured everything. This article is part 1 of the series Building on AWS Lambda MicroVMs. Part 2 puts seven workloads on top of this plane, and part 3 builds the one that stresses every rule at once, a microVM per tenant, and closes with the decision guide.
+
+A word on where this comes from. I am a Senior Solutions Architect at Aivar, an AWS Partner, and an AWS AI Hero. The workloads customers bring me increasingly need a real machine with Lambda ergonomics: untrusted code from a model, an agent that lives for hours, a database engine per user, a kernel per tenant. Lambda MicroVMs is the primitive for all of those, and the operational layer around it (images, fleets, tokens, quotas, cost) is the same every time. So I automated it once as microvm-ctl, ran each customer-shaped pattern on the live service as practice, and wrote down what I measured. This series is that work in the open, so the next customer conversation starts from numbers rather than guesses.
 
 The headline numbers, all reproducible with the benchmark harness that ships in the package repo:
 
@@ -19,7 +21,7 @@ The headline numbers, all reproducible with the benchmark harness that ships in 
 The service API is small: RunMicrovm, SuspendMicrovm, ResumeMicrovm, TerminateMicrovm, image create and update, and token minting. Four properties of the service turn those calls into an engineering project.
 
 1. One endpoint per VM. Horizontal scale means more RunMicrovm calls, and routing across the fleet is your job.
-2. Every mutating call is rate limited, and on a fresh account the applied quota is lower than the published one. We measured RunMicrovm at 1 request per second (published default: 5) and total microVM memory at 8 GB (published default: 1,024 GB).
+2. Every mutating call is rate limited, and on a fresh account the applied quota is lower than the published one. I measured RunMicrovm at 1 request per second (published default: 5) and total microVM memory at 8 GB (published default: 1,024 GB).
 3. No unauthenticated path exists. Every request into a VM needs a port-scoped, expiring JWE token in the X-aws-proxy-auth header, minted through an IAM-authenticated API.
 4. The lifecycle is event-driven from inside the VM. Your app must serve six HTTP hooks (/ready, /validate, /run, /resume, /suspend, /terminate), or builds fail and clones misbehave.
 
@@ -80,11 +82,11 @@ fleet.suspend_all()          # park the fleet: snapshot storage billing only
 fleet.drain()                # terminate everything
 ```
 
-FleetManager reads your account's applied quotas from Service Quotas at startup and throttles every mutating call through a token bucket at 80% of the real rate, with jittered exponential backoff behind it. On our fresh account that meant honoring one launch per second instead of assuming five, which is the difference between a clean scale-out and a wall of ThrottlingException.
+FleetManager reads your account's applied quotas from Service Quotas at startup and throttles every mutating call through a token bucket at 80% of the real rate, with jittered exponential backoff behind it. On my fresh account that meant honoring one launch per second instead of assuming five, which is the difference between a clean scale-out and a wall of ThrottlingException.
 
 Scale-down has an opinion, and the reason is billing. Suspended VMs are terminated first, because they cost only storage but still hold regional memory quota. Then the youngest running VMs go, since the oldest hold the warmest state.
 
-We measured the scale path end to end on that account. scale_to(6) took a fleet from zero to six RUNNING microVMs in 9.7 seconds of wall time, with every launch throttled to the applied one-per-second quota, and drain() terminated all six in 0.7 seconds.
+I measured the scale path end to end on that account. scale_to(6) took a fleet from zero to six RUNNING microVMs in 9.7 seconds of wall time, with every launch throttled to the applied one-per-second quota, and drain() terminated all six in 0.7 seconds.
 
 ![Benchmark transcript: launch latency, warm requests, suspend and resume, auto-resume, fleet scale, and session economics](img/benchmark.png)
 
@@ -92,16 +94,16 @@ We measured the scale path end to end on that account. scale_to(6) took a fleet 
 
 ![microVM lifecycle states and what each one costs](img/lifecycle.png)
 
-We ran 21 executions against a sandbox VM, wrote a marker file, and suspended it. Compute billing stopped. On resume:
+I ran 21 executions against a sandbox VM, wrote a marker file, and suspended it. Compute billing stopped. On resume:
 
 ```
 before suspend: pid=1 executions=21 files=['marker.txt']
 suspend 2.5s, resume-to-serving 2.6s, pid 1 -> 1, STATE PRESERVED
 ```
 
-Same PID, same process, counter intact, file intact. We then suspended it again and, without calling ResumeMicrovm at all, sent it a request. It answered 200 OK in 0.7 seconds. The EndpointClient treats a 502 as a possible mid-resume and retries patiently, so callers never learn the VM was asleep.
+Same PID, same process, counter intact, file intact. I then suspended it again and, without calling ResumeMicrovm at all, sent it a request. It answered 200 OK in 0.7 seconds. The EndpointClient treats a 502 as a possible mid-resume and retries patiently, so callers never learn the VM was asleep.
 
-This is the economic engine of the whole service. Our cost model uses the published rates and is available as `mvm cost`:
+This is the economic engine of the whole service. My cost model uses the published rates and is available as `mvm cost`:
 
 | Session shape (2 GB / 1 vCPU) | Cost | Always-on equivalent |
 |---|---|---|
@@ -112,18 +114,18 @@ This is the economic engine of the whole service. Our cost model uses the publis
 
 ![mvm cost pricing the 30 minutes active plus 8 hours suspended shape](img/mvm-cost.png)
 
-Two caveats keep this honest. A suspend and resume cycle on our 0.61 GB snapshot costs about $0.0033 in snapshot write plus read, so one-shot jobs should terminate rather than suspend. And idle detection keys off endpoint traffic, so an asynchronous agent that goes quiet mid-task will be suspended mid-task unless you lengthen the idle window or send a heartbeat.
+Two caveats keep this honest. A suspend and resume cycle on my 0.61 GB snapshot costs about $0.0033 in snapshot write plus read, so one-shot jobs should terminate rather than suspend. And idle detection keys off endpoint traffic, so an asynchronous agent that goes quiet mid-task will be suspended mid-task unless you lengthen the idle window or send a heartbeat.
 
 ## The quota walls
 
-Fresh accounts run a reduced profile. Ours had 8 GB of total microVM memory and one RunMicrovm per second. Two things count against that memory quota that you might not expect:
+Fresh accounts run a reduced profile. Mine had 8 GB of total microVM memory and one RunMicrovm per second. Two things count against that memory quota that you might not expect:
 
-1. Image-build VMs. Five concurrent 2 GB builds consumed 10 GB of a quota we did not have, and the next launch failed with ServiceQuotaExceededException.
+1. Image-build VMs. Five concurrent 2 GB builds consumed 10 GB of a quota I did not have, and the next launch failed with ServiceQuotaExceededException.
 2. TERMINATING VMs. For a short window after TerminateMicrovm the memory is still allocated, so fast churn tests must let terminations settle.
 
-Both lessons are now encoded in the plane: quota-aware throttling, settle-waits in the benchmark harness, and a scale_to that terminates suspended members first. We filed a RunMicrovm raise from one to five per second with a single request-service-quota-increase call. The case closed with the applied value unchanged, so every fleet number in this series was produced at one launch per second. File yours on day one and treat quota headroom as a launch deliverable.
+Both lessons are now encoded in the plane: quota-aware throttling, settle-waits in the benchmark harness, and a scale_to that terminates suspended members first. I filed a RunMicrovm raise from one to five per second with a single request-service-quota-increase call. The case closed with the applied value unchanged, so every fleet number in this series was produced at one launch per second. File yours on day one and treat quota headroom as a launch deliverable.
 
-`mvm quotas` prints the published default, the applied value, and the rate the plane will throttle at, so you can see this before you plan a fleet. This is our account:
+`mvm quotas` prints the published default, the applied value, and the rate the plane will throttle at, so you can see this before you plan a fleet. This is my account:
 
 ![mvm quotas on a fresh account: 1 launch per second and 8 GB applied against 5 per second and 1,024 GB published](img/mvm-quotas.png)
 
@@ -131,7 +133,7 @@ Both lessons are now encoded in the plane: quota-aware throttling, settle-waits 
 
 `mvm top --watch` renders a live state-colored table of every VM with per-state counts and per-VM age. `mvm logs <image>` tails the CloudWatch group the service writes, /aws/lambda/microvms/<image>, one stream per VM. Build logs land there too, which is where you debug a failed Dockerfile. `mvm cost` prices a session shape before you commit to it.
 
-## What we would tell you before you build
+## What I would tell you before you build
 
 - Nothing secret goes in the image. Snapshots turn RAM into stored data, and environment variables are image-level, shared by every clone. Per-VM context travels in runHookPayload; secrets come from the execution role inside /run.
 - /validate is a free cold-start optimizer. It runs on a restored clone and Lambda prefetches the snapshot pages it touches. Exercise your hot path there.
@@ -143,7 +145,7 @@ Both lessons are now encoded in the plane: quota-aware throttling, settle-waits 
 
 This plane exists to be built on. Part 2 of Building on AWS Lambda MicroVMs takes seven workloads through build, run, cost, and gotchas with measured numbers: a code execution sandbox, an AI code runner with a self-repair loop, an agent evaluation fleet, a stateful notebook kernel, sandboxed DuckDB analytics, an ephemeral CI runner, and an HTML to PDF service. Part 3 builds multi-tenant AI agents with one microVM per tenant and distills the whole series into a decision guide.
 
-Credit where it is due: Alexey Vidanov's [lambda-microvm-starter](https://github.com/vidanov/lambda-microvm-starter) was our first working map of the service. It deploys any Dockerfile to a MicroVM behind a public CloudFront URL in one command, and its troubleshooting guide documented several of the gotchas above before we hit them. If your goal is one web app on a MicroVM, start there; this series is about what comes after.
+Credit where it is due: Alexey Vidanov's [lambda-microvm-starter](https://github.com/vidanov/lambda-microvm-starter) was my first working map of the service. It deploys any Dockerfile to a MicroVM behind a public CloudFront URL in one command, and its troubleshooting guide documented several of the gotchas above before I hit them. If your goal is one web app on a MicroVM, start there; this series is about what comes after.
 
 The plane itself (SDK, mvm CLI, hook runtime, benchmark harness) is [microvm-ctl](https://github.com/Vivek0712/microvm-ctl), Apache-2.0, published as [microvm-ctl on PyPI](https://pypi.org/project/microvm-ctl/). The eight examples, this series, the longer write-up of each workload, and every recorded transcript live in [awesome-microvm](https://github.com/Vivek0712/awesome-microvm); the code for each example is under `examples/` there.
 

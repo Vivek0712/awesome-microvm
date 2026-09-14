@@ -3,7 +3,7 @@ title: "Ephemeral CI runners on AWS Lambda MicroVMs: a fresh VM for every job"
 description: "Every CI job gets a pre-warmed Firecracker VM restored from a snapshot, clones, lints, tests, reports, and is terminated. Under half a cent per job, measured live in us-east-1, with no runner that any other job has ever touched."
 ---
 
-Your self-hosted CI runner is the most trusted and least audited machine in your infrastructure. It holds clone credentials, package registry tokens, and deploy keys. It executes whatever arrives in a pull request. Because provisioning is slow, it lives for weeks, accumulating poisoned caches, leftover containers, and cross-job contamination from every workload it has ever run. When no jobs are queued, it sits on EC2 billing you for the privilege. We rebuilt the runner on AWS Lambda MicroVMs so that every job executes in a VM no other job has ever touched, pre-warmed from a snapshot to serving traffic in a measured p50 of 3.54 s and terminated the moment the report is returned.
+Your self-hosted CI runner is the most trusted and least audited machine in your infrastructure. It holds clone credentials, package registry tokens, and deploy keys. It executes whatever arrives in a pull request. Because provisioning is slow, it lives for weeks, accumulating poisoned caches, leftover containers, and cross-job contamination from every workload it has ever run. When no jobs are queued, it sits on EC2 billing you for the privilege. I rebuilt the runner on AWS Lambda MicroVMs so that every job executes in a VM no other job has ever touched, pre-warmed from a snapshot to serving traffic in a measured p50 of 3.54 s and terminated the moment the report is returned.
 
 This is part 7 of the series Building on AWS Lambda MicroVMs.
 
@@ -43,9 +43,9 @@ ENTRYPOINT ["python3.12", "/app/app.py"]
 $ mvm image build ci-runner examples/ci-runner
 ```
 
-The build ran the Dockerfile on a fresh build VM, hit our /ready hook, and snapshotted: 123.1 s wall from zip upload to an ACTIVE version, producing a 605 MB memory snapshot and a 24 MB disk snapshot. That two minute cost is paid once per image version. Every runner clone afterward restores from it in seconds.
+The build ran the Dockerfile on a fresh build VM, hit my /ready hook, and snapshotted: 123.1 s wall from zip upload to an ACTIVE version, producing a 605 MB memory snapshot and a 24 MB disk snapshot. That two minute cost is paid once per image version. Every runner clone afterward restores from it in seconds.
 
-The app is a single file, and two hooks matter for this use case. /ready gates the snapshot. We refuse to snapshot a runner whose git does not work, because a broken snapshot is cloned into every future job:
+The app is a single file, and two hooks matter for this use case. /ready gates the snapshot. I refuse to snapshot a runner whose git does not work, because a broken snapshot is cloned into every future job:
 
 ```python
 @app.on_ready
@@ -98,7 +98,7 @@ The live transcript, against a real public repository:
 
 ![CI runner live demo: clone psf/requests, run ruff, syntax-check the tree, report, terminate](../img/demo-ci-runner.png)
 
-`mvm run ci-runner --wait` went from API call to RUNNING and serving authenticated traffic in 3.5 s, consistent with our five-sample benchmark of p50 3.54 s and p95 4.49 s. We then POSTed a job that shallow-cloned psf/requests live off the internet (4.7 s), ran ruff across src/requests with --statistics (6.2 s, suffixed with `|| true` in the demo so upstream lint findings do not fail someone else's repo), and ran an ast-based syntax check over the tree (0.1 s, syntax OK). The report came back with passed set to true and per-step exit codes and durations, and the dispatcher terminated the VM. Total useful work: about eleven seconds on a machine that did not exist fifteen seconds earlier and ceased to exist immediately after.
+`mvm run ci-runner --wait` went from API call to RUNNING and serving authenticated traffic in 3.5 s, consistent with my five-sample benchmark of p50 3.54 s and p95 4.49 s. I then POSTed a job that shallow-cloned psf/requests live off the internet (4.7 s), ran ruff across src/requests with --statistics (6.2 s, suffixed with `|| true` in the demo so upstream lint findings do not fail someone else's repo), and ran an ast-based syntax check over the tree (0.1 s, syntax OK). The report came back with passed set to true and per-step exit codes and durations, and the dispatcher terminated the VM. Total useful work: about eleven seconds on a machine that did not exist fifteen seconds earlier and ceased to exist immediately after.
 
 ## What it costs
 
@@ -125,7 +125,7 @@ Under half a cent per job. An always-on 2 GB runner costs about $3.03 per day wh
 
 The snapshot is cloned into every runner, cache and all. The warm pip cache is exactly why cold starts are fast, but the same mechanism clones any build-time secret, credential, or unique ID into every job. Nothing sensitive goes in the Dockerfile or image environment variables, which are image-level and shared by every clone. Clone tokens ride in per-job runHookPayload; AWS access comes from the execution role at runtime. The auto-injected HookApp also reseeds the RNG in /run, so clones do not share entropy.
 
-RunMicrovm TPS is your dispatch ceiling. One launch per job means job throughput is capped by the RunMicrovm rate, and on our fresh account the applied quota was 1 per second (published default: 5), with total microVM memory capped at 8 GB and TERMINATING VMs and image builds counting against it. Our fleet manager reads applied quotas from Service Quotas at startup and throttles to 80% of them. We filed a raise from 1 to 5 per second with a single API call; the case closed without a change, so file yours early and plan for the answer to take time. A busy merge queue at one launch per second backs up fast.
+RunMicrovm TPS is your dispatch ceiling. One launch per job means job throughput is capped by the RunMicrovm rate, and on my fresh account the applied quota was 1 per second (published default: 5), with total microVM memory capped at 8 GB and TERMINATING VMs and image builds counting against it. My fleet manager reads applied quotas from Service Quotas at startup and throttles to 80% of them. I filed a raise from 1 to 5 per second with a single API call; the case closed without a change, so file yours early and plan for the answer to take time. A busy merge queue at one launch per second backs up fast.
 
 Docker inside the VM needs --caps-all, and nested DNS bites. Jobs that build or run containers need the image created with additionalOsCapabilities set to ALL (`mvm image build --caps-all`), which enables containerd, FUSE, and eBPF inside the VM. The trap is name resolution: nested containers get their own network namespace, and their UDP DNS lookups do not reach the microVM's resolver by default. Pass explicit DNS servers to the container runtime, or use host networking, or every docker build will fail on the first package fetch while the VM itself resolves fine.
 

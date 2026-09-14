@@ -7,9 +7,9 @@ tags: ["lambda", "bedrock", "ai", "multi-tenant", "firecracker"]
 cover: "img/cover-02.png"
 ---
 
-Every ISV building an AI assistant hits the same fork. Tenant Acme's conversation history, credentials, and prompts must never be reachable from tenant Globex's process, and the usual answer is a Kubernetes-shaped platform with namespaces, network policies, and row-level security. This article takes the blunt approach instead: one Firecracker microVM per tenant. Acme gets a kernel. Globex gets a different kernel. The bill stays sane because a tenant who is not talking costs snapshot storage only.
+Every ISV building an AI assistant hits the same fork. Tenant Acme's conversation history, credentials, and prompts must never be reachable from tenant Globex's process, and the usual answer is a Kubernetes-shaped platform with namespaces, network policies, and row-level security. Of everything in this series, this is the question ISV customers put to me most often at Aivar, and it is the one I now answer with a demo rather than a diagram. This article takes the blunt approach: one Firecracker microVM per tenant. Acme gets a kernel. Globex gets a different kernel. The bill stays sane because a tenant who is not talking costs snapshot storage only.
 
-This is the final part of the series Building on AWS Lambda MicroVMs. Part 1 built the control plane, [microvm-ctl](https://github.com/Vivek0712/microvm-ctl), and part 2 put seven workloads on it. This one builds the workload that stresses every rule from the first two parts at once, and closes with the decision guide we wish we had on day one. Everything here was run against the live service in us-east-1. The code is in the [awesome-microvm repository](https://github.com/Vivek0712/awesome-microvm) under [examples/multi-tenant-agents](https://github.com/Vivek0712/awesome-microvm/tree/main/examples/multi-tenant-agents).
+This is the final part of the series Building on AWS Lambda MicroVMs. Part 1 built the control plane, [microvm-ctl](https://github.com/Vivek0712/microvm-ctl), and part 2 put seven workloads on it. This one builds the workload that stresses every rule from the first two parts at once, and closes with the decision guide I wish I had on day one. Everything here was run against the live service in us-east-1. The code is in the [awesome-microvm repository](https://github.com/Vivek0712/awesome-microvm) under [examples/multi-tenant-agents](https://github.com/Vivek0712/awesome-microvm/tree/main/examples/multi-tenant-agents).
 
 ## Why a microVM and not a container or a Lambda function
 
@@ -75,7 +75,7 @@ resp = _bedrock.converse(
 )
 ```
 
-No database. When the idle policy suspends the VM, the snapshot captures the memory of every process, HISTORY included. Our suspend and resume fidelity run measured PID 1 before suspend and PID 1 after resume, which is why /whoami reports its pid: it is the tenant-visible proof that the conversation never left RAM. The one thing that does not survive the freeze is TCP, so the resume hook rebuilds the client:
+No database. When the idle policy suspends the VM, the snapshot captures the memory of every process, HISTORY included. My suspend and resume fidelity run measured PID 1 before suspend and PID 1 after resume, which is why /whoami reports its pid: it is the tenant-visible proof that the conversation never left RAM. The one thing that does not survive the freeze is TCP, so the resume hook rebuilds the client:
 
 ```python
 @app.on_resume
@@ -116,7 +116,7 @@ The IdlePolicy does the operational heavy lifting. max_idle=300 suspends any ten
 
 That JSON is the whole thesis in one response. The string acme appears nowhere in the image. It arrived in runHookPayload on this launch, and a sibling VM launched seconds later from the identical snapshot would report a different tenant.
 
-Then we ask the tenant's assistant why it gets its own VM. POST /chat comes back in 565 ms end to end through Bedrock:
+Then I ask the tenant's assistant why it gets its own VM. POST /chat comes back in 565 ms end to end through Bedrock:
 
 ```json
 {"tenant": "acme",
@@ -139,7 +139,7 @@ The tenant workload shape is bursts of chat with long gaps. On a 2 GB / 1 vCPU V
 
 Between sessions, a fully idle tenant is a suspended snapshot: 0.61 GB at $0.08 per GB-month is about $0.05 per tenant per month. A thousand dormant tenants sit at roughly $49 per month of storage, which is what "near-zero idle cost" means with the units attached. Two caveats keep it honest. Each suspend and resume cycle costs about $0.0033 in snapshot I/O, so do not set max_idle so aggressive that a chatty tenant cycles every minute. And the always-on shape is where microVMs lose to Fargate; if a tenant genuinely talks all day, give them a container.
 
-The real tenant-count ceiling is the memory quota rather than price. Max allocated MicroVM memory counts RUNNING and SUSPENDED (and TERMINATING, and image-build) VMs, and our fresh account's applied quota was 8 GB against a published default of 1,024 GB: four 2 GB tenants in total, including the sleeping ones. Even the published default caps you at 512 tenants at 2 GB each. Our RunMicrovm raise request was filed with a single API call and closed without a change, so start the memory raise conversation early and plan for it to take time.
+The real tenant-count ceiling is the memory quota rather than price. Max allocated MicroVM memory counts RUNNING and SUSPENDED (and TERMINATING, and image-build) VMs, and my fresh account's applied quota was 8 GB against a published default of 1,024 GB: four 2 GB tenants in total, including the sleeping ones. Even the published default caps you at 512 tenants at 2 GB each. My RunMicrovm raise request was filed with a single API call and closed without a change, so start the memory raise conversation early and plan for it to take time.
 
 ![mvm quotas on a fresh account: 1 launch per second and 8 GB applied against 5 per second and 1,024 GB published](img/mvm-quotas.png)
 

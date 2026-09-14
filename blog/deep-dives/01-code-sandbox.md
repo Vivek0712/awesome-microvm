@@ -3,9 +3,9 @@ title: "Build a code execution sandbox on AWS Lambda MicroVMs"
 description: "A per-session Python sandbox for untrusted and AI-generated code with kernel isolation, state that survives across calls and across suspend, and a p50 launch of 3.5 seconds from snapshot. Measured live in us-east-1."
 ---
 
-Every AI product that runs model-generated code pays someone for the same primitive: a hardware-isolated VM per session, booted in seconds, with a filesystem and pip environment that persist between calls. E2B and Vercel Sandbox built businesses on it. AWS Lambda MicroVMs now sells the raw primitive directly, and in this article we build the sandbox on top of it. The measured result is a p50 of 3.54 seconds from API call to serving authenticated traffic, 111 ms per warm execution, and $0.0003 for an 8 second one-shot job.
+Every AI product that runs model-generated code pays someone for the same primitive: a hardware-isolated VM per session, booted in seconds, with a filesystem and pip environment that persist between calls. E2B and Vercel Sandbox built businesses on it. AWS Lambda MicroVMs now sells the raw primitive directly, and in this article I build the sandbox on top of it. The measured result is a p50 of 3.54 seconds from API call to serving authenticated traffic, 111 ms per warm execution, and $0.0003 for an 8 second one-shot job.
 
-This is part 2 of the series Building on AWS Lambda MicroVMs. Part 1 covers the control plane, microvm-ctl. Here we build one thing well.
+This is part 2 of the series Building on AWS Lambda MicroVMs. Part 1 covers the control plane, microvm-ctl. Here I build one thing well.
 
 ## Why a microVM and not a container or a Lambda function
 
@@ -13,7 +13,7 @@ The sandbox contract has three requirements, and each one rules out an alternati
 
 Untrusted code needs a kernel boundary. Model-generated Python will eventually emit ctypes tricks, fork bombs, or a container escape it read about during training. Containers share the host kernel, and a seccomp profile is a filter rather than a wall. Lambda MicroVMs run each session in its own Firecracker VM, the same isolation Lambda itself has used for years, with the controls exposed.
 
-Sessions need state. An agent runs a cell, inspects the output, writes a file, installs a library, and runs another cell. A Lambda function's execution environment is recycled on its own schedule and cannot promise a per-session filesystem across invocations. A microVM is yours until you terminate it. Files under /tmp/workspace and packages installed at runtime persist across every call and across suspend and resume. We measured a resumed VM coming back as the same PID 1 with its execution counter and workspace file intact.
+Sessions need state. An agent runs a cell, inspects the output, writes a file, installs a library, and runs another cell. A Lambda function's execution environment is recycled on its own schedule and cannot promise a per-session filesystem across invocations. A microVM is yours until you terminate it. Files under /tmp/workspace and packages installed at runtime persist across every call and across suspend and resume. I measured a resumed VM coming back as the same PID 1 with its execution counter and workspace file intact.
 
 Sessions are bursty. An always-on 2 GB container per user costs about $3.03 per day whether they run code or not. With snapshot launch, a VM exists only while a session does, and per-second billing makes short sessions almost free.
 
@@ -98,13 +98,13 @@ The live transcript against the deployed service:
 
 ![Code sandbox live demo: launch, two executions, state check, terminate](../img/demo-code-sandbox.png)
 
-`mvm run code-sandbox --wait` had the VM running and serving in 4.8 s on this launch. Across our five-sample benchmark the p50 was 3.54 s, the p95 4.49 s, and the best 3.46 s to first authenticated byte. The first /execute, untrusted numpy eigenvalue code, completed in 1,197.5 ms including the subprocess spawn on a cold page cache. The second call writes model.bin to the workspace in 10.4 ms of in-VM time. End-to-end warm request latency over 20 samples was p50 111.0 ms and p95 122.9 ms, including TLS, proxy auth, and the Python subprocess. GET /state confirms the contract: same session ID, executions at 2, model.bin in the workspace, PID 1. Then we terminate, and the session and everything the untrusted code did vanish with the VM.
+`mvm run code-sandbox --wait` had the VM running and serving in 4.8 s on this launch. Across my five-sample benchmark the p50 was 3.54 s, the p95 4.49 s, and the best 3.46 s to first authenticated byte. The first /execute, untrusted numpy eigenvalue code, completed in 1,197.5 ms including the subprocess spawn on a cold page cache. The second call writes model.bin to the workspace in 10.4 ms of in-VM time. End-to-end warm request latency over 20 samples was p50 111.0 ms and p95 122.9 ms, including TLS, proxy auth, and the Python subprocess. GET /state confirms the contract: same session ID, executions at 2, model.bin in the workspace, PID 1. Then I terminate, and the session and everything the untrusted code did vanish with the VM.
 
-The first request to a fresh VM costs about 700 ms with the token mint included, and everything after that is fast. If a session goes quiet you do not have to choose between paying and killing it. The first request to a suspended VM auto-resumes it and returned 200 in 0.7 s in our tests.
+The first request to a fresh VM costs about 700 ms with the token mint included, and everything after that is fast. If a session goes quiet you do not have to choose between paying and killing it. The first request to a suspended VM auto-resumes it and returned 200 in 0.7 s in my tests.
 
 ## What it costs
 
-Rates in us-east-1: $0.0000276944 per vCPU-second, $0.0000036667 per GB-second, snapshot write $0.0038 per GB and read $0.00155 per GB, suspended storage $0.08 per GB-month, billed per second. For our 2 GB / 1 vCPU sandbox with its 0.61 GB snapshot:
+Rates in us-east-1: $0.0000276944 per vCPU-second, $0.0000036667 per GB-second, snapshot write $0.0038 per GB and read $0.00155 per GB, suspended storage $0.08 per GB-month, billed per second. For my 2 GB / 1 vCPU sandbox with its 0.61 GB snapshot:
 
 | Session shape | MicroVM cost | Always-on 2 GB container | Saving |
 |---|---|---|---|
@@ -112,7 +112,7 @@ Rates in us-east-1: $0.0000276944 per vCPU-second, $0.0000036667 per GB-second, 
 | 30 min active + 8 h suspended | $0.0669 | $1.0719 | 93.8% |
 | 2 h active + 22 h suspended | $0.2602 | $3.0264 | 91.4% |
 
-One shape-specific decision matters here: terminate one-shots and suspend conversations. A suspend and resume cycle on our 0.61 GB snapshot costs about $0.0033 in snapshot I/O, more than ten times the entire compute cost of an 8 second job. If the agent asked one question and got one answer, terminate. Suspend pays for itself only when the session will plausibly continue and rebuilding its state (files, pip installs) would cost more than a third of a cent.
+One shape-specific decision matters here: terminate one-shots and suspend conversations. A suspend and resume cycle on my 0.61 GB snapshot costs about $0.0033 in snapshot I/O, more than ten times the entire compute cost of an 8 second job. If the agent asked one question and got one answer, terminate. Suspend pays for itself only when the session will plausibly continue and rebuilding its state (files, pip installs) would cost more than a third of a cent.
 
 ## The gotchas
 

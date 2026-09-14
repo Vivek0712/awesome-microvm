@@ -3,7 +3,7 @@ title: "Run model-written code safely: an AI code runner on AWS Lambda MicroVMs"
 description: "An LLM writes Python, a Firecracker VM runs it, and tracebacks feed back to the model until the script exits cleanly. The whole self-repair loop lives inside one disposable Lambda MicroVM with no credentials in the image."
 ---
 
-Every agentic coding product has the same uncomfortable step: an LLM emits code nobody has reviewed, and something has to execute it. That something usually shares a kernel, a filesystem, or a credential set with things you care about. In this article we put the whole loop (Bedrock call, code execution, traceback, retry) inside one Lambda MicroVM. If the model writes shutil.rmtree("/"), it destroys a Firecracker VM we were going to terminate anyway.
+Every agentic coding product has the same uncomfortable step: an LLM emits code nobody has reviewed, and something has to execute it. That something usually shares a kernel, a filesystem, or a credential set with things you care about. In this article I put the whole loop (Bedrock call, code execution, traceback, retry) inside one Lambda MicroVM. If the model writes shutil.rmtree("/"), it destroys a Firecracker VM I was going to terminate anyway.
 
 This is part 3 of the series Building on AWS Lambda MicroVMs. Everything here was run against the live service in us-east-1 in August 2026.
 
@@ -15,7 +15,7 @@ A container shares the host kernel, and a code-execution product is exactly the 
 
 A Lambda function has the right isolation but the wrong shape. The self-repair loop is stateful and iterative. Generated files stay in the workspace across attempts, and a session may spread over minutes or hours of human back-and-forth. Lambda's short, stateless invocations with no suspend fight that shape. A microVM with suspend and resume matches it.
 
-An EC2 instance has the isolation and the statefulness, but boots in minutes and bills whether the agent is thinking or not. Our microVMs go from API call to serving authenticated traffic in p50 3.54 s (p95 4.49 s), and a suspended VM costs storage only, $0.08 per GB-month on a 0.61 GB snapshot.
+An EC2 instance has the isolation and the statefulness, but boots in minutes and bills whether the agent is thinking or not. My microVMs go from API call to serving authenticated traffic in p50 3.54 s (p95 4.49 s), and a suspended VM costs storage only, $0.08 per GB-month on a 0.61 GB snapshot.
 
 The decision for this use case in one line: kernel-level isolation per session, a persistent workspace within the session, and a per-second bill that goes to near zero when the human walks away.
 
@@ -95,7 +95,7 @@ The captured transcript:
 
 ![AI code runner live demo: launch, one /solve call, the model's first draft runs clean](../img/demo-ai-code-runner.png)
 
-The VM went from `mvm run ai-code-runner --wait` to serving in 15.7 s in this capture. The --wait flag polls conservatively; the measured p50 from launch to first authenticated byte is 3.54 s. We posted the task "Compute the first 8 Fibonacci numbers and print them as a Python list", and one POST /solve returned:
+The VM went from `mvm run ai-code-runner --wait` to serving in 15.7 s in this capture. The --wait flag polls conservatively; the measured p50 from launch to first authenticated byte is 3.54 s. I posted the task "Compute the first 8 Fibonacci numbers and print them as a Python list", and one POST /solve returned:
 
 ```json
 {
@@ -109,7 +109,7 @@ The VM went from `mvm run ai-code-runner --wait` to serving in 15.7 s in this ca
 
 Nova-lite's first draft, a plain fibonacci(n) with a while loop, visible in full in the code field of the transcript, ran clean in 1,250.9 ms of subprocess time, so the repair loop never fired. When a first draft is broken, the traceback round-trips through the messages list and the next attempt runs clean. Either way the execution-plane overhead per round trip is about 111 ms (warm p50, including TLS, proxy auth, and the subprocess), so the model's thinking time dominates. The workspace ends the session holding solution.py, and the VM is terminated.
 
-One aside from an earlier capture: we launched this VM without its execution role attached, and the very first converse() call threw botocore.exceptions.NoCredentialsError instantly. That failure is the design working. There was no fallback key to find, in an environment variable or anywhere in 608 MB of cloned RAM, because we never put one there. A missing role fails as a clean traceback, never as a silently shared credential.
+One aside from an earlier capture: I launched this VM without its execution role attached, and the very first converse() call threw botocore.exceptions.NoCredentialsError instantly. That failure is the design working. There was no fallback key to find, in an environment variable or anywhere in 608 MB of cloned RAM, because I never put one there. A missing role fails as a clean traceback, never as a silently shared credential.
 
 ## What it costs
 
@@ -122,7 +122,7 @@ Rates in us-east-1, per-second billing, vCPU fixed at memory divided by 2:
 | Snapshot write / read | $0.0038 / $0.00155 per GB |
 | Suspended and image storage | $0.08 per GB-month |
 
-Worked example from our cost model for this exact shape, 2 GB / 1 vCPU with the 0.61 GB measured snapshot. An agentic coding session is bursty: minutes of active generate, run, fix, then hours where the human is reviewing, in a meeting, or asleep, and the workspace must survive.
+Worked example from my cost model for this exact shape, 2 GB / 1 vCPU with the 0.61 GB measured snapshot. An agentic coding session is bursty: minutes of active generate, run, fix, then hours where the human is reviewing, in a meeting, or asleep, and the workspace must survive.
 
 | Session shape | MicroVM | Always-on 2 GB container | Saved |
 |---|---|---|---|
@@ -134,10 +134,10 @@ A suspend and resume cycle on the 0.61 GB snapshot costs about $0.0033 in snapsh
 
 ## The gotchas
 
-- Snapshots turn RAM into stored data. This shaped the design rather than biting us in production: no client construction at build time, secrets only via the execution role in /run, RNG reseeded by the hook server on every launch. Audit anything your framework initializes at import time.
-- Resumed connections are dead. /resume must rebuild the Bedrock client. A suspended VM's TCP connections do not survive the freeze. Our on_resume calls on_run again.
+- Snapshots turn RAM into stored data. This shaped the design rather than biting me in production: no client construction at build time, secrets only via the execution role in /run, RNG reseeded by the hook server on every launch. Audit anything your framework initializes at import time.
+- Resumed connections are dead. /resume must rebuild the Bedrock client. A suspended VM's TCP connections do not survive the freeze. My on_resume calls on_run again.
 - No execution role means no Bedrock, loudly. Treat NoCredentialsError from inside the VM as "check the role on RunMicrovm", never as a reason to bake in a key.
-- New-account quotas will surprise you. Our fresh account had an applied memory quota of 8 GB (published default: 1,024 GB) that counts RUNNING, SUSPENDED, TERMINATING, and image-build VMs, plus a RunMicrovm rate of 1 per second. A per-session-VM product hits both immediately. Our FleetManager reads applied quotas at startup and throttles to 80% of them. Request raises on day one.
+- New-account quotas will surprise you. My fresh account had an applied memory quota of 8 GB (published default: 1,024 GB) that counts RUNNING, SUSPENDED, TERMINATING, and image-build VMs, plus a RunMicrovm rate of 1 per second. A per-session-VM product hits both immediately. My FleetManager reads applied quotas at startup and throttles to 80% of them. Request raises on day one.
 - Sessions have a ceiling. Total VM lifetime maxes out at 8 h (28,800 s). A long coding session needs a plan for checkpointing the workspace to S3 and re-launching.
 
 ## Take it further

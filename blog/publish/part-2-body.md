@@ -1,4 +1,4 @@
-Part 1 of this series built [microvm-ctl](https://github.com/Vivek0712/microvm-ctl), a control and execution plane for AWS Lambda MicroVMs, and measured the primitive: p50 3.54 s from RunMicrovm to serving authenticated traffic, 111 ms warm requests, suspend and resume with the same PID, and a 93.8% saving on a bursty session. This part puts seven workloads on top of it. Each one is a Dockerfile plus a single-file app, deployed and exercised on the live service in us-east-1, and each transcript below is a real recording.
+Part 1 of this series built [microvm-ctl](https://github.com/Vivek0712/microvm-ctl), a control and execution plane for AWS Lambda MicroVMs, and measured the primitive: p50 3.54 s from RunMicrovm to serving authenticated traffic, 111 ms warm requests, suspend and resume with the same PID, and a 93.8% saving on a bursty session. This part puts seven workloads on top of it. They are the seven shapes customers ask me about most often in my work as a Solutions Architect at Aivar, so I built each one as a reference I can hand over. Each one is a Dockerfile plus a single-file app, deployed and exercised on the live service in us-east-1, and each transcript below is a real recording.
 
 The code for every example is in the [awesome-microvm repository](https://github.com/Vivek0712/awesome-microvm) under `examples/`, and each section links to its directory. Longer write-ups of each workload live in the same repo under `blog/deep-dives/`.
 
@@ -70,7 +70,7 @@ for i in range(int(body.get("max_iterations", 3))):
         {"text": f"That failed:\n{result['stderr'][-3000:]}\nFix it. Full script only."}]})
 ```
 
-There is no sandboxing inside the VM, no import allowlist, and no seccomp work. The VM boundary is the sandbox. If the model writes shutil.rmtree("/"), it destroys a Firecracker VM we were going to terminate anyway.
+There is no sandboxing inside the VM, no import allowlist, and no seccomp work. The VM boundary is the sandbox. If the model writes shutil.rmtree("/"), it destroys a Firecracker VM I was going to terminate anyway.
 
 The design constraint is the snapshot. The Bedrock client is created in /run, never at import time, so its credentials come from the VM's execution role rather than from a variable frozen into 608 MB of cloned RAM. /resume creates it again, because TCP connections do not survive the freeze.
 
@@ -129,9 +129,9 @@ def cell(body, _headers):
 
 ![Notebook live demo: four cells, a suspend, and a dataframe that survives the resume](img/demo-notebook.png)
 
-Cell 3 returns np.int64(332833500) from a 1,000-row DataFrame. We then suspend the VM, and without calling ResumeMicrovm we POST cell 4, a mean over the same DataFrame. It returns np.float64(332833.5) with the same kernel ID. In this capture the waking request completed in 5.5 s end to end; the dedicated benchmark measured a suspended VM answering its first request in 0.7 s.
+Cell 3 returns np.int64(332833500) from a 1,000-row DataFrame. I then suspend the VM, and without calling ResumeMicrovm I POST cell 4, a mean over the same DataFrame. It returns np.float64(332833.5) with the same kernel ID. In this capture the waking request completed in 5.5 s end to end; the dedicated benchmark measured a suspended VM answering its first request in 0.7 s.
 
-Two run flags deserve thought for interactive sessions. `--idle` is how long the endpoint can go quiet before the service suspends the VM, and a user staring at a plot for six minutes is idle by that definition, so we set 900 s for humans. `--suspended-ttl` maps to suspendedDurationSeconds, which is an auto-terminate timer. Leave it at the default 3,600 s and a kernel suspended over a long lunch is destroyed, state and all.
+Two run flags deserve thought for interactive sessions. `--idle` is how long the endpoint can go quiet before the service suspends the VM, and a user staring at a plot for six minutes is idle by that definition, so I set 900 s for humans. `--suspended-ttl` maps to suspendedDurationSeconds, which is an auto-terminate timer. Leave it at the default 3,600 s and a kernel suspended over a long lunch is destroyed, state and all.
 
 ## 5. Sandboxed DuckDB analytics
 
@@ -233,7 +233,7 @@ From the cost model in microvm-ctl, on the measured 0.61 GB snapshot:
 - Resumed connections are dead. Rebuild clients in /resume, and refresh credentials there because role credentials rotate while the VM sleeps.
 - A non-200 from /run terminates the VM. Wrap best-effort setup.
 - The endpoint is bandwidth-capped at 1 to 16 MB/s by VM size. Bulk data rides S3 or EFS.
-- The applied memory quota on a fresh account was 8 GB (published default: 1,024 GB) and it counts RUNNING, SUSPENDED, TERMINATING, and image-build VMs. Our RunMicrovm rate was 1 per second (published default: 5). The plane throttles to 80% of applied values; file raises on day one.
+- The applied memory quota on a fresh account was 8 GB (published default: 1,024 GB) and it counts RUNNING, SUSPENDED, TERMINATING, and image-build VMs. My RunMicrovm rate was 1 per second (published default: 5). The plane throttles to 80% of applied values; file raises on day one.
 - The VMs are ARM64 only. Audit binary wheels before you depend on a package.
 
 ## Where to go from here

@@ -3,15 +3,15 @@ title: "A stateful notebook kernel that suspends for free on AWS Lambda MicroVMs
 description: "A Python kernel whose namespace lives in VM memory: the dataframe you built before lunch is intact after, same process and same PID, and while you were away it billed as storage rather than compute. 93.8% cheaper than an always-on kernel, measured."
 ---
 
-Every hosted notebook platform faces the same ratio: users think for hours and compute for seconds, but the kernel holding their variables must stay resident the whole time. Kill it to save money and df is gone. Keep it warm and you pay for a 2 GB Python process to do nothing. In our measured session shape, 30 minutes active and 8 hours suspended, a microVM kernel cost $0.0669 against $1.0719 for the always-on equivalent, a 93.8% saving, and the user never noticed the kernel had been asleep.
+Every hosted notebook platform faces the same ratio: users think for hours and compute for seconds, but the kernel holding their variables must stay resident the whole time. Kill it to save money and df is gone. Keep it warm and you pay for a 2 GB Python process to do nothing. In my measured session shape, 30 minutes active and 8 hours suspended, a microVM kernel cost $0.0669 against $1.0719 for the always-on equivalent, a 93.8% saving, and the user never noticed the kernel had been asleep.
 
 This is part 5 of the series Building on AWS Lambda MicroVMs, and it is the one suspend and resume was built for.
 
 ## Why a microVM and not a container or a Lambda function
 
-A notebook kernel is the worst case for both incumbents. A Lambda function is stateless by design. Every invocation is a fresh process, so x = 41 in one call and x + 1 in the next requires serializing the entire namespace to external storage, which breaks the moment the namespace holds an open file handle, a fitted model, or a generator. A container on Fargate or ECS holds state fine but bills every second it exists, and stopping the task destroys memory, so pausing a kernel means pickling everything, which is the problem we started with.
+A notebook kernel is the worst case for both incumbents. A Lambda function is stateless by design. Every invocation is a fresh process, so x = 41 in one call and x + 1 in the next requires serializing the entire namespace to external storage, which breaks the moment the namespace holds an open file handle, a fitted model, or a generator. A container on Fargate or ECS holds state fine but bills every second it exists, and stopping the task destroys memory, so pausing a kernel means pickling everything, which is the problem I started with.
 
-A Lambda MicroVM suspends. The service snapshots the entire guest, every process's memory, the disk, connections, even RNG state, and compute billing stops. Resume restores it exactly. We verified PID 1 before and PID 1 after, with execution counters and workspace files intact. For a notebook that means the namespace dict, the imported pandas module, and the 1,000-row DataFrame all survive without a single byte of serialization code. The state is the snapshot.
+A Lambda MicroVM suspends. The service snapshots the entire guest, every process's memory, the disk, connections, even RNG state, and compute billing stops. Resume restores it exactly. I verified PID 1 before and PID 1 after, with execution counters and workspace files intact. For a notebook that means the namespace dict, the imported pandas module, and the 1,000-row DataFrame all survive without a single byte of serialization code. The state is the snapshot.
 
 ## Architecture
 
@@ -36,7 +36,7 @@ EXPOSE 8080
 ENTRYPOINT ["python3.12", "/app/app.py"]
 ```
 
-The kernel is a persistent namespace and one route that does the REPL's work. The service only snapshots after /ready returns 200, so we import numpy and pandas inside the ready hook. The import cost is paid once at build time, and every clone wakes with the libraries already in memory:
+The kernel is a persistent namespace and one route that does the REPL's work. The service only snapshots after /ready returns 200, so I import numpy and pandas inside the ready hook. The import cost is paid once at build time, and every clone wakes with the libraries already in memory:
 
 ```python
 app = HookApp()
@@ -53,7 +53,7 @@ def on_run(ctx):
     KERNEL["started"] = time.time()
 ```
 
-/run matters for a different reason. Every VM launched from this image is a clone of the same snapshot, so anything "unique" baked in at build time is identical across kernels. We derive the kernel ID at run time from microvmId, and the vendored HookApp reseeds the RNG in the same hook.
+/run matters for a different reason. Every VM launched from this image is a clone of the same snapshot, so anything "unique" baked in at build time is identical across kernels. I derive the kernel ID at run time from microvmId, and the vendored HookApp reseeds the RNG in the same hook.
 
 The /cell endpoint reproduces the eval-versus-exec dance of a REPL. Try the code as an expression so df.y.sum() returns a value, fall back to statement execution so x = 41 works too, and run everything against the same NS dict:
 
@@ -86,7 +86,7 @@ $ mvm image build notebook examples/notebook
 $ mvm run notebook --wait --idle 900 --suspended-ttl 28800
 ```
 
-The notebook image built in 133.4 s and produced a 660 MB memory snapshot plus 24 MB of disk. Those two run flags are the idle policy, and for interactive sessions they deserve thought. --idle (default 300 s) is how long the endpoint can go quiet before the service suspends the VM. A user who stares at a plot for six minutes is idle by that definition, so we stretch it to 15 minutes for humans. --suspended-ttl needs more care: suspendedDurationSeconds doubles as an auto-terminate timer. Leave it at the 3,600 s default and a kernel suspended over a long lunch is not asleep when the user returns. It is destroyed, state and all. We set it high for notebooks, within the service's hard 8 hour (28,800 s) total lifetime.
+The notebook image built in 133.4 s and produced a 660 MB memory snapshot plus 24 MB of disk. Those two run flags are the idle policy, and for interactive sessions they deserve thought. --idle (default 300 s) is how long the endpoint can go quiet before the service suspends the VM. A user who stares at a plot for six minutes is idle by that definition, so I stretch it to 15 minutes for humans. --suspended-ttl needs more care: suspendedDurationSeconds doubles as an auto-terminate timer. Leave it at the 3,600 s default and a kernel suspended over a long lunch is not asleep when the user returns. It is destroyed, state and all. I set it high for notebooks, within the service's hard 8 hour (28,800 s) total lifetime.
 
 ## Run it
 
@@ -94,12 +94,12 @@ The live transcript, captured against the real service:
 
 ![Notebook live demo: four cells, a suspend, and a dataframe that survives the resume](../img/demo-notebook.png)
 
-`mvm run notebook --wait` had the VM RUNNING and serving authenticated traffic in 3.6 s (fleet-wide we measured p50 3.54 s, p95 4.49 s to first authenticated byte). Then four cells:
+`mvm run notebook --wait` had the VM RUNNING and serving authenticated traffic in 3.6 s (fleet-wide I measured p50 3.54 s, p95 4.49 s to first authenticated byte). Then four cells:
 
 1. import pandas as pd, numpy as np. Cell 1 is instant, because the snapshot already holds the imports.
 2. df = pd.DataFrame({'x': np.arange(1000)}); df['y'] = df.x ** 2. Cell 2 builds the DataFrame into NS.
 3. df.y.sum(). Cell 3 returns np.int64(332833500).
-4. We suspend the VM and compute billing stops. Then, without calling ResumeMicrovm, we POST the next cell, a mean over the same dataframe. It returns np.float64(332833.5), cell counter at 4, same kernel ID. The dataframe survived. In this capture the waking request completed in 5.5 s end to end, while our dedicated benchmark run measured a suspended VM answering its first request with a 200 in 0.7 s. Explicit lifecycle calls came in at 2.5 s to suspend and 2.6 s to resume.
+4. I suspend the VM and compute billing stops. Then, without calling ResumeMicrovm, I POST the next cell, a mean over the same dataframe. It returns np.float64(332833.5), cell counter at 4, same kernel ID. The dataframe survived. In this capture the waking request completed in 5.5 s end to end, while my dedicated benchmark run measured a suspended VM answering its first request with a 200 in 0.7 s. Explicit lifecycle calls came in at 2.5 s to suspend and 2.6 s to resume.
 
 The client makes the sleep invisible. EndpointClient treats a 502 as a possible mid-resume and retries patiently, so a notebook frontend never needs to know the kernel was suspended. Warm cells, for reference, ran at p50 111.0 ms including TLS, proxy auth, and execution inside the VM.
 
@@ -113,7 +113,7 @@ us-east-1 rates: $0.0000276944 per vCPU-second, $0.0000036667 per GB-second, sus
 | 2 h active + 22 h suspended | $0.2602 | $3.0264 | 91.4% |
 | 24/7 always-on 2 GB | n/a | about $3.03 per day | the shape where microVMs lose |
 
-For a per-user notebook platform the multiplication is the story. A hundred data scientists on always-on 2 GB kernels is about $303 per day whether anyone shows up. A hundred microVM kernels at the 30-minute-active shape is about $6.69 per day, and a kernel parked suspended costs only storage, roughly five cents a month for our 660 MB snapshot at $0.08 per GB-month.
+For a per-user notebook platform the multiplication is the story. A hundred data scientists on always-on 2 GB kernels is about $303 per day whether anyone shows up. A hundred microVM kernels at the 30-minute-active shape is about $6.69 per day, and a kernel parked suspended costs only storage, roughly five cents a month for my 660 MB snapshot at $0.08 per GB-month.
 
 One number pushes the other way. A suspend and resume cycle costs about $0.0033 in snapshot write plus read on a 0.61 GB snapshot. An idle policy aggressive enough to thrash (suspend, wake, suspend, wake) pays that toll every cycle, which is another reason interactive kernels want a generous --idle.
 
@@ -122,7 +122,7 @@ One number pushes the other way. A suspend and resume cycle costs about $0.0033 
 - Idle detection keys off endpoint traffic in both directions. A user reading results generates no requests and gets suspended. A frontend that polls /kernel every 30 seconds generates constant requests and keeps the VM billing forever. Health checks belong outside the idle window, or your 93.8% saving quietly becomes 0%.
 - suspendedDurationSeconds is a self-destruct timer. When it elapses, the VM auto-terminates and the namespace is gone. Size it to your users' longest absence.
 - The 8 hour ceiling is hard. Total VM lifetime maxes out at 28,800 s, so a kernel cannot live indefinitely. A real platform needs an end-of-life story: warn the user, offer an explicit export, or accept mortality.
-- Clones share the snapshot's "uniqueness". Every kernel starts from identical memory, same RNG state, same build-time IDs. Derive per-kernel identity in /run (we do) and never bake per-user secrets into image environment variables, which are shared by every clone.
+- Clones share the snapshot's "uniqueness". Every kernel starts from identical memory, same RNG state, same build-time IDs. Derive per-kernel identity in /run (I do) and never bake per-user secrets into image environment variables, which are shared by every clone.
 
 ## Take it further
 
