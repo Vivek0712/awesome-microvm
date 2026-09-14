@@ -1,4 +1,4 @@
-Every ISV building an AI assistant hits the same fork. Tenant Acme's conversation history, credentials, and prompts must never be reachable from tenant Globex's process, and the usual answer is a Kubernetes-shaped platform with namespaces, network policies, and row-level security. Of everything in this series, this is the question ISV customers put to me most often at Aivar, and it is the one I now answer with a demo rather than a diagram. This article takes the blunt approach: one Firecracker microVM per tenant. Acme gets a kernel. Globex gets a different kernel. The bill stays sane because a tenant who is not talking costs snapshot storage only.
+Every ISV building an AI assistant hits the same fork. Tenant Acme's conversation history, credentials, and prompts must never be reachable from tenant Globex's process, and the usual answer is a Kubernetes-shaped platform with namespaces, network policies, and row-level security, plus a node pool that bills around the clock for tenants who are asleep. Of everything in this series, this is the question ISV customers put to me most often at Aivar, and it is the one I now answer with a demo rather than a diagram. This article takes the blunt approach: one Firecracker microVM per tenant. Acme gets a kernel. Globex gets a different kernel. The bill stays sane because a tenant who is not talking costs snapshot storage only.
 
 This is the final part of the series Building on AWS Lambda MicroVMs. Part 1 built the control plane, [microvm-ctl](https://github.com/Vivek0712/microvm-ctl), and part 2 put seven workloads on it. This one builds the workload that stresses every rule from the first two parts at once, and closes with the decision guide I wish I had on day one. Everything here was run against the live service in us-east-1. The code is in the [awesome-microvm repository](https://github.com/Vivek0712/awesome-microvm) under [examples/multi-tenant-agents](https://github.com/Vivek0712/awesome-microvm/tree/main/examples/multi-tenant-agents).
 
@@ -134,6 +134,26 @@ The real tenant-count ceiling is the memory quota rather than price. Max allocat
 
 < upload mvm-quotas.png here: mvm quotas on a fresh account: 1 launch per second and 8 GB applied against 5 per second and 1,024 GB published >
 
+## Scaling to a thousand tenants
+
+The demo runs three tenants. The interesting question is what happens at a thousand, and the answer comes from arithmetic on the measured numbers rather than from a bigger demo, because the fleet mechanics are the same at every size: one image, one RunMicrovm per tenant, one endpoint per VM, one token per endpoint.
+
+Launching is rate-bound, and the plane handles it. `Fleet.scale_to(1000)` with a run_payload_factory is one call. FleetManager throttles RunMicrovm to 80% of the applied quota, so at the fresh-account rate of 1 per second the fleet is fully up in about 21 minutes, and at the published 5 per second in about 4 minutes. Each launch restores the same 604 MB snapshot and serves traffic in a p50 of 3.54 s, so the first tenants are chatting while the last ones are still launching.
+
+Sleeping is where the model wins. A tenant who stops talking is suspended after max_idle seconds and costs snapshot storage only.
+
+| Tenants | Idle storage per month | Launch time at 1/s applied | Launch time at 5/s published | Memory quota needed at 2 GB |
+|---|---|---|---|---|
+| 10 | $0.49 | 13 s | 3 s | 20 GB |
+| 100 | $4.88 | 2 min | 25 s | 200 GB |
+| 1,000 | $48.80 | 21 min | 4 min | 2,000 GB |
+
+Busy tenants are the only ones you pay compute for. A 2 GB / 1 vCPU VM costs about $0.126 per running hour. If a tenth of a thousand tenants are chatting at any moment, the fleet runs about 100 VMs and bills about $12.60 per hour, roughly $302 per day, against about $3,026 per day for the same thousand tenants always-on. The ratio holds at any size: you pay for concurrency, not for the customer count.
+
+The ceiling is the memory quota, and it is the one number to negotiate before launch. Allocated memory counts suspended tenants, so a thousand 2 GB tenants need 2,000 GB, above the 1,024 GB published default and far above the 8 GB a fresh account starts with. Three levers move it. Ask for the raise early, with the arithmetic above attached. Use 1 GB VMs where the agent fits, which halves the quota need at the cost of half a vCPU each. And set suspendedDurationSeconds so the long tail of dormant tenants is terminated and re-launched on demand from the same snapshot, which turns quota into a function of active customers rather than signed customers.
+
+The security story scales with it, because it never depended on scale. Every tenant still has its own kernel, its own endpoint hostname, its own port-scoped token, and, with a per-launch execution role, its own IAM boundary. Adding the thousandth tenant adds one RunMicrovm call and changes nothing for the other 999.
+
 ## The gotchas specific to tenancy
 
 - Suspended tenants occupy quota. The economics say keep 1,000 tenants suspended; the memory quota says those 1,000 count as allocated. Size the quota request for peak allocated tenants rather than peak concurrent chatters, or let suspendedDurationSeconds terminate the long tail and re-launch on demand.
@@ -167,6 +187,8 @@ And the rules that held in every single case:
 
 ## Where the series ends
 
-Three parts, one plane, eight workloads, and every number measured on the live service. The plane and benchmark harness are [microvm-ctl](https://github.com/Vivek0712/microvm-ctl), installable from [microvm-ctl on PyPI](https://pypi.org/project/microvm-ctl/) with `pip install microvm-ctl`. The examples, the transcripts, and the longer write-up of each workload are in [awesome-microvm](https://github.com/Vivek0712/awesome-microvm). If you build something on either, open an issue or a pull request; the examples directory is meant to grow.
+Part 1 measured the primitive: a Firecracker VM that serves in 3.5 seconds, suspends with its memory intact, and wakes on the next request. Part 2 put seven workloads on it that a Lambda function could never run. This part took the hardest shape, a private kernel for every customer, and showed that the fleet scales with one call, sleeps for five cents a tenant, and bills for concurrency rather than customer count. A thousand private AI agents at about $49 a month idle is the number I now open customer conversations with, and every figure behind it is in the transcripts.
+
+The plane and benchmark harness are [microvm-ctl](https://github.com/Vivek0712/microvm-ctl), installable from [microvm-ctl on PyPI](https://pypi.org/project/microvm-ctl/) with `pip install microvm-ctl`. The examples, the transcripts, and the longer write-up of each workload are in [awesome-microvm](https://github.com/Vivek0712/awesome-microvm). If you build something on either, open an issue or a pull request; the examples directory is meant to grow.
 
 Thanks to Alexey Vidanov, whose [lambda-microvm-starter](https://github.com/vidanov/lambda-microvm-starter) was the on-ramp for this whole series.

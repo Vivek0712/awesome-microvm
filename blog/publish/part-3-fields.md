@@ -1,10 +1,10 @@
 # Part 3: form fields
 
-Title (87 chars):
-One AWS Lambda MicroVM per tenant: multi-tenant AI agents and what the series taught us
+Title (94 chars):
+A kernel for every customer: scaling private AI agents to 1,000 tenants on AWS Lambda MicroVMs
 
-Description (271 chars):
-The finale: a private Bedrock-backed assistant per customer, each in its own Firecracker VM, identity injected at launch, conversation history in RAM, and near-zero idle cost. Plus the decision guide and lessons distilled from building eight workloads on Lambda MicroVMs.
+Description (355 chars):
+The finale. One Firecracker microVM per tenant, identity injected at launch, conversation memory in RAM, a fleet that scales with one call and sleeps for five cents per tenant per month. What a thousand private AI agents cost when they are idle and when they are busy, the quota math to get there, and the decision guide from building all eight workloads.
 
 Tags: ["lambda", "bedrock", "ai", "multi-tenant", "firecracker"]
 Series: Building on AWS Lambda MicroVMs
