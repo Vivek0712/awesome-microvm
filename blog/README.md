@@ -13,11 +13,11 @@ Three articles, written for the AWS Builder Center in series mode. Each markdown
 
 ## Articles in order
 
-| Part | File | Title | Cover |
-|---|---|---|---|
-| 1 | [00-control-and-scale.md](00-control-and-scale.md) | Control and scale AWS Lambda MicroVMs with microvm-ctl | [cover-00.png](img/cover-00.png) |
-| 2 | [01-seven-workloads.md](01-seven-workloads.md) | Seven workloads Lambda could never run, until MicroVMs | [cover-01.png](img/cover-01.png) |
-| 3 | [02-multi-tenant-agents.md](02-multi-tenant-agents.md) | A kernel for every customer: scaling AI agents to 1,000 tenants on AWS Lambda MicroVMs with microvm-ctl | [cover-02.png](img/cover-02.png) |
+| Part | File | Title | Cover | Published |
+|---|---|---|---|---|
+| 1 | [00-control-and-scale.md](00-control-and-scale.md) | Control and scale AWS Lambda MicroVMs with microvm-ctl | [cover-00.png](img/cover-00.png) | [live](https://builder.aws.com/content/3JIDTpz0ZgatSBv24drra3gEod9/control-and-scale-aws-lambda-microvms-with-microvm-ctl) |
+| 2 | [01-seven-workloads.md](01-seven-workloads.md) | Seven workloads Lambda could never run, until MicroVMs | [cover-01.png](img/cover-01.png) | [live](https://builder.aws.com/content/3JJ2oNWY9EsZzivMMx044cSlrFQ/seven-workloads-lambda-could-never-run-until-microvms) |
+| 3 | [02-multi-tenant-agents.md](02-multi-tenant-agents.md) | A kernel for every customer: scaling AI agents to 1,000 tenants on AWS Lambda MicroVMs with microvm-ctl | [cover-02.png](img/cover-02.png) | [live](https://builder.aws.com/content/3JJ7tASPSSUUTrcpWnWtxOuu8g3/a-kernel-for-every-customer-scaling-ai-agents-to-1000-tenants-on-aws-lambda-microvms-with-microvm-ctl) |
 
 ## Publishing checklist, per article
 
@@ -28,7 +28,7 @@ Three articles, written for the AWS Builder Center in series mode. Each markdown
 5. Under Series, pick Building on AWS Lambda MicroVMs (create it once with the series cover).
 6. Builder Center accepts uploaded images only, not remote or relative links. Paste the body from `publish/part-N-body.md`, which carries a visible `< upload <file> here: <caption> >` marker at every figure position; at each marker, upload that file from `blog/img/` through the editor's image button and delete the marker line. `publish/part-N-fields.md` lists the files in order. Regenerate both with `python3 blog/publish/make_bundle.py` after editing an article.
 7. Cross-references to other parts are plain text ("part 2 of this series") rather than hyperlinks, because Builder Center links only resolve between published articles. Links to GitHub for the code are real hyperlinks and work as is.
-8. After all three are live, put the Builder Center URLs in the table at the top of the repository README.
+8. All three are live (links in the table above) and the repository README links to them. Cross-references inside the articles now carry the live URLs too; re-paste a body from `publish/` if you want the links in the published version.
 
 ## Images to upload, per article
 

@@ -22,18 +22,26 @@ Each example is a Dockerfile plus a single-file app on the plane's zero-dependen
 
 | Example | Pattern | What it shows | Article | Deep dive |
 |---|---|---|---|---|
-| [code-sandbox](examples/code-sandbox) | sandbox | Untrusted or AI-written Python; state persists across calls | [part 2, section 1](blog/01-seven-workloads.md) | [deep dive](blog/deep-dives/01-code-sandbox.md) |
-| [ai-code-runner](examples/ai-code-runner) | agent in VM | Bedrock writes code, the VM runs it, tracebacks drive a self-repair loop | [part 2, section 2](blog/01-seven-workloads.md) | [deep dive](blog/deep-dives/02-ai-code-runner.md) |
-| [agent-eval](examples/agent-eval) | fan-out | N pristine clones, one eval task each, scoreboard, drain | [part 2, section 3](blog/01-seven-workloads.md) | [deep dive](blog/deep-dives/03-agent-eval.md) |
-| [notebook](examples/notebook) | stateful session | Variables survive suspend and resume, same PID | [part 2, section 4](blog/01-seven-workloads.md) | [deep dive](blog/deep-dives/04-notebook.md) |
-| [data-analytics](examples/data-analytics) | large working set | Sandboxed DuckDB over S3; bulk data stays off the endpoint | [part 2, section 5](blog/01-seven-workloads.md) | [deep dive](blog/deep-dives/05-data-analytics.md) |
-| [ci-runner](examples/ci-runner) | ephemeral job | Clone, test, terminate; per-second billing | [part 2, section 6](blog/01-seven-workloads.md) | [deep dive](blog/deep-dives/06-ci-runner.md) |
-| [pdf-service](examples/pdf-service) | bursty service | Untrusted HTML to PDF; sleeps between bursts | [part 2, section 7](blog/01-seven-workloads.md) | [deep dive](blog/deep-dives/07-pdf-service.md) |
-| [multi-tenant-agents](examples/multi-tenant-agents) | VM per tenant | Tenant identity via runHookPayload, near-zero idle cost | [part 3](blog/02-multi-tenant-agents.md) | [deep dive](blog/deep-dives/08-multi-tenant-agents.md) |
+| [code-sandbox](examples/code-sandbox) | sandbox | Untrusted or AI-written Python; state persists across calls | [part 2, section 1](https://builder.aws.com/content/3JJ2oNWY9EsZzivMMx044cSlrFQ/seven-workloads-lambda-could-never-run-until-microvms) | [deep dive](blog/deep-dives/01-code-sandbox.md) |
+| [ai-code-runner](examples/ai-code-runner) | agent in VM | Bedrock writes code, the VM runs it, tracebacks drive a self-repair loop | [part 2, section 2](https://builder.aws.com/content/3JJ2oNWY9EsZzivMMx044cSlrFQ/seven-workloads-lambda-could-never-run-until-microvms) | [deep dive](blog/deep-dives/02-ai-code-runner.md) |
+| [agent-eval](examples/agent-eval) | fan-out | N pristine clones, one eval task each, scoreboard, drain | [part 2, section 3](https://builder.aws.com/content/3JJ2oNWY9EsZzivMMx044cSlrFQ/seven-workloads-lambda-could-never-run-until-microvms) | [deep dive](blog/deep-dives/03-agent-eval.md) |
+| [notebook](examples/notebook) | stateful session | Variables survive suspend and resume, same PID | [part 2, section 4](https://builder.aws.com/content/3JJ2oNWY9EsZzivMMx044cSlrFQ/seven-workloads-lambda-could-never-run-until-microvms) | [deep dive](blog/deep-dives/04-notebook.md) |
+| [data-analytics](examples/data-analytics) | large working set | Sandboxed DuckDB over S3; bulk data stays off the endpoint | [part 2, section 5](https://builder.aws.com/content/3JJ2oNWY9EsZzivMMx044cSlrFQ/seven-workloads-lambda-could-never-run-until-microvms) | [deep dive](blog/deep-dives/05-data-analytics.md) |
+| [ci-runner](examples/ci-runner) | ephemeral job | Clone, test, terminate; per-second billing | [part 2, section 6](https://builder.aws.com/content/3JJ2oNWY9EsZzivMMx044cSlrFQ/seven-workloads-lambda-could-never-run-until-microvms) | [deep dive](blog/deep-dives/06-ci-runner.md) |
+| [pdf-service](examples/pdf-service) | bursty service | Untrusted HTML to PDF; sleeps between bursts | [part 2, section 7](https://builder.aws.com/content/3JJ2oNWY9EsZzivMMx044cSlrFQ/seven-workloads-lambda-could-never-run-until-microvms) | [deep dive](blog/deep-dives/07-pdf-service.md) |
+| [multi-tenant-agents](examples/multi-tenant-agents) | VM per tenant | Tenant identity via runHookPayload, near-zero idle cost | [part 3](https://builder.aws.com/content/3JJ7tASPSSUUTrcpWnWtxOuu8g3/a-kernel-for-every-customer-scaling-ai-agents-to-1000-tenants-on-aws-lambda-microvms-with-microvm-ctl) | [deep dive](blog/deep-dives/08-multi-tenant-agents.md) |
 
 ## The article series
 
-Three parts. Part 1, [Control and scale AWS Lambda MicroVMs with microvm-ctl](blog/00-control-and-scale.md), builds and measures the plane. Part 2, [Seven workloads Lambda could never run, until MicroVMs](blog/01-seven-workloads.md), takes the first seven examples through build, run, cost, and gotchas. Part 3, [A kernel for every customer](blog/02-multi-tenant-agents.md), scales private AI agents to a thousand tenants and closes with the decision guide. The full-length write-up of each example is under [blog/deep-dives/](blog/deep-dives/). The house rule for the series: every number is measured on the live service, and every gotcha is one I hit. The articles are written for the AWS Builder Center; see [blog/README.md](blog/README.md) for the publishing checklist, series metadata, and cover images.
+Published on the AWS Builder Center as the series **Building on AWS Lambda MicroVMs**:
+
+| Part | Article | Source |
+|---|---|---|
+| 1 | [Control and scale AWS Lambda MicroVMs with microvm-ctl](https://builder.aws.com/content/3JIDTpz0ZgatSBv24drra3gEod9/control-and-scale-aws-lambda-microvms-with-microvm-ctl) | [blog/00-control-and-scale.md](blog/00-control-and-scale.md) |
+| 2 | [Seven workloads Lambda could never run, until MicroVMs](https://builder.aws.com/content/3JJ2oNWY9EsZzivMMx044cSlrFQ/seven-workloads-lambda-could-never-run-until-microvms) | [blog/01-seven-workloads.md](blog/01-seven-workloads.md) |
+| 3 | [A kernel for every customer: scaling AI agents to 1,000 tenants on AWS Lambda MicroVMs with microvm-ctl](https://builder.aws.com/content/3JJ7tASPSSUUTrcpWnWtxOuu8g3/a-kernel-for-every-customer-scaling-ai-agents-to-1000-tenants-on-aws-lambda-microvms-with-microvm-ctl) | [blog/02-multi-tenant-agents.md](blog/02-multi-tenant-agents.md) |
+
+Part 1 builds and measures the plane, part 2 takes the first seven examples through build, run, cost, and gotchas, and part 3 scales AI agents to a thousand tenants and closes with the decision guide. The full-length write-up of each example is under [blog/deep-dives/](blog/deep-dives/). The house rule for the series: every number is measured on the live service, and every gotcha is one I hit. The articles are written for the AWS Builder Center; see [blog/README.md](blog/README.md) for the publishing checklist, series metadata, and cover images.
 
 Headline measurements in us-east-1, reproducible with the plane's [benchmark harness](https://github.com/Vivek0712/microvm-ctl/blob/main/benchmarks/benchmark.py):
 

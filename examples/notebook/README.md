@@ -10,4 +10,4 @@ mvm suspend <id>                                   # come back later
 mvm call <id> /cell -X POST -d '{"code":"x + 1"}'  # auto-resumes; returns 42
 ```
 
-Series: [part 2, section 4 of Building on AWS Lambda MicroVMs](../../blog/01-seven-workloads.md). Full write-up: [A stateful notebook kernel that suspends for free on AWS Lambda MicroVMs](../../blog/deep-dives/04-notebook.md). Code: [github.com/Vivek0712/awesome-microvm/tree/main/examples/notebook](https://github.com/Vivek0712/awesome-microvm/tree/main/examples/notebook). Live transcript: [demo-notebook.png](../../blog/img/demo-notebook.png).
+Series: [part 2, section 4 of Building on AWS Lambda MicroVMs](https://builder.aws.com/content/3JJ2oNWY9EsZzivMMx044cSlrFQ/seven-workloads-lambda-could-never-run-until-microvms). Full write-up: [A stateful notebook kernel that suspends for free on AWS Lambda MicroVMs](../../blog/deep-dives/04-notebook.md). Code: [github.com/Vivek0712/awesome-microvm/tree/main/examples/notebook](https://github.com/Vivek0712/awesome-microvm/tree/main/examples/notebook). Live transcript: [demo-notebook.png](../../blog/img/demo-notebook.png).
