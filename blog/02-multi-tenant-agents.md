@@ -9,7 +9,7 @@ cover: "img/cover-02.png"
 
 Every ISV building an AI assistant hits the same fork. Tenant Acme's conversation history, credentials, and prompts must never be reachable from tenant Globex's process, and the usual answer is a Kubernetes-shaped platform with namespaces, network policies, and row-level security. This article takes the blunt approach instead: one Firecracker microVM per tenant. Acme gets a kernel. Globex gets a different kernel. The bill stays sane because a tenant who is not talking costs snapshot storage only.
 
-This is the final part of the series Building on AWS Lambda MicroVMs. Part 1 built the control plane, microvm-ctl, and part 2 put seven workloads on it. This one builds the workload that stresses every rule from the first two parts at once, and closes with the decision guide we wish we had on day one. Everything here was run against the live service in us-east-1. The code is in the [awesome-microvm repository](https://github.com/Vivek0712/awesome-microvm) under [examples/multi-tenant-agents](https://github.com/Vivek0712/awesome-microvm/tree/main/examples/multi-tenant-agents).
+This is the final part of the series Building on AWS Lambda MicroVMs. Part 1 built the control plane, [microvm-ctl](https://github.com/Vivek0712/microvm-ctl), and part 2 put seven workloads on it. This one builds the workload that stresses every rule from the first two parts at once, and closes with the decision guide we wish we had on day one. Everything here was run against the live service in us-east-1. The code is in the [awesome-microvm repository](https://github.com/Vivek0712/awesome-microvm) under [examples/multi-tenant-agents](https://github.com/Vivek0712/awesome-microvm/tree/main/examples/multi-tenant-agents).
 
 ## Why a microVM and not a container or a Lambda function
 
@@ -176,6 +176,6 @@ And the rules that held in every single case:
 
 ## Where the series ends
 
-Three parts, one plane, eight workloads, and every number measured on the live service. The plane and benchmark harness are [microvm-ctl](https://github.com/Vivek0712/microvm-ctl), installable with `pip install microvm-ctl`. The examples, the transcripts, and the longer write-up of each workload are in [awesome-microvm](https://github.com/Vivek0712/awesome-microvm). If you build something on either, open an issue or a pull request; the examples directory is meant to grow.
+Three parts, one plane, eight workloads, and every number measured on the live service. The plane and benchmark harness are [microvm-ctl](https://github.com/Vivek0712/microvm-ctl), installable from [microvm-ctl on PyPI](https://pypi.org/project/microvm-ctl/) with `pip install microvm-ctl`. The examples, the transcripts, and the longer write-up of each workload are in [awesome-microvm](https://github.com/Vivek0712/awesome-microvm). If you build something on either, open an issue or a pull request; the examples directory is meant to grow.
 
 Thanks to Alexey Vidanov, whose [lambda-microvm-starter](https://github.com/vidanov/lambda-microvm-starter) was the on-ramp for this whole series.

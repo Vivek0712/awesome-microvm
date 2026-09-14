@@ -1,6 +1,6 @@
 # awesome-microvm
 
-Everything we have built, measured, and written about [AWS Lambda MicroVMs](https://docs.aws.amazon.com/lambda/latest/dg/lambda-microvms-guide.html): eight production-shaped example apps, the nine-part article series **Building on AWS Lambda MicroVMs**, and the recorded transcripts and benchmark results behind every number. All of it runs on [microvm-ctl](https://github.com/Vivek0712/microvm-ctl), our open-source control and execution plane for the service.
+Everything we have built, measured, and written about [AWS Lambda MicroVMs](https://docs.aws.amazon.com/lambda/latest/dg/lambda-microvms-guide.html): eight production-shaped example apps, the nine-part article series **Building on AWS Lambda MicroVMs**, and the recorded transcripts and benchmark results behind every number. All of it runs on [microvm-ctl](https://github.com/Vivek0712/microvm-ctl), our open-source control and execution plane for the service, available as [microvm-ctl on PyPI](https://pypi.org/project/microvm-ctl/).
 
 ![Building on AWS Lambda MicroVMs](blog/img/cover-series.png)
 

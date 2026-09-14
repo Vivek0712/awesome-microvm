@@ -7,7 +7,7 @@ tags: ["lambda", "firecracker", "python", "ai", "sandbox"]
 cover: "img/cover-01.png"
 ---
 
-Part 1 of this series built microvm-ctl, a control and execution plane for AWS Lambda MicroVMs, and measured the primitive: p50 3.54 s from RunMicrovm to serving authenticated traffic, 111 ms warm requests, suspend and resume with the same PID, and a 93.8% saving on a bursty session. This part puts seven workloads on top of it. Each one is a Dockerfile plus a single-file app, deployed and exercised on the live service in us-east-1, and each transcript below is a real recording.
+Part 1 of this series built [microvm-ctl](https://github.com/Vivek0712/microvm-ctl), a control and execution plane for AWS Lambda MicroVMs, and measured the primitive: p50 3.54 s from RunMicrovm to serving authenticated traffic, 111 ms warm requests, suspend and resume with the same PID, and a 93.8% saving on a bursty session. This part puts seven workloads on top of it. Each one is a Dockerfile plus a single-file app, deployed and exercised on the live service in us-east-1, and each transcript below is a real recording.
 
 The code for every example is in the [awesome-microvm repository](https://github.com/Vivek0712/awesome-microvm) under `examples/`, and each section links to its directory. Longer write-ups of each workload live in the same repo under `blog/deep-dives/`.
 
@@ -247,6 +247,6 @@ From the cost model in microvm-ctl, on the measured 0.61 GB snapshot:
 
 ## Where to go from here
 
-Every example is a starting point rather than a product. The obvious next steps are wiring the CI runner to a webhook, checkpointing notebook and analytics state to S3 in the /suspend hook so the 8 hour ceiling stops mattering, pre-warming a small fleet ahead of a burst, and swapping the DuckDB engine for chDB. The code is in [awesome-microvm](https://github.com/Vivek0712/awesome-microvm), and the plane is [microvm-ctl](https://github.com/Vivek0712/microvm-ctl) (`pip install microvm-ctl`).
+Every example is a starting point rather than a product. The obvious next steps are wiring the CI runner to a webhook, checkpointing notebook and analytics state to S3 in the /suspend hook so the 8 hour ceiling stops mattering, pre-warming a small fleet ahead of a burst, and swapping the DuckDB engine for chDB. The code is in [awesome-microvm](https://github.com/Vivek0712/awesome-microvm), and the plane is [microvm-ctl](https://github.com/Vivek0712/microvm-ctl), installable from [microvm-ctl on PyPI](https://pypi.org/project/microvm-ctl/) with `pip install microvm-ctl`.
 
 Part 3 takes the pattern that ties all seven together, identity injected at launch through runHookPayload, and builds the one workload that stresses it hardest: one microVM per tenant, running a private AI agent for each customer.

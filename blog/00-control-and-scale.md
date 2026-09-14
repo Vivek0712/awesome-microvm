@@ -9,7 +9,7 @@ cover: "img/cover-00.png"
 
 AWS Lambda MicroVMs hands you the primitive that has run under Lambda for eight years, a Firecracker VM, with the controls exposed. You can run it, suspend it, resume it with every byte of memory intact, and terminate it. The service stops there on purpose. There is no load balancer, because each VM gets its own HTTPS endpoint. There is no fleet abstraction, no token management, and no monitoring view, and a fresh account enforces quotas well below the published defaults.
 
-We built [microvm-ctl](https://github.com/Vivek0712/microvm-ctl), an open-source control and execution plane that fills that gap, deployed it against the live service in us-east-1, and measured everything. This article is part 1 of the series Building on AWS Lambda MicroVMs. Part 2 puts seven workloads on top of this plane, and part 3 builds the one that stresses every rule at once, a microVM per tenant, and closes with the decision guide.
+We built [microvm-ctl](https://github.com/Vivek0712/microvm-ctl), an open-source control and execution plane that fills that gap (`pip install microvm-ctl`, [microvm-ctl on PyPI](https://pypi.org/project/microvm-ctl/)), deployed it against the live service in us-east-1, and measured everything. This article is part 1 of the series Building on AWS Lambda MicroVMs. Part 2 puts seven workloads on top of this plane, and part 3 builds the one that stresses every rule at once, a microVM per tenant, and closes with the decision guide.
 
 The headline numbers, all reproducible with the benchmark harness that ships in the package repo:
 
@@ -154,7 +154,7 @@ This plane exists to be built on. Part 2 of Building on AWS Lambda MicroVMs take
 
 Credit where it is due: Alexey Vidanov's [lambda-microvm-starter](https://github.com/vidanov/lambda-microvm-starter) was our first working map of the service. It deploys any Dockerfile to a MicroVM behind a public CloudFront URL in one command, and its troubleshooting guide documented several of the gotchas above before we hit them. If your goal is one web app on a MicroVM, start there; this series is about what comes after.
 
-The plane itself (SDK, mvm CLI, hook runtime, benchmark harness) is [microvm-ctl](https://github.com/Vivek0712/microvm-ctl), Apache-2.0. The eight examples, this series, the longer write-up of each workload, and every recorded transcript live in [awesome-microvm](https://github.com/Vivek0712/awesome-microvm); the code for each example is under `examples/` there.
+The plane itself (SDK, mvm CLI, hook runtime, benchmark harness) is [microvm-ctl](https://github.com/Vivek0712/microvm-ctl), Apache-2.0, published as [microvm-ctl on PyPI](https://pypi.org/project/microvm-ctl/). The eight examples, this series, the longer write-up of each workload, and every recorded transcript live in [awesome-microvm](https://github.com/Vivek0712/awesome-microvm); the code for each example is under `examples/` there.
 
 ```console
 pip install microvm-ctl
