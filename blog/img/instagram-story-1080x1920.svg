@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1920" width="1080" height="1920" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0b1220"/><stop offset="1" stop-color="#111c33"/></linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.35" r="0.6"><stop offset="0" stop-color="#1e3a8a" stop-opacity="0.6"/><stop offset="1" stop-color="#0b1220" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="1080" height="1920" fill="url(#bg)"/><rect width="1080" height="1920" fill="url(#glow)"/>
+  <g opacity="0.7"><rect x="100" y="200" width="64" height="64" rx="12" fill="#34d399" opacity="0.95"/>
+<rect x="180" y="200" width="64" height="64" rx="12" fill="#34d399" opacity="0.95"/>
+<rect x="260" y="200" width="64" height="64" rx="12" fill="#34d399" opacity="0.95"/>
+<rect x="340" y="200" width="64" height="64" rx="12" fill="#334155" opacity="0.55"/>
+<rect x="420" y="200" width="64" height="64" rx="12" fill="#60a5fa" opacity="0.95"/>
+<rect x="500" y="200" width="64" height="64" rx="12" fill="#60a5fa" opacity="0.95"/>
+<rect x="580" y="200" width="64" height="64" rx="12" fill="#60a5fa" opacity="0.95"/>
+<rect x="660" y="200" width="64" height="64" rx="12" fill="#34d399" opacity="0.95"/>
+<rect x="740" y="200" width="64" height="64" rx="12" fill="#334155" opacity="0.55"/>
+<rect x="820" y="200" width="64" height="64" rx="12" fill="#60a5fa" opacity="0.95"/>
+<rect x="900" y="200" width="64" height="64" rx="12" fill="#334155" opacity="0.55"/>
+<rect x="100" y="280" width="64" height="64" rx="12" fill="#60a5fa" opacity="0.95"/>
+<rect x="180" y="280" width="64" height="64" rx="12" fill="#334155" opacity="0.55"/>
+<rect x="260" y="280" width="64" height="64" rx="12" fill="#60a5fa" opacity="0.95"/>
+<rect x="340" y="280" width="64" height="64" rx="12" fill="#34d399" opacity="0.95"/>
+<rect x="420" y="280" width="64" height="64" rx="12" fill="#34d399" opacity="0.95"/>
+<rect x="500" y="280" width="64" height="64" rx="12" fill="#334155" opacity="0.55"/>
+<rect x="580" y="280" width="64" height="64" rx="12" fill="#34d399" opacity="0.95"/>
+<rect x="660" y="280" width="64" height="64" rx="12" fill="#60a5fa" opacity="0.95"/>
+<rect x="740" y="280" width="64" height="64" rx="12" fill="#60a5fa" opacity="0.95"/>
+<rect x="820" y="280" width="64" height="64" rx="12" fill="#34d399" opacity="0.95"/>
+<rect x="900" y="280" width="64" height="64" rx="12" fill="#334155" opacity="0.55"/>
+<rect x="100" y="360" width="64" height="64" rx="12" fill="#34d399" opacity="0.95"/>
+<rect x="180" y="360" width="64" height="64" rx="12" fill="#334155" opacity="0.55"/>
+<rect x="260" y="360" width="64" height="64" rx="12" fill="#334155" opacity="0.55"/>
+<rect x="340" y="360" width="64" height="64" rx="12" fill="#34d399" opacity="0.95"/>
+<rect x="420" y="360" width="64" height="64" rx="12" fill="#334155" opacity="0.55"/>
+<rect x="500" y="360" width="64" height="64" rx="12" fill="#334155" opacity="0.55"/>
+<rect x="580" y="360" width="64" height="64" rx="12" fill="#34d399" opacity="0.95"/>
+<rect x="660" y="360" width="64" height="64" rx="12" fill="#60a5fa" opacity="0.95"/>
+<rect x="740" y="360" width="64" height="64" rx="12" fill="#34d399" opacity="0.95"/>
+<rect x="820" y="360" width="64" height="64" rx="12" fill="#334155" opacity="0.55"/>
+<rect x="900" y="360" width="64" height="64" rx="12" fill="#60a5fa" opacity="0.95"/>
+<rect x="100" y="440" width="64" height="64" rx="12" fill="#334155" opacity="0.55"/>
+<rect x="180" y="440" width="64" height="64" rx="12" fill="#34d399" opacity="0.95"/>
+<rect x="260" y="440" width="64" height="64" rx="12" fill="#34d399" opacity="0.95"/>
+<rect x="340" y="440" width="64" height="64" rx="12" fill="#60a5fa" opacity="0.95"/>
+<rect x="420" y="440" width="64" height="64" rx="12" fill="#60a5fa" opacity="0.95"/>
+<rect x="500" y="440" width="64" height="64" rx="12" fill="#f472b6" opacity="1.0"/>
+<rect x="494" y="434" width="76" height="76" rx="16" fill="none" stroke="#f472b6" stroke-width="4" opacity="0.7"/>
+<rect x="580" y="440" width="64" height="64" rx="12" fill="#334155" opacity="0.55"/>
+<rect x="660" y="440" width="64" height="64" rx="12" fill="#334155" opacity="0.55"/>
+<rect x="740" y="440" width="64" height="64" rx="12" fill="#34d399" opacity="0.95"/>
+<rect x="820" y="440" width="64" height="64" rx="12" fill="#34d399" opacity="0.95"/>
+<rect x="900" y="440" width="64" height="64" rx="12" fill="#60a5fa" opacity="0.95"/>
+<rect x="100" y="520" width="64" height="64" rx="12" fill="#34d399" opacity="0.95"/>
+<rect x="180" y="520" width="64" height="64" rx="12" fill="#60a5fa" opacity="0.95"/>
+<rect x="260" y="520" width="64" height="64" rx="12" fill="#60a5fa" opacity="0.95"/>
+<rect x="340" y="520" width="64" height="64" rx="12" fill="#34d399" opacity="0.95"/>
+<rect x="420" y="520" width="64" height="64" rx="12" fill="#34d399" opacity="0.95"/>
+<rect x="500" y="520" width="64" height="64" rx="12" fill="#34d399" opacity="0.95"/>
+<rect x="580" y="520" width="64" height="64" rx="12" fill="#60a5fa" opacity="0.95"/>
+<rect x="660" y="520" width="64" height="64" rx="12" fill="#334155" opacity="0.55"/>
+<rect x="740" y="520" width="64" height="64" rx="12" fill="#60a5fa" opacity="0.95"/>
+<rect x="820" y="520" width="64" height="64" rx="12" fill="#334155" opacity="0.55"/>
+<rect x="900" y="520" width="64" height="64" rx="12" fill="#60a5fa" opacity="0.95"/>
+<rect x="100" y="600" width="64" height="64" rx="12" fill="#334155" opacity="0.55"/>
+<rect x="180" y="600" width="64" height="64" rx="12" fill="#60a5fa" opacity="0.95"/>
+<rect x="260" y="600" width="64" height="64" rx="12" fill="#34d399" opacity="0.95"/>
+<rect x="340" y="600" width="64" height="64" rx="12" fill="#34d399" opacity="0.95"/>
+<rect x="420" y="600" width="64" height="64" rx="12" fill="#34d399" opacity="0.95"/>
+<rect x="500" y="600" width="64" height="64" rx="12" fill="#34d399" opacity="0.95"/>
+<rect x="580" y="600" width="64" height="64" rx="12" fill="#334155" opacity="0.55"/>
+<rect x="660" y="600" width="64" height="64" rx="12" fill="#334155" opacity="0.55"/>
+<rect x="740" y="600" width="64" height="64" rx="12" fill="#334155" opacity="0.55"/>
+<rect x="820" y="600" width="64" height="64" rx="12" fill="#34d399" opacity="0.95"/>
+<rect x="900" y="600" width="64" height="64" rx="12" fill="#60a5fa" opacity="0.95"/>
+<rect x="100" y="680" width="64" height="64" rx="12" fill="#34d399" opacity="0.95"/>
+<rect x="180" y="680" width="64" height="64" rx="12" fill="#334155" opacity="0.55"/>
+<rect x="260" y="680" width="64" height="64" rx="12" fill="#60a5fa" opacity="0.95"/>
+<rect x="340" y="680" width="64" height="64" rx="12" fill="#334155" opacity="0.55"/>
+<rect x="420" y="680" width="64" height="64" rx="12" fill="#60a5fa" opacity="0.95"/>
+<rect x="500" y="680" width="64" height="64" rx="12" fill="#34d399" opacity="0.95"/>
+<rect x="580" y="680" width="64" height="64" rx="12" fill="#334155" opacity="0.55"/>
+<rect x="660" y="680" width="64" height="64" rx="12" fill="#334155" opacity="0.55"/>
+<rect x="740" y="680" width="64" height="64" rx="12" fill="#34d399" opacity="0.95"/>
+<rect x="820" y="680" width="64" height="64" rx="12" fill="#60a5fa" opacity="0.95"/>
+<rect x="900" y="680" width="64" height="64" rx="12" fill="#334155" opacity="0.55"/></g>
+  <text x="72" y="820" font-size="20" fill="#94a3b8" letter-spacing="3">OPEN SOURCE  |  APACHE-2.0  |  ON PYPI</text>
+  <text x="72" y="910" font-size="92" font-weight="800" fill="#f8fafc">microvm-ctl</text>
+  <text x="72" y="968" font-size="32" fill="#cbd5e1">The control plane AWS Lambda</text>
+  <text x="72" y="1010" font-size="32" fill="#cbd5e1">MicroVMs doesn't come with.</text>
+  <rect x="72" y="1050" width="520" height="60" rx="12" fill="#0f172a" stroke="#334155"/>
+  <text x="96" y="1090" font-size="26" font-family="'SF Mono', Menlo, Consolas, monospace" fill="#34d399">$ pip install microvm-ctl</text>
+
+  <text x="72" y="1250" font-size="88" font-weight="800" fill="#34d399">3.5 s</text>
+  <text x="72" y="1290" font-size="22" fill="#94a3b8">from launch to serving</text>
+  <text x="72" y="1420" font-size="88" font-weight="800" fill="#60a5fa">0.7 s</text>
+  <text x="72" y="1460" font-size="22" fill="#94a3b8">to wake a sleeping VM, memory intact</text>
+  <text x="72" y="1590" font-size="88" font-weight="800" fill="#f472b6">93.8%</text>
+  <text x="72" y="1630" font-size="22" fill="#94a3b8">cheaper than always-on for an idle-heavy session</text>
+  <text x="72" y="1710" font-size="22" fill="#cbd5e1">Eight working apps on top. Series link in bio.</text>
+  <rect x="0" y="1770" width="1080" height="150" fill="#0b1220" opacity="0.88"/>
+  <text x="62" y="1827" font-size="20" fill="#94a3b8" letter-spacing="3">SERIES</text>
+  <text x="62" y="1869" font-size="33" font-weight="700" fill="#f8fafc">Building on AWS Lambda MicroVMs</text>
+  <text x="1018" y="1818" font-size="29" font-weight="700" fill="#f8fafc" text-anchor="end">Vivek Raja</text>
+  <text x="1018" y="1849" font-size="18" fill="#cbd5e1" text-anchor="end">AWS AI Hero  |  Sr. Solutions Architect, Aivar</text>
+  <text x="1018" y="1876" font-size="15" fill="#94a3b8" text-anchor="end">AWS Partner Company</text>
+</svg>
