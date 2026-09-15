@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 627" width="1200" height="627" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0b1220"/><stop offset="1" stop-color="#111c33"/></linearGradient>
+    <radialGradient id="glow" cx="0.75" cy="0.4" r="0.5"><stop offset="0" stop-color="#1e3a8a" stop-opacity="0.6"/><stop offset="1" stop-color="#0b1220" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="1200" height="627" fill="url(#bg)"/><rect width="1200" height="627" fill="url(#glow)"/>
+  <g opacity="0.9"><rect x="712" y="62" width="44" height="44" rx="9" fill="#34d399" opacity="0.95"/>
+<rect x="768" y="62" width="44" height="44" rx="9" fill="#60a5fa" opacity="0.95"/>
+<rect x="824" y="62" width="44" height="44" rx="9" fill="#60a5fa" opacity="0.95"/>
+<rect x="880" y="62" width="44" height="44" rx="9" fill="#60a5fa" opacity="0.95"/>
+<rect x="936" y="62" width="44" height="44" rx="9" fill="#34d399" opacity="0.95"/>
+<rect x="992" y="62" width="44" height="44" rx="9" fill="#334155" opacity="0.55"/>
+<rect x="1048" y="62" width="44" height="44" rx="9" fill="#334155" opacity="0.55"/>
+<rect x="1104" y="62" width="44" height="44" rx="9" fill="#60a5fa" opacity="0.95"/>
+<rect x="712" y="118" width="44" height="44" rx="9" fill="#60a5fa" opacity="0.95"/>
+<rect x="768" y="118" width="44" height="44" rx="9" fill="#34d399" opacity="0.95"/>
+<rect x="824" y="118" width="44" height="44" rx="9" fill="#34d399" opacity="0.95"/>
+<rect x="880" y="118" width="44" height="44" rx="9" fill="#34d399" opacity="0.95"/>
+<rect x="936" y="118" width="44" height="44" rx="9" fill="#60a5fa" opacity="0.95"/>
+<rect x="992" y="118" width="44" height="44" rx="9" fill="#34d399" opacity="0.95"/>
+<rect x="1048" y="118" width="44" height="44" rx="9" fill="#334155" opacity="0.55"/>
+<rect x="1104" y="118" width="44" height="44" rx="9" fill="#34d399" opacity="0.95"/>
+<rect x="712" y="174" width="44" height="44" rx="9" fill="#34d399" opacity="0.95"/>
+<rect x="768" y="174" width="44" height="44" rx="9" fill="#34d399" opacity="0.95"/>
+<rect x="824" y="174" width="44" height="44" rx="9" fill="#334155" opacity="0.55"/>
+<rect x="880" y="174" width="44" height="44" rx="9" fill="#334155" opacity="0.55"/>
+<rect x="936" y="174" width="44" height="44" rx="9" fill="#334155" opacity="0.55"/>
+<rect x="992" y="174" width="44" height="44" rx="9" fill="#60a5fa" opacity="0.95"/>
+<rect x="1048" y="174" width="44" height="44" rx="9" fill="#34d399" opacity="0.95"/>
+<rect x="1104" y="174" width="44" height="44" rx="9" fill="#34d399" opacity="0.95"/>
+<rect x="712" y="230" width="44" height="44" rx="9" fill="#60a5fa" opacity="0.95"/>
+<rect x="768" y="230" width="44" height="44" rx="9" fill="#34d399" opacity="0.95"/>
+<rect x="824" y="230" width="44" height="44" rx="9" fill="#334155" opacity="0.55"/>
+<rect x="880" y="230" width="44" height="44" rx="9" fill="#f472b6" opacity="1.0"/>
+<rect x="875" y="225" width="54" height="54" rx="12" fill="none" stroke="#f472b6" stroke-width="3" opacity="0.7"/>
+<rect x="936" y="230" width="44" height="44" rx="9" fill="#34d399" opacity="0.95"/>
+<rect x="992" y="230" width="44" height="44" rx="9" fill="#334155" opacity="0.55"/>
+<rect x="1048" y="230" width="44" height="44" rx="9" fill="#34d399" opacity="0.95"/>
+<rect x="1104" y="230" width="44" height="44" rx="9" fill="#334155" opacity="0.55"/>
+<rect x="712" y="286" width="44" height="44" rx="9" fill="#60a5fa" opacity="0.95"/>
+<rect x="768" y="286" width="44" height="44" rx="9" fill="#60a5fa" opacity="0.95"/>
+<rect x="824" y="286" width="44" height="44" rx="9" fill="#34d399" opacity="0.95"/>
+<rect x="880" y="286" width="44" height="44" rx="9" fill="#60a5fa" opacity="0.95"/>
+<rect x="936" y="286" width="44" height="44" rx="9" fill="#34d399" opacity="0.95"/>
+<rect x="992" y="286" width="44" height="44" rx="9" fill="#34d399" opacity="0.95"/>
+<rect x="1048" y="286" width="44" height="44" rx="9" fill="#334155" opacity="0.55"/>
+<rect x="1104" y="286" width="44" height="44" rx="9" fill="#34d399" opacity="0.95"/>
+<rect x="712" y="342" width="44" height="44" rx="9" fill="#334155" opacity="0.55"/>
+<rect x="768" y="342" width="44" height="44" rx="9" fill="#34d399" opacity="0.95"/>
+<rect x="824" y="342" width="44" height="44" rx="9" fill="#334155" opacity="0.55"/>
+<rect x="880" y="342" width="44" height="44" rx="9" fill="#334155" opacity="0.55"/>
+<rect x="936" y="342" width="44" height="44" rx="9" fill="#334155" opacity="0.55"/>
+<rect x="992" y="342" width="44" height="44" rx="9" fill="#334155" opacity="0.55"/>
+<rect x="1048" y="342" width="44" height="44" rx="9" fill="#60a5fa" opacity="0.95"/>
+<rect x="1104" y="342" width="44" height="44" rx="9" fill="#334155" opacity="0.55"/>
+<rect x="712" y="398" width="44" height="44" rx="9" fill="#34d399" opacity="0.95"/>
+<rect x="768" y="398" width="44" height="44" rx="9" fill="#60a5fa" opacity="0.95"/>
+<rect x="824" y="398" width="44" height="44" rx="9" fill="#334155" opacity="0.55"/>
+<rect x="880" y="398" width="44" height="44" rx="9" fill="#34d399" opacity="0.95"/>
+<rect x="936" y="398" width="44" height="44" rx="9" fill="#334155" opacity="0.55"/>
+<rect x="992" y="398" width="44" height="44" rx="9" fill="#334155" opacity="0.55"/>
+<rect x="1048" y="398" width="44" height="44" rx="9" fill="#34d399" opacity="0.95"/>
+<rect x="1104" y="398" width="44" height="44" rx="9" fill="#34d399" opacity="0.95"/>
+<rect x="712" y="454" width="44" height="44" rx="9" fill="#60a5fa" opacity="0.95"/>
+<rect x="768" y="454" width="44" height="44" rx="9" fill="#34d399" opacity="0.95"/>
+<rect x="824" y="454" width="44" height="44" rx="9" fill="#334155" opacity="0.55"/>
+<rect x="880" y="454" width="44" height="44" rx="9" fill="#34d399" opacity="0.95"/>
+<rect x="936" y="454" width="44" height="44" rx="9" fill="#34d399" opacity="0.95"/>
+<rect x="992" y="454" width="44" height="44" rx="9" fill="#34d399" opacity="0.95"/>
+<rect x="1048" y="454" width="44" height="44" rx="9" fill="#60a5fa" opacity="0.95"/>
+<rect x="1104" y="454" width="44" height="44" rx="9" fill="#334155" opacity="0.55"/></g>
+
+  <text x="56" y="92" font-size="17" fill="#94a3b8" letter-spacing="3">OPEN SOURCE  |  APACHE-2.0  |  ON PYPI</text>
+  <text x="56" y="160" font-size="64" font-weight="800" fill="#f8fafc">microvm-ctl</text>
+  <text x="56" y="204" font-size="24" fill="#cbd5e1">The control plane AWS Lambda MicroVMs</text>
+  <text x="56" y="236" font-size="24" fill="#cbd5e1">doesn't come with.</text>
+
+  <rect x="56" y="268" width="400" height="44" rx="8" fill="#0f172a" stroke="#334155"/>
+  <text x="76" y="297" font-size="20" font-family="'SF Mono', Menlo, Consolas, monospace" fill="#34d399">$ pip install microvm-ctl</text>
+
+  <g>
+    <text x="56" y="382" font-size="44" font-weight="800" fill="#34d399">3.5 s</text>
+    <text x="56" y="406" font-size="14" fill="#94a3b8">launch to serving</text>
+    <text x="236" y="382" font-size="44" font-weight="800" fill="#60a5fa">0.7 s</text>
+    <text x="236" y="406" font-size="14" fill="#94a3b8">wake a suspended VM</text>
+    <text x="416" y="382" font-size="44" font-weight="800" fill="#f472b6">93.8%</text>
+    <text x="416" y="406" font-size="14" fill="#94a3b8">cheaper than always-on</text>
+  </g>
+  <text x="56" y="452" font-size="16" fill="#cbd5e1">Lifecycle, fleets, tokens, quotas, and cost. Measured on the live service.</text>
+  <text x="56" y="476" font-size="16" fill="#cbd5e1">Eight working apps on top, from an AI code sandbox to one agent per customer.</text>
+
+  <rect x="0" y="531" width="1200" height="96" fill="#0b1220" opacity="0.88"/>
+  <text x="56" y="573" font-size="16" fill="#94a3b8" letter-spacing="3">SERIES</text>
+  <text x="56" y="603" font-size="26" font-weight="700" fill="#f8fafc">Building on AWS Lambda MicroVMs</text>
+  <text x="1144" y="573" font-size="22" font-weight="700" fill="#f8fafc" text-anchor="end">Vivek Raja</text>
+  <text x="1144" y="595" font-size="14" fill="#cbd5e1" text-anchor="end">AWS AI Hero  |  Sr. Solutions Architect, Aivar</text>
+  <text x="1144" y="614" font-size="12" fill="#94a3b8" text-anchor="end">AWS Partner Company</text>
+</svg>
