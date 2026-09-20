@@ -30,13 +30,29 @@ aws cloudformation delete-stack --stack-name microvm-sfn-handoff
 
 If the VM never completes the token, `TimeoutSeconds` (the `Budget` parameter, 300 s) or `HeartbeatSeconds` (90 s against the VM's 30 s heartbeat) fires, and the `Catch` sends the execution to `Reap` rather than `Terminate`, because a timed-out task returns no output and therefore no microVM id. `Reap` lists the image's microVMs and `TerminateStale` terminates every RUNNING, SUSPENDED, or PENDING one older than `Budget + 120` s, which is also the `maximumDurationInSeconds` every leased VM carries, so a VM the state machine cannot see still dies on its own. The execution then ends in `Failed` with error `LeaseFailed` and the caught error as the cause; the VM's next heartbeat gets `TaskTimedOut`, which sets `lease.lost` inside the VM and stops the work.
 
+## Fan-out with a Map
+
+`template-map.yaml` is the same lease as the item processor of a Step Functions Map (`mvm lease asl --map`, `FanoutSpec(items_expr="$states.input.shards")`): start it with `{"shards": [task, task, ...]}` and every element becomes one VM's task, with the lease id and the `clientToken` carrying the item index (`<execution>-<index>`), so a retried item gets its own VM back and never a neighbour's. The execution output is the array of VM payloads. `MaxConcurrency` (default 4) is how many shards are in flight at once; more shards than that run in waves. The Map does not know the account's memory quota, so set it to the number `mvm lease plan --image handoff-agent --shards 8` prints (the quota divided by the image's baseline), otherwise the shards over the line fail on `ServiceQuotaExceededException` and burn their retries. With `ApprovalTopicArn` set, a `Gate` Choice sends executions with more than `ApproveAboveShards` (default 8) shards through `RequestApproval`, an `sns:publish.waitForTaskToken` whose message carries the shard count, the image, the execution name, and the task token; the approver answers with `aws stepfunctions send-task-success --task-token <token> --task-output '{}'` within an hour, or the execution ends in `Denied`. An empty `ApprovalTopicArn` (the default) deploys the machine without the gate; the template holds both definitions and a Condition picks one. Failures inside a shard follow the same `Reap` path, and it stays age-based over the whole image: a VM of another shard that is older than `Budget + 120` is reaped too, on purpose, because at that age it has already outlived its own lease.
+
+```console
+aws cloudformation deploy --template-file template-map.yaml --stack-name microvm-sfn-handoff-map \
+    --capabilities CAPABILITY_NAMED_IAM --parameter-overrides ImageName=handoff-agent MaxConcurrency=4
+./run-map.sh --shards 8                                         # {"shards": [task x 8]}: two waves of four
+mvm watch --image handoff-agent                                 # one row per shard VM, footer done D/N
+aws cloudformation deploy --template-file template-map.yaml --stack-name microvm-sfn-handoff-map \
+    --capabilities CAPABILITY_NAMED_IAM --parameter-overrides ApprovalTopicArn=arn:aws:sns:...:approvals ApproveAboveShards=8
+```
+
+The benchmark drives this machine with `--fanout 4,8 --fanout-kinds sfn --sfn-map-arn <StateMachineArn>` and records the time to all shards RUNNING, the first and the slowest shard done, and the end to end.
+
 ## Regenerate
 
 ```console
-python3 generate.py --budget 300 --heartbeat 90                # rewrites lease.asl.json and template.yaml
+python3 generate.py --budget 300 --heartbeat 90                # rewrites lease.asl.json, template.yaml, template-map.yaml
 mvm lease asl --image handoff-agent --execution-role <AgentExecutionRoleArn> --budget 300 --heartbeat 90
+mvm lease asl --image handoff-agent --execution-role <AgentExecutionRoleArn> --map      # MaxConcurrency from the quota
 ```
 
-`generate.py` calls `microvm.integrations.stepfunctions.lease_state_machine` twice: once with placeholder ARNs for `lease.asl.json`, once with `${ImageName}`, `${AgentExecutionRole.Arn}`, `${AWS::Region}`, and `${Budget}` for the template's `DefinitionString: !Sub`. JSONata uses `{% %}` and `$states`, never `${`, so `Fn::Sub` leaves the expressions alone; the script refuses to write if any other `${...}` appears. The agent role's `states:SendTask*` grant is scoped to `arn:aws:states:<region>:<account>:stateMachine:<stack>-lease`, which is why the machine is named after the stack: the role must exist before the machine does.
+`generate.py` calls `microvm.integrations.stepfunctions.lease_state_machine` with placeholder ARNs for `lease.asl.json`, and with `${ImageName}`, `${AgentExecutionRole.Arn}`, `${AWS::Region}`, and `${Budget}` for the templates' `DefinitionString: !Sub`; for `template-map.yaml` it passes `fanout=FanoutSpec(...)` twice (with and without the approval gate) and swaps sentinel integers for `${MaxConcurrency}` and `${ApproveAboveShards}`, which `Fn::Sub` cannot otherwise place inside a number. JSONata uses `{% %}` and `$states`, never `${`, so `Fn::Sub` leaves the expressions alone; the script refuses to write if any other `${...}` appears, and skips `template-map.yaml` with a note on a microvm-ctl older than 0.3.0. The agent role's `states:SendTask*` grant is scoped to `arn:aws:states:<region>:<account>:stateMachine:<stack>-lease` (`<stack>-map` for the fan-out), which is why the machines are named after the stack: the role must exist before the machine does.
 
 Shared image: [handoff-agent](../handoff-agent). Same lease from a Lambda durable function: [durable-handoff](../durable-handoff). From a laptop over SQS, EventBridge, or HTTP: [generic-handoff](../generic-handoff). Contract: [microvm-ctl docs/integrations.md](https://github.com/Vivek0712/microvm-ctl/blob/main/docs/integrations.md).

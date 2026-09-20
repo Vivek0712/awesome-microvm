@@ -1,0 +1,60 @@
+### sfn single, tightened retry
+──────────────────────────────────── lease handoff bench: sfn x 3 on handoff-agent ─────────────────────────────────────
+  sfn run 1: started bench-sfn-20260920-150210-0
+    vm microvm-953b2d61-2da6-3694-a7f8-15b2dda4b276 RUNNING at +11.5s
+    lease accepted at +1.7s, done after 12.01s of work (+14.3s)
+    orchestrator SUCCEEDED: 14.3s by the service start/stop; seen by the bench at +14.9s
+  sfn run 2: started bench-sfn-20260920-150210-1
+    vm microvm-6ff1cb4c-1091-3440-9ec4-b9ea86e8dc67 RUNNING at +6.5s
+    orchestrator SUCCEEDED: 9.0s by the service start/stop; seen by the bench at +12.1s
+  sfn run 3: started bench-sfn-20260920-150210-2
+    vm microvm-c9c0085d-db5b-3fd2-af31-3bbfd8043f38 RUNNING at +5.7s
+    orchestrator SUCCEEDED: 8.8s by the service start/stop; seen by the bench at +12.1s
+                                   lease handoff, p50 per kind                                    
+┏━━━━━━┳━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━┳━━━━━━━━━━━━━━┓
+┃ kind ┃  ok ┃ launch to lease ┃  work ┃ completion to resume ┃ end to end ┃ VM s ┃ cost / lease ┃
+┡━━━━━━╇━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━╇━━━━━━━━━━━━━━┩
+│ sfn  │ 3/3 │            1.2s │ 12.0s │                 1.0s │       9.0s │    9 │     $0.00042 │
+└──────┴─────┴─────────────────┴───────┴──────────────────────┴────────────┴──────┴──────────────┘
+results -> benchmarks/results/handoff-20260920-150210.json (+ .svg)
+### fanout sfn
+────────────────────────── lease handoff bench: fan-outs [4, 8] (sfn) on handoff-agent-small ───────────────────────────
+  sfn fan-out of 4 on handoff-agent-small: started bench-sfn-map4-20260920-150258
+    all 4 RUNNING at +10.4s
+    first shard done at +12.9s
+    orchestrator SUCCEEDED: 12.7s by the service start/stop; seen by the bench at +14.0s; output has 4/4 shards, 4 
+reported done over /status
+  sfn fan-out of 8 on handoff-agent-small: started bench-sfn-map8-20260920-150258
+    first shard done at +8.9s
+    all 8 RUNNING at +10.1s
+    orchestrator SUCCEEDED: 10.9s by the service start/stop; seen by the bench at +14.1s; output has 8/8 shards, 2 
+reported done over /status
+                                             fan-out, p50 per kind and size                                             
+┏━━━━━━┳━━━━━━━━┳━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┓
+┃ kind ┃ shards ┃  ok ┃ all running ┃ first shard done ┃ slowest shard done ┃ end to end ┃ VM s total ┃ cost / fan-out ┃
+┡━━━━━━╇━━━━━━━━╇━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━┩
+│ sfn  │      4 │ 1/1 │       10.4s │            12.9s │              12.9s │      12.7s │         51 │       $0.00085 │
+│ sfn  │      8 │ 1/1 │       10.1s │             8.9s │              10.2s │      10.9s │         77 │       $0.00147 │
+└──────┴────────┴─────┴─────────────┴──────────────────┴────────────────────┴────────────┴────────────┴────────────────┘
+results -> benchmarks/results/handoff-20260920-150258.json (+ .svg)
+### fanout durable
+──────────────────────── lease handoff bench: fan-outs [4, 8] (durable) on handoff-agent-small ─────────────────────────
+  durable fan-out of 4 on handoff-agent-small: started bench-durable-map4-20260920-150330
+    first shard done at +11.9s
+    all 4 RUNNING at +13.8s
+    orchestrator SUCCEEDED: 15.6s by the service start/stop; seen by the bench at +19.3s; output has 4/4 shards, 2 
+reported done over /status
+  durable fan-out of 8 on handoff-agent-small: started bench-durable-map8-20260920-150330
+    first shard done at +9.9s
+    orchestrator SUCCEEDED: 25.5s by the service start/stop; seen by the bench at +26.6s; output has 8/8 shards, 1 
+reported done over /status
+                                             fan-out, p50 per kind and size                                             
+┏━━━━━━━━━┳━━━━━━━━┳━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┓
+┃         ┃        ┃     ┃             ┃                  ┃   slowest shard ┃            ┃            ┃                ┃
+┃ kind    ┃ shards ┃  ok ┃ all running ┃ first shard done ┃            done ┃ end to end ┃ VM s total ┃ cost / fan-out ┃
+┡━━━━━━━━━╇━━━━━━━━╇━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━┩
+│ durable │      4 │ 1/1 │       13.8s │            11.9s │           14.5s │      15.6s │         34 │       $0.00040 │
+│ durable │      8 │ 1/1 │           - │             9.9s │            9.9s │      25.5s │         81 │       $0.00090 │
+└─────────┴────────┴─────┴─────────────┴──────────────────┴─────────────────┴────────────┴────────────┴────────────────┘
+results -> benchmarks/results/handoff-20260920-150330.json (+ .svg)
+RERUNDONE

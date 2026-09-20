@@ -26,8 +26,8 @@
             "LambdaMicrovms.ThrottlingException",
             "LambdaMicrovms.ServiceQuotaExceededException"
           ],
-          "IntervalSeconds": 10,
-          "MaxAttempts": 6,
+          "IntervalSeconds": 2,
+          "MaxAttempts": 8,
           "BackoffRate": 2,
           "JitterStrategy": "FULL"
         }
@@ -62,8 +62,8 @@
             "LambdaMicrovms.ThrottlingException",
             "LambdaMicrovms.ServiceQuotaExceededException"
           ],
-          "IntervalSeconds": 10,
-          "MaxAttempts": 6,
+          "IntervalSeconds": 2,
+          "MaxAttempts": 8,
           "BackoffRate": 2,
           "JitterStrategy": "FULL"
         }
@@ -118,8 +118,8 @@
                   "LambdaMicrovms.ThrottlingException",
                   "LambdaMicrovms.ServiceQuotaExceededException"
                 ],
-                "IntervalSeconds": 10,
-                "MaxAttempts": 6,
+                "IntervalSeconds": 2,
+                "MaxAttempts": 8,
                 "BackoffRate": 2,
                 "JitterStrategy": "FULL"
               }

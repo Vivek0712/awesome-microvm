@@ -1,0 +1,154 @@
+{
+  "date": "2026-09-20",
+  "region": "us-east-1",
+  "image": "handoff-agent",
+  "task": {
+    "steps": [
+      "echo bench",
+      "sleep 3"
+    ]
+  },
+  "budget_s": 180,
+  "fanout_image": null,
+  "baseline_mib": null,
+  "rates": {
+    "vm_usd_per_s": 3.5027800000000004e-05,
+    "vm_usd_per_gb_s": 1.7513900000000002e-05,
+    "orchestrator_usd": {
+      "sfn": 0.0001,
+      "durable": 2.4e-05,
+      "sqs": 0.0,
+      "eventbridge": 0.0,
+      "http": 0.0
+    }
+  },
+  "summary": {
+    "eventbridge": {
+      "runs": 2,
+      "ok": 2,
+      "launch_to_lease_s": {
+        "p50": 0.906,
+        "min": 0.688,
+        "max": 1.124,
+        "n": 2
+      },
+      "work_s": {
+        "p50": 6.324,
+        "min": 6.151,
+        "max": 6.496,
+        "n": 2
+      },
+      "completion_to_resume_s": {
+        "p50": 0.18,
+        "min": 0.178,
+        "max": 0.182,
+        "n": 2
+      },
+      "end_to_end_s": {
+        "p50": 8.064,
+        "min": 8.001,
+        "max": 8.127,
+        "n": 2
+      },
+      "vm_seconds": {
+        "p50": 8.683,
+        "min": 8.44,
+        "max": 8.927,
+        "n": 2
+      },
+      "cost_usd": {
+        "p50": 0.000304,
+        "min": 0.000296,
+        "max": 0.000313,
+        "n": 2
+      }
+    }
+  },
+  "fanout_summary": {},
+  "parallel_summary": {},
+  "runs": [
+    {
+      "kind": "eventbridge",
+      "index": 0,
+      "name": "bench-eventbridge-20260920-143702-0",
+      "t0": 1789940224.311679,
+      "vm_id": "microvm-62b46d8a-38f0-3034-a04f-8a8ce192ddc9",
+      "t_seen": 1789940224.566928,
+      "t_running": 1789940229.77834,
+      "t_lease": 1789940225.0,
+      "work_s": 6.151,
+      "t_vm_done": 1789940232.130811,
+      "vm_elapsed_s": null,
+      "t_orch_done": 1789940232.3124359,
+      "orchestrator_started_at": null,
+      "orchestrator_stopped_at": null,
+      "t_terminating": null,
+      "t_terminated": 1789940234.685857,
+      "started_at": 1789940224.501,
+      "terminated_at": 1789940232.941,
+      "orchestrator_status": "SUCCEEDED",
+      "vm_error": null,
+      "sources": {
+        "end_to_end": "message arrival (includes the poll wait)",
+        "vm_done": "last /status with lease.done",
+        "vm_seconds": "startedAt -> terminatedAt"
+      },
+      "notes": [
+        "end_to_end_s is the message's arrival as seen by the bench's receive loop (includes the poll wait)"
+      ],
+      "metrics": {
+        "launch_to_lease_s": 0.688,
+        "work_s": 6.151,
+        "completion_to_resume_s": 0.182,
+        "end_to_end_s": 8.001,
+        "vm_seconds": 8.44,
+        "cost_usd": 0.000296
+      }
+    },
+    {
+      "kind": "eventbridge",
+      "index": 1,
+      "name": "bench-eventbridge-20260920-143702-1",
+      "t0": 1789940235.875755,
+      "vm_id": "microvm-368c74f8-4087-36ed-a204-5be60095cec1",
+      "t_seen": 1789940236.0864031,
+      "t_running": 1789940241.394043,
+      "t_lease": 1789940237.0,
+      "work_s": 6.496,
+      "t_vm_done": 1789940243.824665,
+      "vm_elapsed_s": null,
+      "t_orch_done": 1789940244.0029042,
+      "orchestrator_started_at": null,
+      "orchestrator_stopped_at": null,
+      "t_terminating": null,
+      "t_terminated": 1789940246.374657,
+      "started_at": 1789940236.028,
+      "terminated_at": 1789940244.955,
+      "orchestrator_status": "SUCCEEDED",
+      "vm_error": null,
+      "sources": {
+        "end_to_end": "message arrival (includes the poll wait)",
+        "vm_done": "last /status with lease.done",
+        "vm_seconds": "startedAt -> terminatedAt"
+      },
+      "notes": [
+        "end_to_end_s is the message's arrival as seen by the bench's receive loop (includes the poll wait)"
+      ],
+      "metrics": {
+        "launch_to_lease_s": 1.124,
+        "work_s": 6.496,
+        "completion_to_resume_s": 0.178,
+        "end_to_end_s": 8.127,
+        "vm_seconds": 8.927,
+        "cost_usd": 0.000313
+      }
+    }
+  ],
+  "fanouts": [],
+  "in_vm_parallel": [],
+  "refusal_drill": null,
+  "backfilled": {
+    "at": "2026-09-20T22:00:12Z",
+    "from": "describe_execution startDate/stopDate, get_durable_execution Start/EndTimestamp, GetMicrovm startedAt/terminatedAt"
+  }
+}

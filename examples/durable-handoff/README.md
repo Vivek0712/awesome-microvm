@@ -15,7 +15,7 @@ GitHub / CodeCommit ──▶ webhook.py ──▶ orchestrator (durable) ──
 | Path | Runs where | Role |
 |---|---|---|
 | `agent/` | inside the MicroVM | security review agent on the zero-dependency hook runtime: `/run` takes the lease, a thread does the work, heartbeats and completes the callback |
-| `orchestrator/app.py` | Lambda durable function, Python 3.13 | `microvm.integrations.durable.lease_with_relaunch`: `create_callback` → `FleetManager.lease` (at-most-once step, `clientToken` from the callback id) → `callback.result()` → terminate, relaunched once on a retryable outcome; this file adds event parsing, the CodeCommit PR lookup, and the `context.map` fan-out |
+| `orchestrator/app.py` | Lambda durable function, Python 3.13 | `microvm.integrations.durable.lease_with_relaunch`: `create_callback` → `FleetManager.lease` (at-most-once step, `clientToken` from the callback id) → `callback.result()` → terminate, relaunched once on a retryable outcome; this file adds event parsing, the CodeCommit PR lookup, and the `lease_map` fan-out |
 | `orchestrator/webhook.py` | Lambda behind a Function URL | verifies the GitHub signature, starts one execution per PR head SHA (`DurableExecutionName`), so redeliveries reattach |
 | `orchestrator/janitor.py` | Lambda on a 5 minute schedule | `Fleet.reap()` for VMs older than budget + slack: covers operator stops that skip the orchestrator's cleanup |
 | `orchestrator/template.yaml` | SAM | the three functions, `DurableConfig`, the alias, and the execution role the agent VM runs as, with callback permissions scoped to this orchestrator |
@@ -36,6 +36,8 @@ sam build && sam deploy --parameter-overrides \
 ```
 
 `ImageName` can be any image whose app uses `@app.on_lease`: the security review agent here, or `handoff-agent` from `examples/handoff-agent` if you want to hand the durable function plain shell steps (`{"task": {"steps": [...]}}`), which is how the benchmark drives it.
+
+Fan-out: invoke with `{"mode": "fanout", "shards": [task, task, ...]}` and the orchestrator calls `microvm.integrations.durable.lease_map`. A `shard-plan` step sizes the fan-out from the account's memory quota and the VM baseline (`BASELINE_MIB`, default 2048) and returns `{"status": "rejected", "reason": ...}` before anything launches when it cannot fit; otherwise `context.map` leases one VM per shard, at most the plan's concurrency (or `MAX_CONCURRENCY` when that is lower) at a time, each relaunched once on a retryable outcome, and the execution ends with `{"status": "done", "plan", "outcomes", "succeeded", "failed"}`, the plan's one-sentence summary (`8 shards on 2 GB: 4 at a time (memory quota 8 GB / 2 GB baseline), 2 waves, ...`) in the step log. With a `task` in the event as well, each shard is merged into it (an object) or becomes its `paths` (a list), which is how one review is split by path; the benchmark's `--fanout 4,8 --fanout-kinds durable` sends whole tasks. `mvm watch --image <ImageName>` shows one row per shard VM while it runs.
 
 The stack prints three outputs: `WebhookUrl` (GitHub webhook target, `pull_request` events, JSON), `OrchestratorAlias` (point a CodeCommit trigger at it, or invoke it yourself), and `AgentExecutionRoleArn` (use as `MVM_EXECUTION_ROLE_ARN` when you run the agent by hand).
 
@@ -69,7 +71,7 @@ The durable SDK ships a local runner that drives the handler through checkpoints
 ```console
 cd examples/durable-handoff/orchestrator
 python3.13 -m venv .venv && .venv/bin/pip install -r requirements.txt aws-durable-execution-sdk-python-testing pytest
-.venv/bin/pytest -q test_orchestrator.py          # success · retryable failure then fatal · silent agent times out
+.venv/bin/pytest -q test_orchestrator.py          # success · retryable failure then fatal · silent agent times out · fan-out of two · rejected plan
 ```
 
 ## The three invariants

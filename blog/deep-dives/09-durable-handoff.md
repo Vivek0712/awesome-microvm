@@ -246,7 +246,7 @@ POST /review runs the same clone, diff, scan, and report pipeline synchronously 
 
 ## Variants
 
-Fan-out. Durable operations inside one context must be sequential, so concurrency comes from context.map, which gives every item its own child DurableContext. The example's fanout mode leases one VM per shard of paths, each with its own callback and its own clientToken, and collects the outcomes. On a fresh account that is bounded by the 1 launch per second RunMicrovm quota and the 8 GB memory quota, and microvm-ctl's token bucket paces the launches to 80% of the applied rate.
+Fan-out. Durable operations inside one context must be sequential, so concurrency comes from context.map, and microvm.integrations.durable.lease_map wraps it: a plan step sizes the fan-out from the memory quota and the policy and returns rejected without launching when it cannot fit, an optional approval callback holds a plan above approval_usd, and then context.map runs one lease_with_relaunch per shard at the plan's concurrency, each with its own callback and clientToken, returning the plan and every outcome. The example's fanout mode, {"mode": "fanout", "shards": [...]}, is that one call; on this account the plane's token bucket spaced the launches 1.2 s apart and eight 512 MiB shards ran end to end in 25.5 s by the service's clock.
 
 Human in the loop. Create a second callback before the launch and pass both ids in the payload. The agent completes the review callback with the findings, then the orchestrator waits on the approval callback, which a reviewer completes from a Slack button. Only then does a second, short lease post the comment, or the same VM does if you keep it alive on the approval callback's heartbeat.
 

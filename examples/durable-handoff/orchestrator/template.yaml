@@ -17,6 +17,14 @@ Parameters:
   MaxRelaunches:
     Type: Number
     Default: 1
+  BaselineMib:
+    Type: Number
+    Default: 2048
+    Description: Baseline memory of ImageName, used by the fan-out plan (mode fanout).
+  MaxConcurrency:
+    Type: String
+    Default: ""
+    Description: Cap on VMs in flight per fan-out; empty means the plan's own limit.
   GitHubTokenSecretArn:
     Type: String
     Default: ""
@@ -98,6 +106,8 @@ Resources:
         Variables:
           MVM_EXECUTION_ROLE_ARN: !GetAtt AgentExecutionRole.Arn
           MAX_RELAUNCHES: !Ref MaxRelaunches
+          BASELINE_MIB: !Ref BaselineMib
+          MAX_CONCURRENCY: !Ref MaxConcurrency
           HEARTBEAT_TIMEOUT_S: 120
       Policies:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicDurableExecutionRolePolicy

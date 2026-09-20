@@ -1,0 +1,404 @@
+{
+  "date": "2026-09-20",
+  "region": "us-east-1",
+  "image": "handoff-agent",
+  "task": {
+    "steps": [
+      "echo bench",
+      "sleep 3"
+    ]
+  },
+  "budget_s": 180,
+  "fanout_image": "handoff-agent-small",
+  "baseline_mib": 512,
+  "rates": {
+    "vm_usd_per_s": 3.5027800000000004e-05,
+    "vm_usd_per_gb_s": 1.7513900000000002e-05,
+    "orchestrator_usd": {
+      "sfn": 0.0001,
+      "durable": 2.4e-05,
+      "sqs": 0.0,
+      "eventbridge": 0.0,
+      "http": 0.0
+    }
+  },
+  "summary": {},
+  "fanout_summary": {
+    "sfn x4": {
+      "kind": "sfn",
+      "shards": 4,
+      "runs": 1,
+      "ok": 1,
+      "members_seen": {
+        "p50": 4,
+        "min": 4,
+        "max": 4,
+        "n": 1
+      },
+      "shards_done": {
+        "p50": 0,
+        "min": 0,
+        "max": 0,
+        "n": 1
+      },
+      "shards_failed": {
+        "p50": 0,
+        "min": 0,
+        "max": 0,
+        "n": 1
+      },
+      "shards_in_output": {
+        "p50": 4,
+        "min": 4,
+        "max": 4,
+        "n": 1
+      },
+      "launch_to_all_running_s": {
+        "p50": 10.333,
+        "min": 10.333,
+        "max": 10.333,
+        "n": 1
+      },
+      "first_shard_done_s": null,
+      "slowest_shard_done_s": null,
+      "end_to_end_s": {
+        "p50": 13.782,
+        "min": 13.782,
+        "max": 13.782,
+        "n": 1
+      },
+      "vm_seconds_total": {
+        "p50": 53.592,
+        "min": 53.592,
+        "max": 53.592,
+        "n": 1
+      },
+      "cost_usd": {
+        "p50": 0.000869,
+        "min": 0.000869,
+        "max": 0.000869,
+        "n": 1
+      }
+    },
+    "sfn x8": {
+      "kind": "sfn",
+      "shards": 8,
+      "runs": 1,
+      "ok": 1,
+      "members_seen": {
+        "p50": 8,
+        "min": 8,
+        "max": 8,
+        "n": 1
+      },
+      "shards_done": {
+        "p50": 1,
+        "min": 1,
+        "max": 1,
+        "n": 1
+      },
+      "shards_failed": {
+        "p50": 0,
+        "min": 0,
+        "max": 0,
+        "n": 1
+      },
+      "shards_in_output": {
+        "p50": 8,
+        "min": 8,
+        "max": 8,
+        "n": 1
+      },
+      "launch_to_all_running_s": {
+        "p50": 8.672,
+        "min": 8.672,
+        "max": 8.672,
+        "n": 1
+      },
+      "first_shard_done_s": {
+        "p50": 8.749,
+        "min": 8.749,
+        "max": 8.749,
+        "n": 1
+      },
+      "slowest_shard_done_s": {
+        "p50": 8.749,
+        "min": 8.749,
+        "max": 8.749,
+        "n": 1
+      },
+      "end_to_end_s": {
+        "p50": 11.078,
+        "min": 11.078,
+        "max": 11.078,
+        "n": 1
+      },
+      "vm_seconds_total": {
+        "p50": 78.586,
+        "min": 78.586,
+        "max": 78.586,
+        "n": 1
+      },
+      "cost_usd": {
+        "p50": 0.001488,
+        "min": 0.001488,
+        "max": 0.001488,
+        "n": 1
+      }
+    }
+  },
+  "parallel_summary": {},
+  "runs": [],
+  "fanouts": [
+    {
+      "kind": "sfn",
+      "shards": 4,
+      "name": "bench-sfn-map4-20260920-143748",
+      "image": "handoff-agent-small",
+      "baseline_mib": 512,
+      "t0": 1789940269.249399,
+      "t_all_running": 1789940279.582221,
+      "t_orch_done": 1789940317.861571,
+      "orchestrator_started_at": 1789940269.64,
+      "orchestrator_stopped_at": 1789940283.422,
+      "orchestrator_status": "SUCCEEDED",
+      "output_shards": 4,
+      "output_status": null,
+      "members": {
+        "microvm-719ed4aa-dab5-31f2-8ba4-5f7260f5273d": {
+          "vm_id": "microvm-719ed4aa-dab5-31f2-8ba4-5f7260f5273d",
+          "t_seen": 1789940270.374461,
+          "endpoint": null,
+          "started_at": 1789940269.951,
+          "t_running": 1789940279.468874,
+          "t_done": null,
+          "work_s": null,
+          "t_terminating": null,
+          "t_terminated": 1789940317.862773,
+          "terminated_at": 1789940283.127,
+          "error": null,
+          "vm_seconds_how": "startedAt -> terminatedAt"
+        },
+        "microvm-149ff00b-1956-332f-ae26-8249d9d766fe": {
+          "vm_id": "microvm-149ff00b-1956-332f-ae26-8249d9d766fe",
+          "t_seen": 1789940270.374461,
+          "endpoint": null,
+          "started_at": 1789940269.923,
+          "t_running": 1789940279.468874,
+          "t_done": null,
+          "work_s": null,
+          "t_terminating": null,
+          "t_terminated": 1789940317.862773,
+          "terminated_at": 1789940283.126,
+          "error": null,
+          "vm_seconds_how": "startedAt -> terminatedAt"
+        },
+        "microvm-0d062ab0-d038-33a5-8dd7-38f12cafde40": {
+          "vm_id": "microvm-0d062ab0-d038-33a5-8dd7-38f12cafde40",
+          "t_seen": 1789940270.374461,
+          "endpoint": null,
+          "started_at": 1789940269.915,
+          "t_running": 1789940279.468874,
+          "t_done": null,
+          "work_s": null,
+          "t_terminating": null,
+          "t_terminated": 1789940317.862773,
+          "terminated_at": 1789940283.918,
+          "error": null,
+          "vm_seconds_how": "startedAt -> terminatedAt"
+        },
+        "microvm-7220bcfc-8a17-3f67-8f83-b48d49c55f19": {
+          "vm_id": "microvm-7220bcfc-8a17-3f67-8f83-b48d49c55f19",
+          "t_seen": 1789940270.374461,
+          "endpoint": null,
+          "started_at": 1789940269.958,
+          "t_running": 1789940279.468874,
+          "t_done": null,
+          "work_s": null,
+          "t_terminating": null,
+          "t_terminated": 1789940317.862773,
+          "terminated_at": 1789940283.168,
+          "error": null,
+          "vm_seconds_how": "startedAt -> terminatedAt"
+        }
+      },
+      "sources": {
+        "end_to_end": "service start/stop",
+        "vm_seconds": {
+          "startedAt -> terminatedAt": 4
+        }
+      },
+      "notes": [],
+      "ok": true,
+      "metrics": {
+        "members_seen": 4,
+        "shards_done": 0,
+        "shards_failed": 0,
+        "shards_in_output": 4,
+        "launch_to_all_running_s": 10.333,
+        "first_shard_done_s": null,
+        "slowest_shard_done_s": null,
+        "end_to_end_s": 13.782,
+        "vm_seconds_total": 53.592,
+        "cost_usd": 0.000869
+      }
+    },
+    {
+      "kind": "sfn",
+      "shards": 8,
+      "name": "bench-sfn-map8-20260920-143748",
+      "image": "handoff-agent-small",
+      "baseline_mib": 512,
+      "t0": 1789940318.2151208,
+      "t_all_running": 1789940326.886719,
+      "t_orch_done": 1789940361.841198,
+      "orchestrator_started_at": 1789940318.299,
+      "orchestrator_stopped_at": 1789940329.377,
+      "orchestrator_status": "SUCCEEDED",
+      "output_shards": 8,
+      "output_status": null,
+      "members": {
+        "microvm-2c465edf-c378-32ea-b078-61f79538c863": {
+          "vm_id": "microvm-2c465edf-c378-32ea-b078-61f79538c863",
+          "t_seen": 1789940319.0460422,
+          "endpoint": null,
+          "started_at": 1789940318.608,
+          "t_running": 1789940324.8379478,
+          "t_done": null,
+          "work_s": null,
+          "t_terminating": null,
+          "t_terminated": 1789940361.84187,
+          "terminated_at": 1789940329.137,
+          "error": null,
+          "vm_seconds_how": "startedAt -> terminatedAt"
+        },
+        "microvm-57f3a4b6-a975-3348-83b0-b8374240f270": {
+          "vm_id": "microvm-57f3a4b6-a975-3348-83b0-b8374240f270",
+          "t_seen": 1789940319.0460422,
+          "endpoint": null,
+          "started_at": 1789940318.558,
+          "t_running": 1789940324.8379478,
+          "t_done": null,
+          "work_s": null,
+          "t_terminating": null,
+          "t_terminated": 1789940361.84187,
+          "terminated_at": 1789940328.212,
+          "error": null,
+          "vm_seconds_how": "startedAt -> terminatedAt"
+        },
+        "microvm-831050db-2157-3474-8070-d926a5db2857": {
+          "vm_id": "microvm-831050db-2157-3474-8070-d926a5db2857",
+          "t_seen": 1789940319.0460422,
+          "endpoint": null,
+          "started_at": 1789940318.632,
+          "t_running": 1789940324.8379478,
+          "t_done": null,
+          "work_s": null,
+          "t_terminating": null,
+          "t_terminated": 1789940361.84187,
+          "terminated_at": 1789940328.032,
+          "error": null,
+          "vm_seconds_how": "startedAt -> terminatedAt"
+        },
+        "microvm-2fadedb6-6479-314a-91a4-81da35d6ea8c": {
+          "vm_id": "microvm-2fadedb6-6479-314a-91a4-81da35d6ea8c",
+          "t_seen": 1789940319.0460422,
+          "endpoint": null,
+          "started_at": 1789940318.569,
+          "t_running": 1789940324.8379478,
+          "t_done": null,
+          "work_s": null,
+          "t_terminating": null,
+          "t_terminated": 1789940361.84187,
+          "terminated_at": 1789940329.036,
+          "error": null,
+          "vm_seconds_how": "startedAt -> terminatedAt"
+        },
+        "microvm-aa066e73-60a4-3fb8-a288-ed3f278164be": {
+          "vm_id": "microvm-aa066e73-60a4-3fb8-a288-ed3f278164be",
+          "t_seen": 1789940319.0460422,
+          "endpoint": null,
+          "started_at": 1789940318.582,
+          "t_running": 1789940323.212199,
+          "t_done": null,
+          "work_s": null,
+          "t_terminating": null,
+          "t_terminated": 1789940361.84187,
+          "terminated_at": 1789940327.272,
+          "error": null,
+          "vm_seconds_how": "startedAt -> terminatedAt"
+        },
+        "microvm-07ad8331-d003-30a3-9452-d8983892cf67": {
+          "vm_id": "microvm-07ad8331-d003-30a3-9452-d8983892cf67",
+          "t_seen": 1789940319.0460422,
+          "endpoint": null,
+          "started_at": 1789940318.602,
+          "t_running": 1789940324.8379478,
+          "t_done": null,
+          "work_s": null,
+          "t_terminating": null,
+          "t_terminated": 1789940361.84187,
+          "terminated_at": 1789940328.176,
+          "error": null,
+          "vm_seconds_how": "startedAt -> terminatedAt"
+        },
+        "microvm-e9d3b437-dbaa-38a7-b3b5-0697f20458b8": {
+          "vm_id": "microvm-e9d3b437-dbaa-38a7-b3b5-0697f20458b8",
+          "t_seen": 1789940319.0460422,
+          "endpoint": null,
+          "started_at": 1789940318.57,
+          "t_running": 1789940324.8379478,
+          "t_done": 1789940326.964554,
+          "work_s": 7.034,
+          "t_terminating": null,
+          "t_terminated": 1789940361.84187,
+          "terminated_at": 1789940327.644,
+          "error": null,
+          "vm_seconds_how": "startedAt -> terminatedAt"
+        },
+        "microvm-80d05935-76fc-3852-8c5d-e27e18d8efff": {
+          "vm_id": "microvm-80d05935-76fc-3852-8c5d-e27e18d8efff",
+          "t_seen": 1789940319.0460422,
+          "endpoint": null,
+          "started_at": 1789940318.58,
+          "t_running": 1789940326.627778,
+          "t_done": null,
+          "work_s": null,
+          "t_terminating": null,
+          "t_terminated": 1789940361.84187,
+          "terminated_at": 1789940329.778,
+          "error": null,
+          "vm_seconds_how": "startedAt -> terminatedAt"
+        }
+      },
+      "sources": {
+        "end_to_end": "service start/stop",
+        "vm_seconds": {
+          "startedAt -> terminatedAt": 8
+        }
+      },
+      "notes": [
+        "backfill: dropped 4 member(s) the settle scan swept in from earlier runs"
+      ],
+      "ok": true,
+      "metrics": {
+        "members_seen": 8,
+        "shards_done": 1,
+        "shards_failed": 0,
+        "shards_in_output": 8,
+        "launch_to_all_running_s": 8.672,
+        "first_shard_done_s": 8.749,
+        "slowest_shard_done_s": 8.749,
+        "end_to_end_s": 11.078,
+        "vm_seconds_total": 78.586,
+        "cost_usd": 0.001488
+      }
+    }
+  ],
+  "in_vm_parallel": [],
+  "refusal_drill": null,
+  "backfilled": {
+    "at": "2026-09-20T22:00:14Z",
+    "from": "describe_execution startDate/stopDate, get_durable_execution Start/EndTimestamp, GetMicrovm startedAt/terminatedAt"
+  }
+}

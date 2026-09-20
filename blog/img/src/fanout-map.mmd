@@ -1,0 +1,14 @@
+flowchart LR
+  I["execution input<br/>shards: task, task, ..."] --> G{"Gate<br/>more shards than the threshold?"}
+  G -- yes --> A["RequestApproval<br/>sns publish, wait for task token<br/>timeout 3600 s"]
+  A -- token returned --> M
+  A -- timeout or task failure --> D["Denied"]
+  G -- no --> M["Fanout<br/>Map over shards<br/>MaxConcurrency from the plan"]
+  subgraph P["ItemProcessor, one per shard"]
+    direction TB
+    L["Lease<br/>runMicrovm, wait for task token<br/>RunHookPayload carries lease and task<br/>ClientToken per execution, state, index"] --> T["Terminate<br/>terminateMicrovm"]
+    L -. timeout, heartbeat timeout, task failed .-> R["Reap<br/>listMicrovms by image"] --> S["TerminateStale<br/>members older than the cap"] --> F["ShardFailed"]
+    T --> O["ShardDone<br/>the VM payload"]
+  end
+  M --> P
+  P --> Z["Done<br/>array of shard payloads"]

@@ -1,6 +1,6 @@
 ---
 title: "Hand a task to a MicroVM from anywhere: one lease, Step Functions, durable functions, or your own controller"
-description: "Orchestrators want to hand a VM a job and wait. The lease contract in microvm-ctl puts the callback token in runHookPayload so the VM heartbeats and completes the task itself, with no polling, no endpoint call, and no token mint. The same 2 GB agent image leased from a Step Functions state machine, a Lambda durable function, SQS, EventBridge, and a plain HTTP collector, timed and priced on the live service: 5.7 to 8.9 s end to end and under a thirtieth of a cent per lease."
+description: "Orchestrators want to hand a VM a job and wait. The lease contract in microvm-ctl puts the callback token in runHookPayload so the VM heartbeats and completes the task itself, with no polling, no endpoint call, and no token mint. The same 2 GB agent image leased from a Step Functions state machine, a Lambda durable function, SQS, EventBridge, and a plain HTTP collector, timed and priced on the live service: 5.9 to 10.8 s end to end and under a twentieth of a cent per lease, then fanned out to eight VMs at once under a plan the plane sizes from the account's quota before anything launches."
 series: "Building on AWS Lambda MicroVMs"
 part: 4
 tags: ["lambda", "step-functions", "serverless", "firecracker", "python"]
@@ -9,7 +9,7 @@ cover: "img/cover-03.png"
 
 A Lambda MicroVM gives you a machine with a lifecycle and an endpoint. An orchestrator wants something narrower: hand that machine one job, go to sleep, and wake up when the job is done or when it has clearly gone wrong. Every workload in [part 2](https://builder.aws.com/content/3JJ2oNWY9EsZzivMMx044cSlrFQ/seven-workloads-lambda-could-never-run-until-microvms) of this series was driven from a terminal or a harness that called the VM's endpoint. The customers I work with at Aivar do not run their pipelines from terminals. They run them from Step Functions, from Lambda, and from whatever queue their platform team standardized on years ago, and the question they ask is how a state machine hands a VM a task and waits.
 
-Three answers arrived at roughly the same time. Step Functions got SDK integrations for Lambda MicroVMs in August 2026, so a state machine can call RunMicrovm as a task state and wait for a task token. Lambda durable functions have callbacks, a single-use id that an outside process completes. Everyone else has a queue. I did not want three integrations, so I built one contract in [microvm-ctl](https://github.com/Vivek0712/microvm-ctl) and pointed all three at it; the README puts it in one clause, hand a VM a task from Step Functions, Lambda durable functions, or any orchestrator through a lease the VM completes itself. This is part 4 of Building on AWS Lambda MicroVMs, and every number in it was measured on the live service in us-east-1 on 2026-09-20, on an account with a 1 launch per second quota, against a 2 GB image.
+Three answers arrived at roughly the same time. Step Functions got SDK integrations for Lambda MicroVMs in August 2026, so a state machine can call RunMicrovm as a task state and wait for a task token. Lambda durable functions have callbacks, a single-use id that an outside process completes. Everyone else has a queue. I did not want three integrations, so I built one contract in [microvm-ctl](https://github.com/Vivek0712/microvm-ctl) and pointed all three at it; the README puts it in one clause, hand a VM a task from Step Functions, Lambda durable functions, or any orchestrator through a lease the VM completes itself. This is part 4 of Building on AWS Lambda MicroVMs, and every number in it was measured on the live service in us-east-1 on 2026-09-20, on an account with a 1 launch per second quota, against a 2 GB image, and a 512 MiB build of the same agent for the fan-outs.
 
 ## The contract
 
@@ -97,7 +97,7 @@ def work(task: dict, lease) -> dict:
                                                     "output_tail": r["output_tail"][-800:], "steps": results})
 ```
 
-After the loop come two test aids (hang_s sleeps past any budget to drill the heartbeat timeout, fail_after_s raises a retryable Injected error to drill the relaunch path) and the return value, {passed, steps, microvm_id, heartbeats}, which the runtime delivers as the success payload's result. Nothing in the handler knows which orchestrator is waiting. The job telemetry calls (phase, progress, log) are always on and served at GET /status and streamed at GET /events whether or not there is a lease, which is what mvm status, mvm watch, and the playground read.
+After the loop come two test aids (hang_s sleeps past any budget to drill the heartbeat timeout, fail_after_s raises a retryable Injected error to drill the relaunch path) and the return value, {passed, steps, parallel, microvm_id, heartbeats}, which the runtime delivers as the success payload's result. The snippet above is the sequential path as it shipped in version 1; the image in the repo now also takes "parallel": true and runs the steps on a bounded pool inside the same VM, which the Leases at scale section below measures. Nothing in the handler knows which orchestrator is waiting. The job telemetry calls (phase, progress, log) are always on and served at GET /status and streamed at GET /events whether or not there is a lease, which is what mvm status, mvm watch, and the playground read.
 
 The image built in 132 s for version 1 and again for version 3. One intermediate build was interrupted by the service with "Build workflow was interrupted by an exception", and rebuilding it without changes succeeded, so treat that message as transient. Two things went wrong on the first CLI run, both worth having in front of you before you build your own agent. mvm lease run handoff-agent --kind none --wait launched fine, but the second step, python3 -c "print(2+2)", failed because al2023-minimal ships python3.12 only and there is no python3 on PATH; a symlink in the Dockerfile fixed it. The next attempt failed before launch with "The provided clientToken was used with different request parameters", because a token-less lease has nothing single-use to hash and was reusing the same clientToken with a new payload. client_token now salts kind none with a fresh uuid on every call. After that, mvm watch streamed the phases step 1/4 through 4/4 and ended on the line lease none cli-demo heartbeats=0 done.
 
@@ -169,8 +169,6 @@ StepStarted          review-0-terminate     12:26:49.546
 StepSucceeded        review-0-terminate     12:26:49.579
 InvocationCompleted                         12:26:49.704
 ExecutionSucceeded                          12:26:49.704
-
-After microvm-ctl 0.2.0 reached PyPI I rebuilt the same stack from the published package, with `microvm-ctl[durable]>=0.2.0` in `requirements.txt` and nothing local, and ran one more lease: SUCCEEDED in 13.3 s, three steps passed, `aarch64` from inside the VM.
 ```
 
 13.5 s end to end across two short invocations: one to create the callback and launch, one to wake on the callback and terminate. The launch step took 0.83 s, which is RunMicrovm accepting the request, and between the launch step succeeding and CallbackSucceeded the function was suspended and billing nothing while the VM restored, ran the steps, and completed the callback. That example also carries a webhook receiver with deterministic execution names so redelivered pull request events reattach, a five-minute janitor that reaps by age, and a security review agent on the same runtime. The long write-up of the durable half, including the workshop it was shaped after and each failure mode the pieces exist to prevent, is [the durable handoff deep dive](deep-dives/09-durable-handoff.md); I will not repeat it here.
@@ -187,21 +185,74 @@ I ran the controller twice per kind with a 240 s budget. The p50 total from befo
 
 ## Benchmarks
 
-The comparison that matters is all five kinds on the same image, same task, same account, same afternoon. handoff_bench.py in the microvm-ctl repository leases handoff-agent through each orchestrator, reads the VM's /status for the lease-accepted and done timestamps, and reads the orchestrator's own history for when it resumed. Two runs per kind, three shell steps ending in a short sleep, all ten runs succeeded.
-
-![Lease handoff benchmark across the five kinds: launch to lease, work, completion to resume, end to end, VM seconds, and cost per lease](img/handoff-bench.png)
+The comparison that matters is all five kinds on the same image, same task, same account, same afternoon. handoff_bench.py in the microvm-ctl repository leases handoff-agent through each orchestrator, reads the VM's /status for the lease-accepted and done timestamps, and reads the orchestrator's own history for when it resumed. Two runs per kind, three for sfn after the retry change described under Leases at scale, two shell steps ending in sleep 3, all eleven runs succeeded. The bench's figure, which also carries the fan-out tables, is under Leases at scale.
 
 | kind | launch to lease | work | completion to resume | end to end | VM s | cost per lease |
 |---|---|---|---|---|---|---|
-| sfn | 1.6 s | 3.7 s | 0.7 s | 6.3 s | 6 | $0.00030 |
-| durable | 2.7 s | 4.4 s | 0.8 s | 8.4 s | 5 | $0.00021 |
-| sqs | 1.0 s | 4.5 s | 0.2 s | 5.7 s | 5 | $0.00018 |
-| eventbridge | 1.6 s | 6.8 s | 0.2 s | 8.9 s | 5 | $0.00017 |
-| http | 1.0 s | 4.7 s | 0.2 s | 5.8 s | 6 | $0.00021 |
+| sfn | 1.2 s | 12.0 s | 1.0 s | 9.0 s | 9 | $0.00042 |
+| durable | 2.9 s | 7.7 s | 0.3 s | 10.8 s | 10 | $0.00036 |
+| sqs | 1.2 s | 7.8 s | 0.2 s | 9.1 s | 9 | $0.00033 |
+| eventbridge | 0.9 s | 6.3 s | 0.2 s | 8.1 s | 9 | $0.00030 |
+| http | 0.9 s | 3.3 s | 1.7 s | 5.9 s | 7 | $0.00023 |
 
-Launch to lease is the time from the orchestrator's launch call to the VM logging lease accepted, the snapshot restore plus /run: one to three seconds, consistent with the 3.54 s p50 to serving traffic in [part 1](https://builder.aws.com/content/3JIDTpz0ZgatSBv24drra3gEod9/control-and-scale-aws-lambda-microvms-with-microvm-ctl) minus the endpoint. Work is what the steps took inside the VM; the eventbridge 6.8 s is one slow run of two, not the bus. Completion to resume is where the orchestrators actually differ: Step Functions and durable functions take 0.7 to 0.8 s to notice the completion and run the next state or invocation, a queue poller sees the message in 0.2 s. End to end is 5.7 to 8.9 s for a job that spends about four seconds working, so the handoff costs two to five seconds of wall clock and no orchestrator compute worth mentioning.
+Launch to lease is the time from the orchestrator's launch call to the VM logging lease accepted, the snapshot restore plus /run: one to three seconds, consistent with the 3.54 s p50 to serving traffic in [part 1](https://builder.aws.com/content/3JIDTpz0ZgatSBv24drra3gEod9/control-and-scale-aws-lambda-microvms-with-microvm-ctl) minus the endpoint. Work is what the steps took inside the VM by the VM's own clock, and it is the thinnest column: the bench reads it from /status while the VM is alive, a VM terminated between two polls leaves no reading, and the sfn, sqs, and http figures are single observations. Completion to resume is where the orchestrators actually differ: Step Functions takes a second to notice the completion and run the next state, a durable function 0.3 s, a queue poller 0.2 s; the http 1.7 s is one observation through the collector Lambda. End to end is 5.9 to 10.8 s, and the handoff's own share of it, launch to lease plus completion to resume, is 1.1 to 3.2 s of wall clock and no orchestrator compute worth mentioning.
 
-The cost column is a model on measured seconds, not a bill. A 2 GB, 1 vCPU VM at the published us-east-1 rates is $0.0000276944 per vCPU-second plus 2 x $0.0000036667 per GB-second, $0.0000350278 per second, times the VM seconds per lease. On top of that Step Functions charges four state transitions at $0.000025 each and the durable function three operations at $0.000008 each; the generic kinds add nothing beyond what the queue or bus costs you already. That makes a Step Functions lease about a third of a cent per thousand more than a queue lease, and none of them reaches a thirtieth of a cent. The VM is the whole bill, and it is a six second VM.
+The cost column is a model on measured seconds, not a bill. A 2 GB, 1 vCPU VM at the published us-east-1 rates is $0.0000276944 per vCPU-second plus 2 x $0.0000036667 per GB-second, $0.0000350278 per second, times the VM seconds per lease. On top of that Step Functions charges four state transitions at $0.000025 each and the durable function three operations at $0.000008 each; the generic kinds add nothing beyond what the queue or bus costs you already. That makes a Step Functions lease a hundredth of a cent more than a queue lease, and none of them reaches a twentieth of a cent. The VM is most of the bill, and it is a seven to ten second VM.
+
+## Leases at scale
+
+Every lease in this article is one VM, one task, one token, and that stays true when there are eight of them. Parallelism is not a feature of the lease; it is the construct the orchestrator already has, a Step Functions Map, a durable context.map, or a loop in your controller. What the plane adds is the arithmetic that makes a fan-out safe on a given account, before anything launches.
+
+### The plan comes first
+
+The account sets the ceiling. mvm quotas on this account prints 16 half-GB images at once, 8 of 1 GB, 4 of 2 GB, 2 of 4 GB, and 1 of 8 GB: the 8 GB memory quota divided by the baseline, with the 1 launch per second RunMicrovm quota underneath. LeasePolicy carries the platform's ceilings next to the time budgets, max_concurrency, max_vm_seconds, and approval_usd, and LeasePolicy.from_env() reads them from MVM_LEASE_MAX_CONCURRENCY, MVM_LEASE_MAX_VM_SECONDS, and MVM_LEASE_APPROVAL_USD, so the task author never sets them. plan_fanout turns shards, baseline, policy, quota, and launch rate into a LeasePlan: concurrency, waves, launch time to all running, worst-case VM-seconds (every shard at budget plus slack) and dollars, needs_approval, and rejected with the reason. FleetManager.plan fills in the account's real quota and rate, and FleetManager.lease_many runs it as a pre-flight and refuses more leases than the concurrency limit before the first RunMicrovm call.
+
+mvm lease plan --image handoff-agent --shards 8 printed concurrency 4 (memory quota 8 GB / 2 GB baseline), 2 waves, launch to all running about 14.5 s, worst case 8160 VM-seconds, $0.2858, no approval needed. The refusal drill asked for 40 shards of the same image: 10 waves, worst case 40800 VM-seconds, $1.43, and lease_many refused with "40 leases exceed the concurrency limit 4; launch in waves", 0 RunMicrovm calls, 0 new VMs. The same plan with --max-vm-seconds 10000 printed "rejected: worst case 40800 VM-seconds exceeds policy max_vm_seconds 10000". Both are the plane saying no in a sentence before the account has spent anything.
+
+### The Map
+
+mvm lease asl --map wraps the single-lease machine as the item processor of a Map over $states.input.shards, with MaxConcurrency from fanout_limit when you do not pass one; [template-map.yaml](https://github.com/Vivek0712/awesome-microvm/blob/main/examples/stepfunctions-handoff/template-map.yaml) in the Step Functions example commits the output. Every shard gets the same Lease, Terminate, Reap, and TerminateStale states, and the execution output is the array of VM payloads.
+
+![The generated Map state machine: a Gate choice routes large fan-outs through RequestApproval, an SNS publish that waits for a task token, or to Denied; Fanout is a Map whose item processor per shard runs Lease, then Terminate and ShardDone, or Reap, TerminateStale, and ShardFailed on a timeout; Done collects the array of shard payloads](img/arch-09-fanout-map.png)
+
+The service taught me two things when this machine first deployed, and both live in the emitter now. Inside a JSONata Map item processor there is no $states.context.Map.Item.Index, so indexed_items_expr wraps each shard as {index, task} and the lease id and ClientToken carry that index; a retried shard gets its own VM back, never a neighbour's. And state names must be unique across the whole definition, not per processor, so the shard's terminal state is ShardDone (MAP_DONE_NAME), not a second Done. The Retry block changed too: the generated machine used to wait 10 s before retrying a throttled RunMicrovm, then 20 s, and on a 1 per second quota that dominated one single-lease run, 14.7 s instead of 5.5 s. _retry_throttling now waits 2 s first, 8 attempts, backoff 2, full jitter. With --approval-topic the machine gains a Gate choice that sends executions with more shards than --approve-above-shards through RequestApproval, an sns:publish.waitForTaskToken, so the approval is in the execution history; no answer within an hour ends in Denied. I deployed and validated that template, but every measured fan-out below ran without the gate.
+
+### lease_map
+
+The durable version is microvm.integrations.durable.lease_map(context, fm, image, tasks, policy=..., baseline_mib=...): a plan step first, {status: rejected, reason, plan} without launching when the plan is rejected, an approval callback when the plan is above approval_usd and you pass an approve function, then context.map over the tasks with one lease_with_relaunch per shard at the plan's concurrency, returning the plan and every outcome. The durable example's fanout mode, {"mode": "fanout", "shards": [...]}, is that one call. The launches go through the plane's token bucket, and in the service records they went out 1.2 s apart, 80% of the 1 per second quota.
+
+### By hand and on screen
+
+mvm lease run handoff-agent --shards 4 does the same from a terminal, planning first and exiting 2 on a refusal and 3 when the plan needs approval without --approve. mvm watch --image handoff-agent is one live table for every RUNNING member of an image, with a footer of done over total, running, lost, and the slowest member; the playground's fleet job panel is the same table.
+
+![The playground's Fleet view during a four-shard fan-out from mvm lease run --shards 4: four RUNNING handoff-agent-small VMs, the fleet job panel with leases shot-0 to shot-3 in step 2/3, and the footer done 0/4, running 4, lost 0](img/playground-fanout.png)
+
+### What a fan-out measures
+
+The bench drives the deployed Map and the durable fanout mode with 4 and 8 shards of handoff-agent-small, the same agent at a 512 MiB baseline so all eight fit the quota at once, and takes start and stop from the orchestrator's own record; the three lower tables of the bench's figure are these runs, the in-VM comparison, and the refusal drill.
+
+![The lease handoff bench's four tables: the single-lease p50 per kind, the fan-out p50 per kind and size, the in-VM parallel comparison, and the refusal drill, with the cost model and source files underneath](img/handoff-bench.png)
+
+| kind | shards | all running | first shard done | slowest shard done | end to end | VM s total | cost per fan-out |
+|---|---|---|---|---|---|---|---|
+| sfn | 4 | 10.4 s | 12.9 s | 12.9 s | 12.7 s | 51 | $0.00085 |
+| sfn | 8 | 10.1 s | 8.9 s | 10.2 s | 10.9 s | 77 | $0.00147 |
+| durable | 4 | 13.8 s | 11.9 s | 14.5 s | 15.6 s | 34 | $0.00040 |
+| durable | 8 | - | 9.9 s | 9.9 s | 25.5 s | 81 | $0.00090 |
+
+End to end is the service's clock: describe_execution's start and stop for Step Functions, the durable execution's own timestamps for Lambda. The execution history of the first 8-shard Map run, MaxConcurrency 8, reads ExecutionStarted at 0.0 s, all 8 TaskSubmitted by 0.4 s, the first TaskSucceeded at 8.3 s, the last MapIterationSucceeded at 11.0 s, and ExecutionSucceeded at 11.1 s; the 4-shard run took 13.8 s, and the rerun after the retry change is the table row. Eight VMs cost 77 VM-seconds and $0.00147, of which $0.0008 is 32 Step Functions state transitions, so on a half-GB image the orchestrator is more than half the bill. The durable 8-shard row is slower than its first-pass 16.7 s because the bench saw one of the eight VMs RUNNING only 13.8 s after the service's startedAt for it, and the map waited; the dash in its all-running column is honest, the first VM had been terminated before the last was up. The first and slowest shard done columns are /status observations between polls and are informational: the 4-shard sfn row's first shard done lands 0.2 s after its own end to end. Heartbeats stayed 0 in every shard because every task finished inside 30 s.
+
+![A frame of mvm watch --image handoff-agent-small during the 8-shard Step Functions fan-out: eight rows, each in step 2/2 with progress 1/2 at 6 s, state running, and the footer done 0/8, running 8, lost 0](img/fleet-watch.png)
+
+The harness lesson, said plainly because it is the mistake you will make too: my first pass reported 43 to 52 s for these fan-outs, because it timed the orchestrator by when its own poll loop saw the terminal state while also polling every member's /status, so the number was the harness, not the service. The fix takes start and stop from describe_execution and get_durable_execution, and VM-seconds from GetMicrovm's startedAt to terminatedAt, and the same runs came back at 11.1 to 16.7 s.
+
+### Inside one VM
+
+Reach for parallelism inside the VM before you reach for a fan-out. The handoff agent's "parallel": true runs the steps on a thread pool of max_parallel workers, and four sleep 3 steps on one 2 GB VM took 12.5 s of VM time sequentially and 3.6 s in parallel, the steps themselves summing to 12.1 s and 12.3 s; the lease cost $0.00049 against $0.00019. That touches neither quota.
+
+### Five layers, and a breaker
+
+Who controls runaway cost. The account quota is the hard stop and is raised by ticket. The policy is the platform team's ceiling, enforced before launch. The plan is the number the requester reads before spending. Approval above the threshold goes through the orchestrator's own callback and is in its history. After launch, every VM's maximumDurationInSeconds and the reaper bound any mistake. The [circuit-breaker](https://github.com/Vivek0712/awesome-microvm/tree/main/examples/circuit-breaker) example is the account-wide stop for the day all five agree and the account still holds more memory than it should: a metric on running microVM memory per image, an alarm on the total, a drain function that runs Fleet.drain for every image, and an AWS Budgets action that attaches a Deny on lambda:RunMicrovm to the orchestrator roles when the month's spend crosses the line, so a Lease state fails into Reap and a lease_map fails in its launch step while the VMs already leased finish on their own budgets. I exercised it live on the small image: with the alarm threshold lowered to 1 GiB, four 512 MiB handoff-agent-small VMs ran for about 95 seconds before the metric caught up, the alarm went to ALARM, and the drain function terminated all four in the same minute. The approval gate is deployed and validated as a template, not exercised live.
 
 ## The gotchas
 
@@ -228,6 +279,9 @@ The contract is documented in [docs/integrations.md](https://github.com/Vivek071
 | Several consumers of the same completions, or a need to fan completions out | eventbridge | One event, many rules; the same caveat on closed tokens |
 | A controller outside AWS, CI, a laptop, a language without boto3 | http | urllib only inside the VM, no IAM on the VM role; you own the endpoint and its authentication |
 | Debugging an agent, or a demo | none | No completer; watch it through /status, mvm watch, or the playground |
+| Many independent shards from a Standard workflow | sfn, Map | mvm lease asl --map: one VM per shard, MaxConcurrency from the plan, an optional SNS approval gate above a shard count |
+| Many shards from Python, with a plan and an approval you can code | durable, lease_map | One call: a plan step, an optional approval callback, context.map over lease_with_relaunch |
+| Several small steps that fit one VM | any, with "parallel": true | No second VM and no quota: 3.6 s against 12.5 s for four sleep 3 steps |
 
 ## What to run
 

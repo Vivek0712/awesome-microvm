@@ -1,0 +1,101 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Circuit breaker for microvm-ctl fleets: a publisher that puts the memory the account's
+  microVMs hold on CloudWatch every minute, an alarm on the total, and a drain that
+  terminates every VM of the configured images when the alarm fires.
+
+Parameters:
+  MemoryGiBThreshold:
+    Type: Number
+    Default: 12
+    Description: Alarm when RUNNING and PENDING microVMs together hold more than this many GiB.
+  ImagesToDrain:
+    Type: String
+    Default: "*"
+    Description: Comma-separated image names or ARNs the drain terminates, or * for every image with live VMs.
+
+Globals:
+  Function:
+    Runtime: python3.13
+    Architectures: [arm64]
+    MemorySize: 256
+    Timeout: 60
+    CodeUri: ./
+    Environment:
+      Variables:
+        MVM_REGION: !Ref AWS::Region
+
+Resources:
+  # ---- every minute: microvm-ctl/ActiveMicrovms and microvm-ctl/RunningMemoryGiB, per Image and in total
+  MetricPublisher:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: publisher.handler
+      Events:
+        EveryMinute:
+          Type: Schedule
+          Properties:
+            Schedule: rate(1 minute)
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action: [lambda:ListMicrovms, lambda:GetMicrovmImageVersion]
+              Resource: "*"
+            - Effect: Allow
+              Action: cloudwatch:PutMetricData
+              Resource: "*"
+              Condition:
+                StringEquals:
+                  cloudwatch:namespace: microvm-ctl
+
+  Topic:
+    Type: AWS::SNS::Topic
+
+  # ---- the breaker: the account total (no dimensions) above the threshold for one minute
+  MemoryAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: !Sub microVMs hold more than ${MemoryGiBThreshold} GiB of running memory
+      Namespace: microvm-ctl
+      MetricName: RunningMemoryGiB
+      Statistic: Maximum
+      Period: 60
+      EvaluationPeriods: 1
+      Threshold: !Ref MemoryGiBThreshold
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: notBreaching
+      AlarmActions: [!Ref Topic]
+
+  # ---- on the topic: Fleet(fm, image).drain() for every image in ImagesToDrain
+  Drain:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: drain.handler
+      Timeout: 300
+      Environment:
+        Variables:
+          IMAGES_TO_DRAIN: !Ref ImagesToDrain
+      Events:
+        Breaker:
+          Type: SNS
+          Properties:
+            Topic: !Ref Topic
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action: [lambda:ListMicrovms, lambda:TerminateMicrovm, servicequotas:GetServiceQuota]
+              Resource: "*"
+
+Outputs:
+  TopicArn:
+    Description: The alarm publishes here; subscribe a mailbox too, or `aws sns publish` to drill the drain
+    Value: !Ref Topic
+  AlarmName:
+    Description: The circuit breaker alarm
+    Value: !Ref MemoryAlarm
+  DrainFunction:
+    Description: Invoke directly to drain by hand
+    Value: !Ref Drain

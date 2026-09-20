@@ -1,0 +1,154 @@
+{
+  "date": "2026-09-20",
+  "region": "us-east-1",
+  "image": "handoff-agent",
+  "task": {
+    "steps": [
+      "echo bench",
+      "sleep 3"
+    ]
+  },
+  "budget_s": 180,
+  "fanout_image": null,
+  "baseline_mib": null,
+  "rates": {
+    "vm_usd_per_s": 3.5027800000000004e-05,
+    "vm_usd_per_gb_s": 1.7513900000000002e-05,
+    "orchestrator_usd": {
+      "sfn": 0.0001,
+      "durable": 2.4e-05,
+      "sqs": 0.0,
+      "eventbridge": 0.0,
+      "http": 0.0
+    }
+  },
+  "summary": {
+    "sqs": {
+      "runs": 2,
+      "ok": 2,
+      "launch_to_lease_s": {
+        "p50": 1.165,
+        "min": 0.749,
+        "max": 1.58,
+        "n": 2
+      },
+      "work_s": {
+        "p50": 7.804,
+        "min": 7.804,
+        "max": 7.804,
+        "n": 1
+      },
+      "completion_to_resume_s": {
+        "p50": 0.178,
+        "min": 0.178,
+        "max": 0.178,
+        "n": 1
+      },
+      "end_to_end_s": {
+        "p50": 9.093,
+        "min": 8.522,
+        "max": 9.663,
+        "n": 2
+      },
+      "vm_seconds": {
+        "p50": 9.456,
+        "min": 8.907,
+        "max": 10.004,
+        "n": 2
+      },
+      "cost_usd": {
+        "p50": 0.000331,
+        "min": 0.000312,
+        "max": 0.00035,
+        "n": 2
+      }
+    }
+  },
+  "fanout_summary": {},
+  "parallel_summary": {},
+  "runs": [
+    {
+      "kind": "sqs",
+      "index": 0,
+      "name": "bench-sqs-20260920-143635-0",
+      "t0": 1789940197.250944,
+      "vm_id": "microvm-0731c32e-8c18-3e0d-b1c7-7a364ad69718",
+      "t_seen": 1789940197.497462,
+      "t_running": 1789940202.95056,
+      "t_lease": 1789940198.0,
+      "work_s": null,
+      "t_vm_done": null,
+      "vm_elapsed_s": null,
+      "t_orch_done": 1789940205.772653,
+      "orchestrator_started_at": null,
+      "orchestrator_stopped_at": null,
+      "t_terminating": null,
+      "t_terminated": 1789940208.1669161,
+      "started_at": 1789940197.418,
+      "terminated_at": 1789940206.325,
+      "orchestrator_status": "SUCCEEDED",
+      "vm_error": null,
+      "sources": {
+        "end_to_end": "message arrival (includes the poll wait)",
+        "vm_done": null,
+        "vm_seconds": "startedAt -> terminatedAt"
+      },
+      "notes": [
+        "end_to_end_s is the message's arrival as seen by the bench's receive loop (includes the poll wait)"
+      ],
+      "metrics": {
+        "launch_to_lease_s": 0.749,
+        "work_s": null,
+        "completion_to_resume_s": null,
+        "end_to_end_s": 8.522,
+        "vm_seconds": 8.907,
+        "cost_usd": 0.000312
+      }
+    },
+    {
+      "kind": "sqs",
+      "index": 1,
+      "name": "bench-sqs-20260920-143635-1",
+      "t0": 1789940209.419761,
+      "vm_id": "microvm-3b7bf19e-9468-3724-9662-8b1b6e2faac2",
+      "t_seen": 1789940209.7111511,
+      "t_running": 1789940216.570896,
+      "t_lease": 1789940211.0,
+      "work_s": 7.804,
+      "t_vm_done": 1789940218.9049191,
+      "vm_elapsed_s": null,
+      "t_orch_done": 1789940219.0830379,
+      "orchestrator_started_at": null,
+      "orchestrator_stopped_at": null,
+      "t_terminating": null,
+      "t_terminated": 1789940221.476672,
+      "started_at": 1789940209.627,
+      "terminated_at": 1789940219.631,
+      "orchestrator_status": "SUCCEEDED",
+      "vm_error": null,
+      "sources": {
+        "end_to_end": "message arrival (includes the poll wait)",
+        "vm_done": "last /status with lease.done",
+        "vm_seconds": "startedAt -> terminatedAt"
+      },
+      "notes": [
+        "end_to_end_s is the message's arrival as seen by the bench's receive loop (includes the poll wait)"
+      ],
+      "metrics": {
+        "launch_to_lease_s": 1.58,
+        "work_s": 7.804,
+        "completion_to_resume_s": 0.178,
+        "end_to_end_s": 9.663,
+        "vm_seconds": 10.004,
+        "cost_usd": 0.00035
+      }
+    }
+  ],
+  "fanouts": [],
+  "in_vm_parallel": [],
+  "refusal_drill": null,
+  "backfilled": {
+    "at": "2026-09-20T22:00:11Z",
+    "from": "describe_execution startDate/stopDate, get_durable_execution Start/EndTimestamp, GetMicrovm startedAt/terminatedAt"
+  }
+}

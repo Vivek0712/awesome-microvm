@@ -1,0 +1,182 @@
+{
+  "date": "2026-09-20",
+  "region": "us-east-1",
+  "image": "handoff-agent",
+  "task": {
+    "steps": [
+      "echo bench",
+      "sleep 3"
+    ]
+  },
+  "budget_s": 180,
+  "fanout_image": null,
+  "baseline_mib": null,
+  "rates": {
+    "vm_usd_per_s": 3.5027800000000004e-05,
+    "vm_usd_per_gb_s": 1.7513900000000002e-05,
+    "orchestrator_usd": {
+      "sfn": 0.0001,
+      "durable": 2.4e-05,
+      "sqs": 0.0,
+      "eventbridge": 0.0,
+      "http": 0.0
+    }
+  },
+  "summary": {
+    "sfn": {
+      "runs": 3,
+      "ok": 3,
+      "launch_to_lease_s": {
+        "p50": 1.201,
+        "min": 0.983,
+        "max": 1.713,
+        "n": 3
+      },
+      "work_s": {
+        "p50": 12.01,
+        "min": 12.01,
+        "max": 12.01,
+        "n": 1
+      },
+      "completion_to_resume_s": {
+        "p50": 0.953,
+        "min": 0.923,
+        "max": 1.046,
+        "n": 3
+      },
+      "end_to_end_s": {
+        "p50": 8.988,
+        "min": 8.804,
+        "max": 14.29,
+        "n": 3
+      },
+      "vm_seconds": {
+        "p50": 9.128,
+        "min": 9.078,
+        "max": 14.681,
+        "n": 3
+      },
+      "cost_usd": {
+        "p50": 0.00042,
+        "min": 0.000418,
+        "max": 0.000614,
+        "n": 3
+      }
+    }
+  },
+  "fanout_summary": {},
+  "parallel_summary": {},
+  "runs": [
+    {
+      "kind": "sfn",
+      "index": 0,
+      "name": "bench-sfn-20260920-150210-0",
+      "t0": 1789941732.286981,
+      "vm_id": "microvm-953b2d61-2da6-3694-a7f8-15b2dda4b276",
+      "t_seen": 1789941734.69002,
+      "t_running": 1789941743.751292,
+      "t_lease": 1789941734.0,
+      "work_s": 12.01,
+      "t_vm_done": 1789941746.56225,
+      "vm_elapsed_s": 12.001,
+      "t_orch_done": 1789941747.2247958,
+      "orchestrator_started_at": 1789941732.664,
+      "orchestrator_stopped_at": 1789941746.954,
+      "t_terminating": 1789941747.328635,
+      "t_terminated": 1789941749.4402409,
+      "started_at": 1789941732.933,
+      "terminated_at": 1789941747.614,
+      "orchestrator_status": "SUCCEEDED",
+      "vm_error": null,
+      "sources": {
+        "end_to_end": "service start/stop",
+        "vm_done": "/status.started + payload elapsed_s",
+        "vm_seconds": "startedAt -> terminatedAt"
+      },
+      "notes": [],
+      "metrics": {
+        "launch_to_lease_s": 1.713,
+        "work_s": 12.01,
+        "completion_to_resume_s": 0.953,
+        "end_to_end_s": 14.29,
+        "vm_seconds": 14.681,
+        "cost_usd": 0.000614
+      }
+    },
+    {
+      "kind": "sfn",
+      "index": 1,
+      "name": "bench-sfn-20260920-150210-1",
+      "t0": 1789941751.017097,
+      "vm_id": "microvm-6ff1cb4c-1091-3440-9ec4-b9ea86e8dc67",
+      "t_seen": 1789941751.807717,
+      "t_running": 1789941757.4709,
+      "t_lease": 1789941752.0,
+      "work_s": null,
+      "t_vm_done": null,
+      "vm_elapsed_s": 7.044,
+      "t_orch_done": 1789941763.156149,
+      "orchestrator_started_at": 1789941751.102,
+      "orchestrator_stopped_at": 1789941760.09,
+      "t_terminating": null,
+      "t_terminated": 1789941763.261499,
+      "started_at": 1789941751.366,
+      "terminated_at": 1789941760.494,
+      "orchestrator_status": "SUCCEEDED",
+      "vm_error": null,
+      "sources": {
+        "end_to_end": "service start/stop",
+        "vm_done": "/status.started + payload elapsed_s",
+        "vm_seconds": "startedAt -> terminatedAt"
+      },
+      "notes": [],
+      "metrics": {
+        "launch_to_lease_s": 0.983,
+        "work_s": null,
+        "completion_to_resume_s": 1.046,
+        "end_to_end_s": 8.988,
+        "vm_seconds": 9.128,
+        "cost_usd": 0.00042
+      }
+    },
+    {
+      "kind": "sfn",
+      "index": 2,
+      "name": "bench-sfn-20260920-150210-2",
+      "t0": 1789941764.799108,
+      "vm_id": "microvm-c9c0085d-db5b-3fd2-af31-3bbfd8043f38",
+      "t_seen": 1789941765.638698,
+      "t_running": 1789941770.4983182,
+      "t_lease": 1789941766.0,
+      "work_s": null,
+      "t_vm_done": null,
+      "vm_elapsed_s": 6.76,
+      "t_orch_done": 1789941776.858458,
+      "orchestrator_started_at": 1789941764.879,
+      "orchestrator_stopped_at": 1789941773.683,
+      "t_terminating": null,
+      "t_terminated": 1789941776.962847,
+      "started_at": 1789941765.135,
+      "terminated_at": 1789941774.213,
+      "orchestrator_status": "SUCCEEDED",
+      "vm_error": null,
+      "sources": {
+        "end_to_end": "service start/stop",
+        "vm_done": "/status.started + payload elapsed_s",
+        "vm_seconds": "startedAt -> terminatedAt"
+      },
+      "notes": [],
+      "metrics": {
+        "launch_to_lease_s": 1.201,
+        "work_s": null,
+        "completion_to_resume_s": 0.923,
+        "end_to_end_s": 8.804,
+        "vm_seconds": 9.078,
+        "cost_usd": 0.000418
+      }
+    }
+  ],
+  "fanouts": [],
+  "in_vm_parallel": [],
+  "refusal_drill": null
+}

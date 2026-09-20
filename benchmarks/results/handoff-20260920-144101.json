@@ -1,0 +1,163 @@
+{
+  "date": "2026-09-20",
+  "region": "us-east-1",
+  "image": "handoff-agent",
+  "task": {
+    "steps": [
+      "echo bench",
+      "sleep 3"
+    ]
+  },
+  "budget_s": 180,
+  "fanout_image": null,
+  "baseline_mib": null,
+  "rates": {
+    "vm_usd_per_s": 3.5027800000000004e-05,
+    "vm_usd_per_gb_s": 1.7513900000000002e-05,
+    "orchestrator_usd": {
+      "sfn": 0.0001,
+      "durable": 2.4e-05,
+      "sqs": 0.0,
+      "eventbridge": 0.0,
+      "http": 0.0
+    }
+  },
+  "summary": {},
+  "fanout_summary": {},
+  "parallel_summary": {
+    "sequential": {
+      "runs": 1,
+      "ok": 1,
+      "launch_to_running_s": {
+        "p50": 2.157,
+        "min": 2.157,
+        "max": 2.157,
+        "n": 1
+      },
+      "elapsed_s": {
+        "p50": 12.458,
+        "min": 12.458,
+        "max": 12.458,
+        "n": 1
+      },
+      "step_seconds": {
+        "p50": 12.1,
+        "min": 12.1,
+        "max": 12.1,
+        "n": 1
+      },
+      "vm_seconds": {
+        "p50": 14.101,
+        "min": 14.101,
+        "max": 14.101,
+        "n": 1
+      },
+      "cost_usd": {
+        "p50": 0.000494,
+        "min": 0.000494,
+        "max": 0.000494,
+        "n": 1
+      }
+    },
+    "parallel": {
+      "runs": 1,
+      "ok": 1,
+      "launch_to_running_s": {
+        "p50": 2.168,
+        "min": 2.168,
+        "max": 2.168,
+        "n": 1
+      },
+      "elapsed_s": {
+        "p50": 3.598,
+        "min": 3.598,
+        "max": 3.598,
+        "n": 1
+      },
+      "step_seconds": {
+        "p50": 12.306,
+        "min": 12.306,
+        "max": 12.306,
+        "n": 1
+      },
+      "vm_seconds": {
+        "p50": 5.378,
+        "min": 5.378,
+        "max": 5.378,
+        "n": 1
+      },
+      "cost_usd": {
+        "p50": 0.000188,
+        "min": 0.000188,
+        "max": 0.000188,
+        "n": 1
+      }
+    }
+  },
+  "runs": [],
+  "fanouts": [],
+  "in_vm_parallel": [
+    {
+      "mode": "sequential",
+      "name": "bench-invm-sequential-20260920-144101",
+      "t0": 1789940463.14526,
+      "vm_id": "microvm-27cdcdab-4620-37af-aebf-6b11355556c7",
+      "t_running": 1789940465.30192,
+      "t_done": 1789940477.016503,
+      "elapsed_s": 12.458,
+      "step_seconds": 12.1,
+      "passed": true,
+      "error": null,
+      "t_terminated": 1789940479.402633,
+      "notes": [],
+      "metrics": {
+        "launch_to_running_s": 2.157,
+        "elapsed_s": 12.458,
+        "step_seconds": 12.1,
+        "vm_seconds": 14.101,
+        "cost_usd": 0.000494
+      }
+    },
+    {
+      "mode": "parallel",
+      "name": "bench-invm-parallel-20260920-144101",
+      "t0": 1789940480.16077,
+      "vm_id": "microvm-aa03e25e-b6c4-38e9-9d09-c01ba4fa9a3b",
+      "t_running": 1789940482.3284988,
+      "t_done": 1789940485.3110569,
+      "elapsed_s": 3.598,
+      "step_seconds": 12.306,
+      "passed": true,
+      "error": null,
+      "t_terminated": 1789940487.706709,
+      "notes": [],
+      "metrics": {
+        "launch_to_running_s": 2.168,
+        "elapsed_s": 3.598,
+        "step_seconds": 12.306,
+        "vm_seconds": 5.378,
+        "cost_usd": 0.000188
+      }
+    }
+  ],
+  "refusal_drill": {
+    "shards": 40,
+    "baseline_mib": 2048,
+    "launched": 0,
+    "run_microvm_calls": 0,
+    "refusal": "40 leases exceed the concurrency limit 4; launch in waves",
+    "refused_by": "lease_many",
+    "ok": true,
+    "summary": "40 shards on 2 GB: 4 at a time (memory quota 8 GB / 2 GB baseline), 10 waves, all running in ~72 s, worst case 40800 VM-s = $1.43",
+    "plan_rejected": null,
+    "concurrency": 4,
+    "waves": 10,
+    "memory_quota_gb": 8.0,
+    "worst_case_vm_seconds": 40800,
+    "worst_case_usd": 1.429134
+  },
+  "backfilled": {
+    "at": "2026-09-20T22:00:16Z",
+    "from": "describe_execution startDate/stopDate, get_durable_execution Start/EndTimestamp, GetMicrovm startedAt/terminatedAt"
+  }
+}
