@@ -160,6 +160,8 @@ StepStarted          review-0-terminate     12:26:49.546
 StepSucceeded        review-0-terminate     12:26:49.579
 InvocationCompleted                         12:26:49.704
 ExecutionSucceeded                          12:26:49.704
+
+After microvm-ctl 0.2.0 reached PyPI I rebuilt the same stack from the published package, with `microvm-ctl[durable]>=0.2.0` in `requirements.txt` and nothing local, and ran one more lease: SUCCEEDED in 13.3 s, three steps passed, `aarch64` from inside the VM.
 ```
 
 13.5 s end to end across two short invocations: one to create the callback and launch, one to wake on the callback and terminate. The launch step took 0.83 s, which is RunMicrovm accepting the request, and between the launch step succeeding and CallbackSucceeded the function was suspended and billing nothing while the VM restored, ran the steps, and completed the callback. That example also carries a webhook receiver with deterministic execution names so redelivered pull request events reattach, a five-minute janitor that reaps by age, and a security review agent on the same runtime. The long write-up of the durable half, including the workshop it was shaped after and each failure mode the pieces exist to prevent, is [the durable handoff deep dive](deep-dives/09-durable-handoff.md); I will not repeat it here.
