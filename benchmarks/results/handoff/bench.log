@@ -1,0 +1,84 @@
+### sfn
+─────────────────────────────── lease handoff bench: sfn x 2 on handoff-agent ────────────────────────────────
+  sfn run 1: started bench-sfn-20260920-124153-0
+    vm microvm-27e95a30-790f-3ec1-a0e2-925bc240422b RUNNING at +3.1s
+    lease accepted at +1.9s, done after 3.595s of work (+5.8s)
+    orchestrator SUCCEEDED at +6.5s
+  sfn run 2: started bench-sfn-20260920-124153-1
+    vm microvm-3a6afe62-c46b-3378-98cf-684a75fdabc6 RUNNING at +2.8s
+    lease accepted at +1.4s, done after 3.791s of work (+5.4s)
+    orchestrator SUCCEEDED at +6.1s
+                                   lease handoff, p50 per kind                                   
+┏━━━━━━┳━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━┳━━━━━━━━━━━━━━┓
+┃ kind ┃  ok ┃ launch to lease ┃ work ┃ completion to resume ┃ end to end ┃ VM s ┃ cost / lease ┃
+┡━━━━━━╇━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━╇━━━━━━━━━━━━━━┩
+│ sfn  │ 2/2 │            1.6s │ 3.7s │                 0.7s │       6.3s │    6 │     $0.00000 │
+└──────┴─────┴─────────────────┴──────┴──────────────────────┴────────────┴──────┴──────────────┘
+results -> benchmarks/results/handoff-20260920-124153.json (+ .svg)
+### durable
+───────────────────────────── lease handoff bench: durable x 2 on handoff-agent ──────────────────────────────
+  durable run 1: started bench-durable-20260920-124213-0
+    vm microvm-03162eae-2911-3586-bd10-c091f99c39b2 RUNNING at +5.6s
+    lease accepted at +3.7s, done after 3.432s of work (+7.9s)
+    orchestrator SUCCEEDED at +8.7s
+  durable run 2: started bench-durable-20260920-124213-1
+    vm microvm-66d9056f-78e1-3722-96ab-b9214b2784d7 RUNNING at +5.1s
+    lease accepted at +1.8s, done after 5.424s of work (+7.3s)
+    orchestrator SUCCEEDED at +8.2s
+                                    lease handoff, p50 per kind                                     
+┏━━━━━━━━━┳━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━┳━━━━━━━━━━━━━━┓
+┃ kind    ┃  ok ┃ launch to lease ┃ work ┃ completion to resume ┃ end to end ┃ VM s ┃ cost / lease ┃
+┡━━━━━━━━━╇━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━╇━━━━━━━━━━━━━━┩
+│ durable │ 2/2 │            2.7s │ 4.4s │                 0.8s │       8.4s │    5 │     $0.00000 │
+└─────────┴─────┴─────────────────┴──────┴──────────────────────┴────────────┴──────┴──────────────┘
+results -> benchmarks/results/handoff-20260920-124213.json (+ .svg)
+### sqs
+─────────────────────────────── lease handoff bench: sqs x 2 on handoff-agent ────────────────────────────────
+  sqs run 1: started bench-sqs-20260920-124238-0
+    vm microvm-b90ae783-94a2-3e51-9a6f-e2969bec890c RUNNING at +2.2s
+    orchestrator SUCCEEDED at +5.1s
+  sqs run 2: started bench-sqs-20260920-124238-1
+    vm microvm-bf16c502-0704-35c2-bfcc-7d985d749649 RUNNING at +3.7s
+    lease accepted at +1.2s, done after 4.496s of work (+6.1s)
+    orchestrator SUCCEEDED at +6.2s
+                                   lease handoff, p50 per kind                                   
+┏━━━━━━┳━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━┳━━━━━━━━━━━━━━┓
+┃ kind ┃  ok ┃ launch to lease ┃ work ┃ completion to resume ┃ end to end ┃ VM s ┃ cost / lease ┃
+┡━━━━━━╇━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━╇━━━━━━━━━━━━━━┩
+│ sqs  │ 2/2 │            1.0s │ 4.5s │                 0.2s │       5.7s │    5 │     $0.00000 │
+└──────┴─────┴─────────────────┴──────┴──────────────────────┴────────────┴──────┴──────────────┘
+results -> benchmarks/results/handoff-20260920-124238.json (+ .svg)
+### eventbridge
+─────────────────────────── lease handoff bench: eventbridge x 2 on handoff-agent ────────────────────────────
+  eventbridge run 1: started bench-eventbridge-20260920-124258-0
+    vm microvm-bb483a56-4d7f-3ab9-a4c0-835e1c4ddfe1 RUNNING at +8.9s
+    lease accepted at +2.0s, done after 9.28s of work (+11.4s)
+    orchestrator SUCCEEDED at +11.5s
+  eventbridge run 2: started bench-eventbridge-20260920-124258-1
+    vm microvm-ba982a51-3816-3d12-bd91-de3dfe402b5d RUNNING at +3.7s
+    lease accepted at +1.2s, done after 4.395s of work (+6.1s)
+    orchestrator SUCCEEDED at +6.3s
+                                      lease handoff, p50 per kind                                       
+┏━━━━━━━━━━━━━┳━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━┳━━━━━━━━━━━━━━┓
+┃ kind        ┃  ok ┃ launch to lease ┃ work ┃ completion to resume ┃ end to end ┃ VM s ┃ cost / lease ┃
+┡━━━━━━━━━━━━━╇━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━╇━━━━━━━━━━━━━━┩
+│ eventbridge │ 2/2 │            1.6s │ 6.8s │                 0.2s │       8.9s │    5 │     $0.00000 │
+└─────────────┴─────┴─────────────────┴──────┴──────────────────────┴────────────┴──────┴──────────────┘
+results -> benchmarks/results/handoff-20260920-124258.json (+ .svg)
+### http
+─────────────────────────────── lease handoff bench: http x 2 on handoff-agent ───────────────────────────────
+  http run 1: started bench-http-20260920-124324-0
+    vm microvm-4b81c32b-cac3-394c-8593-2c33c90f9f31 RUNNING at +2.3s
+    lease accepted at +1.0s, done after 4.715s of work (+6.4s)
+    orchestrator SUCCEEDED at +6.6s
+  http run 2: started bench-http-20260920-124324-1
+    vm microvm-3d548331-d1a5-35eb-8d8b-101ff044c13d RUNNING at +2.1s
+    orchestrator SUCCEEDED at +5.1s
+                                   lease handoff, p50 per kind                                   
+┏━━━━━━┳━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━┳━━━━━━━━━━━━━━┓
+┃ kind ┃  ok ┃ launch to lease ┃ work ┃ completion to resume ┃ end to end ┃ VM s ┃ cost / lease ┃
+┡━━━━━━╇━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━╇━━━━━━━━━━━━━━┩
+│ http │ 2/2 │            1.0s │ 4.7s │                 0.2s │       5.8s │    6 │     $0.00000 │
+└──────┴─────┴─────────────────┴──────┴──────────────────────┴────────────┴──────┴──────────────┘
+results -> benchmarks/results/handoff-20260920-124324.json (+ .svg)
+BENCHDONE

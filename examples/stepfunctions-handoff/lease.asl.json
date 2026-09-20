@@ -1,0 +1,162 @@
+{
+  "Comment": "microvm-ctl lease of handoff-agent: budget 300s, VM cap 420s",
+  "QueryLanguage": "JSONata",
+  "StartAt": "Lease",
+  "States": {
+    "Lease": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:lambdamicrovms:runMicrovm.waitForTaskToken",
+      "Arguments": {
+        "ImageIdentifier": "arn:aws:lambda:us-east-1:123456789012:microvm-image:handoff-agent",
+        "ExecutionRoleArn": "arn:aws:iam::123456789012:role/microvm-sfn-handoff-agent",
+        "RunHookPayload": "{% $string({'lease': {'kind': 'sfn', 'token': $states.context.Task.Token, 'region': 'us-east-1', 'heartbeat_s': 30, 'id': $states.context.Execution.Name}, 'task': $states.input}) %}",
+        "IdlePolicy": {
+          "MaxIdleDurationSeconds": 300,
+          "SuspendedDurationSeconds": 60,
+          "AutoResumeEnabled": false
+        },
+        "MaximumDurationInSeconds": 420,
+        "ClientToken": "{% $substring($states.context.Execution.Name & '-' & $states.context.State.Name, 0, 128) %}"
+      },
+      "TimeoutSeconds": 300,
+      "HeartbeatSeconds": 90,
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "LambdaMicrovms.ThrottlingException",
+            "LambdaMicrovms.ServiceQuotaExceededException"
+          ],
+          "IntervalSeconds": 10,
+          "MaxAttempts": 6,
+          "BackoffRate": 2,
+          "JitterStrategy": "FULL"
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.Timeout",
+            "States.HeartbeatTimeout",
+            "States.TaskFailed"
+          ],
+          "Assign": {
+            "lease_error": "{% $states.errorOutput %}"
+          },
+          "Next": "Reap"
+        }
+      ],
+      "Assign": {
+        "vm": "{% $states.result.microvm_id %}"
+      },
+      "Next": "Terminate"
+    },
+    "Terminate": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:lambdamicrovms:terminateMicrovm",
+      "Arguments": {
+        "MicrovmIdentifier": "{% $vm %}"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "LambdaMicrovms.ThrottlingException",
+            "LambdaMicrovms.ServiceQuotaExceededException"
+          ],
+          "IntervalSeconds": 10,
+          "MaxAttempts": 6,
+          "BackoffRate": 2,
+          "JitterStrategy": "FULL"
+        }
+      ],
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "LambdaMicrovms.ResourceNotFoundException"
+          ],
+          "Output": "{% $states.input %}",
+          "Next": "Done"
+        }
+      ],
+      "Output": "{% $states.input %}",
+      "Next": "Done"
+    },
+    "Reap": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::aws-sdk:lambdamicrovms:listMicrovms",
+      "Arguments": {
+        "ImageIdentifier": "arn:aws:lambda:us-east-1:123456789012:microvm-image:handoff-agent"
+      },
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "Failed"
+        }
+      ],
+      "Next": "TerminateStale"
+    },
+    "TerminateStale": {
+      "Type": "Map",
+      "Items": "{% [$states.input.Items[State in ['RUNNING', 'SUSPENDED', 'PENDING'] and $toMillis(StartedAt) < $toMillis($now()) - 420000]] %}",
+      "MaxConcurrency": 4,
+      "ItemProcessor": {
+        "ProcessorConfig": {
+          "Mode": "INLINE"
+        },
+        "StartAt": "TerminateOne",
+        "States": {
+          "TerminateOne": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::aws-sdk:lambdamicrovms:terminateMicrovm",
+            "Arguments": {
+              "MicrovmIdentifier": "{% $states.input.MicrovmId %}"
+            },
+            "Retry": [
+              {
+                "ErrorEquals": [
+                  "LambdaMicrovms.ThrottlingException",
+                  "LambdaMicrovms.ServiceQuotaExceededException"
+                ],
+                "IntervalSeconds": 10,
+                "MaxAttempts": 6,
+                "BackoffRate": 2,
+                "JitterStrategy": "FULL"
+              }
+            ],
+            "Catch": [
+              {
+                "ErrorEquals": [
+                  "LambdaMicrovms.ResourceNotFoundException"
+                ],
+                "Next": "AlreadyGone"
+              }
+            ],
+            "End": true
+          },
+          "AlreadyGone": {
+            "Type": "Pass",
+            "End": true
+          }
+        }
+      },
+      "Catch": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "Next": "Failed"
+        }
+      ],
+      "Next": "Failed"
+    },
+    "Failed": {
+      "Type": "Fail",
+      "Error": "LeaseFailed",
+      "Cause": "{% $string($lease_error) %}"
+    },
+    "Done": {
+      "Type": "Succeed"
+    }
+  }
+}

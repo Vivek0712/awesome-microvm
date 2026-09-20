@@ -12,5 +12,6 @@ The long-form write-up of each workload, one per example. The Builder Center ser
 | examples/ci-runner | [06-ci-runner.md](06-ci-runner.md) |
 | examples/pdf-service | [07-pdf-service.md](07-pdf-service.md) |
 | examples/multi-tenant-agents | [08-multi-tenant-agents.md](08-multi-tenant-agents.md) |
+| examples/durable-handoff | [09-durable-handoff.md](09-durable-handoff.md) |
 
 Images are shared with the series and live in `../img/`.

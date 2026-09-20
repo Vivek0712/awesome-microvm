@@ -1,0 +1,116 @@
+{
+  "date": "2026-09-20",
+  "region": "us-east-1",
+  "image": "handoff-agent",
+  "task": {
+    "steps": [
+      "echo bench",
+      "sleep 3"
+    ]
+  },
+  "budget_s": 180,
+  "rates": {
+    "vm_usd_per_s": 3.5027800000000004e-05,
+    "orchestrator_usd": {
+      "sfn": 0.0001,
+      "durable": 2.4e-05,
+      "sqs": 0.0,
+      "eventbridge": 0.0,
+      "http": 0.0
+    }
+  },
+  "summary": {
+    "eventbridge": {
+      "runs": 2,
+      "ok": 2,
+      "launch_to_lease_s": {
+        "p50": 1.611,
+        "min": 1.177,
+        "max": 2.046,
+        "n": 2
+      },
+      "work_s": {
+        "p50": 6.837,
+        "min": 4.395,
+        "max": 9.28,
+        "n": 2
+      },
+      "completion_to_resume_s": {
+        "p50": 0.167,
+        "min": 0.166,
+        "max": 0.167,
+        "n": 2
+      },
+      "end_to_end_s": {
+        "p50": 8.89,
+        "min": 6.26,
+        "max": 11.521,
+        "n": 2
+      },
+      "vm_seconds": {
+        "p50": 4.937,
+        "min": 4.92,
+        "max": 4.953,
+        "n": 2
+      },
+      "cost_usd": {
+        "p50": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "n": 2
+      }
+    }
+  },
+  "runs": [
+    {
+      "kind": "eventbridge",
+      "index": 0,
+      "name": "bench-eventbridge-20260920-124258-0",
+      "t0": 1789933379.953643,
+      "vm_id": "microvm-bb483a56-4d7f-3ab9-a4c0-835e1c4ddfe1",
+      "t_seen": 1789933380.1573088,
+      "t_running": 1789933388.897393,
+      "t_lease": 1789933382.0,
+      "work_s": 9.28,
+      "t_vm_done": 1789933391.308352,
+      "t_orch_done": 1789933391.47509,
+      "t_terminated": 1789933393.8508658,
+      "orchestrator_status": "SUCCEEDED",
+      "vm_error": null,
+      "notes": [],
+      "metrics": {
+        "launch_to_lease_s": 2.046,
+        "work_s": 9.28,
+        "completion_to_resume_s": 0.167,
+        "end_to_end_s": 11.521,
+        "vm_seconds": 4.953,
+        "cost_usd": 0.0
+      }
+    },
+    {
+      "kind": "eventbridge",
+      "index": 1,
+      "name": "bench-eventbridge-20260920-124258-1",
+      "t0": 1789933394.823303,
+      "vm_id": "microvm-ba982a51-3816-3d12-bd91-de3dfe402b5d",
+      "t_seen": 1789933395.0788338,
+      "t_running": 1789933398.556844,
+      "t_lease": 1789933396.0,
+      "work_s": 4.395,
+      "t_vm_done": 1789933400.916781,
+      "t_orch_done": 1789933401.083118,
+      "t_terminated": 1789933403.476393,
+      "orchestrator_status": "SUCCEEDED",
+      "vm_error": null,
+      "notes": [],
+      "metrics": {
+        "launch_to_lease_s": 1.177,
+        "work_s": 4.395,
+        "completion_to_resume_s": 0.166,
+        "end_to_end_s": 6.26,
+        "vm_seconds": 4.92,
+        "cost_usd": 0.0
+      }
+    }
+  ]
+}

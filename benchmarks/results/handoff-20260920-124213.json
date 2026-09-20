@@ -1,0 +1,116 @@
+{
+  "date": "2026-09-20",
+  "region": "us-east-1",
+  "image": "handoff-agent",
+  "task": {
+    "steps": [
+      "echo bench",
+      "sleep 3"
+    ]
+  },
+  "budget_s": 180,
+  "rates": {
+    "vm_usd_per_s": 3.5027800000000004e-05,
+    "orchestrator_usd": {
+      "sfn": 0.0001,
+      "durable": 2.4e-05,
+      "sqs": 0.0,
+      "eventbridge": 0.0,
+      "http": 0.0
+    }
+  },
+  "summary": {
+    "durable": {
+      "runs": 2,
+      "ok": 2,
+      "launch_to_lease_s": {
+        "p50": 2.738,
+        "min": 1.765,
+        "max": 3.711,
+        "n": 2
+      },
+      "work_s": {
+        "p50": 4.428,
+        "min": 3.432,
+        "max": 5.424,
+        "n": 2
+      },
+      "completion_to_resume_s": {
+        "p50": 0.832,
+        "min": 0.824,
+        "max": 0.84,
+        "n": 2
+      },
+      "end_to_end_s": {
+        "p50": 8.421,
+        "min": 8.167,
+        "max": 8.675,
+        "n": 2
+      },
+      "vm_seconds": {
+        "p50": 5.296,
+        "min": 5.295,
+        "max": 5.296,
+        "n": 2
+      },
+      "cost_usd": {
+        "p50": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "n": 2
+      }
+    }
+  },
+  "runs": [
+    {
+      "kind": "durable",
+      "index": 0,
+      "name": "bench-durable-20260920-124213-0",
+      "t0": 1789933335.288569,
+      "vm_id": "microvm-03162eae-2911-3586-bd10-c091f99c39b2",
+      "t_seen": 1789933338.565274,
+      "t_running": 1789933340.890338,
+      "t_lease": 1789933339.0,
+      "work_s": 3.432,
+      "t_vm_done": 1789933343.139522,
+      "t_orch_done": 1789933343.963918,
+      "t_terminated": 1789933346.18577,
+      "orchestrator_status": "SUCCEEDED",
+      "vm_error": null,
+      "notes": [],
+      "metrics": {
+        "launch_to_lease_s": 3.711,
+        "work_s": 3.432,
+        "completion_to_resume_s": 0.824,
+        "end_to_end_s": 8.675,
+        "vm_seconds": 5.295,
+        "cost_usd": 0.0
+      }
+    },
+    {
+      "kind": "durable",
+      "index": 1,
+      "name": "bench-durable-20260920-124213-1",
+      "t0": 1789933347.2352588,
+      "vm_id": "microvm-66d9056f-78e1-3722-96ab-b9214b2784d7",
+      "t_seen": 1789933349.166949,
+      "t_running": 1789933352.3263302,
+      "t_lease": 1789933349.0,
+      "work_s": 5.424,
+      "t_vm_done": 1789933354.561589,
+      "t_orch_done": 1789933355.40191,
+      "t_terminated": 1789933357.622283,
+      "orchestrator_status": "SUCCEEDED",
+      "vm_error": null,
+      "notes": [],
+      "metrics": {
+        "launch_to_lease_s": 1.765,
+        "work_s": 5.424,
+        "completion_to_resume_s": 0.84,
+        "end_to_end_s": 8.167,
+        "vm_seconds": 5.296,
+        "cost_usd": 0.0
+      }
+    }
+  ]
+}

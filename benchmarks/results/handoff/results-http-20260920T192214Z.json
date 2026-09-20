@@ -1,0 +1,92 @@
+{
+ "kind": "http",
+ "image": "handoff-agent",
+ "task": {
+  "steps": [
+   "echo lease via http",
+   "sleep 3",
+   "python3 -c \"import platform;print(platform.machine())\""
+  ]
+ },
+ "budget_s": 240,
+ "region": "us-east-1",
+ "runs": [
+  {
+   "run": 1,
+   "lease_id": "http-1-1789932123",
+   "microvm_id": "microvm-eb0b37c0-4e44-3ba0-95a4-54fa5c6d0a3f",
+   "status": "success",
+   "heartbeats": 0,
+   "launch_to_first_message_s": 5.628,
+   "work_s": 3.089,
+   "total_s": 5.628,
+   "error": null,
+   "result": {
+    "passed": true,
+    "steps": [
+     {
+      "cmd": "echo lease via http",
+      "exit_code": 0,
+      "duration_s": 0.009,
+      "output_tail": "lease via http\n"
+     },
+     {
+      "cmd": "sleep 3",
+      "exit_code": 0,
+      "duration_s": 3.05,
+      "output_tail": ""
+     },
+     {
+      "cmd": "python3 -c \"import platform;print(platform.machine())\"",
+      "exit_code": 0,
+      "duration_s": 0.026,
+      "output_tail": "aarch64\n"
+     }
+    ],
+    "microvm_id": "microvm-eb0b37c0-4e44-3ba0-95a4-54fa5c6d0a3f",
+    "heartbeats": 0
+   }
+  },
+  {
+   "run": 2,
+   "lease_id": "http-2-1789932129",
+   "microvm_id": "microvm-6196f9ff-4194-3cf4-8c9d-2743b07f6e31",
+   "status": "success",
+   "heartbeats": 0,
+   "launch_to_first_message_s": 4.959,
+   "work_s": 3.111,
+   "total_s": 4.959,
+   "error": null,
+   "result": {
+    "passed": true,
+    "steps": [
+     {
+      "cmd": "echo lease via http",
+      "exit_code": 0,
+      "duration_s": 0.028,
+      "output_tail": "lease via http\n"
+     },
+     {
+      "cmd": "sleep 3",
+      "exit_code": 0,
+      "duration_s": 3.046,
+      "output_tail": ""
+     },
+     {
+      "cmd": "python3 -c \"import platform;print(platform.machine())\"",
+      "exit_code": 0,
+      "duration_s": 0.034,
+      "output_tail": "aarch64\n"
+     }
+    ],
+    "microvm_id": "microvm-6196f9ff-4194-3cf4-8c9d-2743b07f6e31",
+    "heartbeats": 0
+   }
+  }
+ ],
+ "p50": {
+  "launch_to_first_message_s": 5.293,
+  "work_s": 3.1,
+  "total_s": 5.293
+ }
+}

@@ -1,0 +1,180 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Lambda durable function that leases a Lambda MicroVM (built with microvm-ctl) to a
+  security review task and waits for the VM's callback. Includes the webhook receiver,
+  the scheduled janitor, and the execution role the agent VM runs as.
+
+Parameters:
+  ImageName:
+    Type: String
+    Default: security-review-agent
+    Description: Name of the agent MicroVM image built with `mvm image build`.
+  JobBudgetSeconds:
+    Type: Number
+    Default: 900
+    Description: Hard cap on one review; also the callback timeout.
+  MaxRelaunches:
+    Type: Number
+    Default: 1
+  GitHubTokenSecretArn:
+    Type: String
+    Default: ""
+    Description: Secrets Manager ARN of a GitHub token the agent uses to post comments (optional).
+  WebhookSecretArn:
+    Type: String
+    Default: ""
+    Description: Secrets Manager ARN of the GitHub webhook secret (optional, recommended).
+
+Conditions:
+  HasGitHubToken: !Not [!Equals [!Ref GitHubTokenSecretArn, ""]]
+  HasWebhookSecret: !Not [!Equals [!Ref WebhookSecretArn, ""]]
+
+Globals:
+  Function:
+    Runtime: python3.13
+    Architectures: [arm64]
+    MemorySize: 512
+    Environment:
+      Variables:
+        MVM_REGION: !Ref AWS::Region
+        MVM_IMAGE: !Ref ImageName
+        JOB_BUDGET_S: !Ref JobBudgetSeconds
+
+Resources:
+  # ---- the role the leased VM runs as: logs, callbacks to *this* orchestrator, and what the review needs
+  AgentExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${AWS::StackName}-agent-execution-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: { Service: lambda.amazonaws.com }
+            Action: [sts:AssumeRole, sts:TagSession]
+      Policies:
+        - PolicyName: agent
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: [logs:CreateLogGroup, logs:CreateLogStream, logs:PutLogEvents]
+                Resource: !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/microvms/*
+              - Sid: CompleteTheLease
+                Effect: Allow
+                Action:
+                  - lambda:SendDurableExecutionCallbackSuccess
+                  - lambda:SendDurableExecutionCallbackFailure
+                  - lambda:SendDurableExecutionCallbackHeartbeat
+                # authorized against the durable execution ARN, which is always version-qualified: use :*
+                Resource: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${AWS::StackName}-orchestrator:*
+              - Effect: Allow
+                Action: [codecommit:GitPull, codecommit:GetPullRequest, codecommit:PostCommentForPullRequest]
+                Resource: "*"
+              - Effect: Allow
+                Action: [bedrock:InvokeModel]
+                Resource: "*"
+              - !If
+                - HasGitHubToken
+                - Effect: Allow
+                  Action: secretsmanager:GetSecretValue
+                  Resource: !Ref GitHubTokenSecretArn
+                - !Ref AWS::NoValue
+
+  Orchestrator:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-orchestrator
+      CodeUri: ./
+      Handler: app.handler
+      Timeout: 300
+      AutoPublishAlias: live
+      # Immutable after creation: changing it replaces the function and drops in-flight executions.
+      DurableConfig:
+        ExecutionTimeout: 7200
+        RetentionPeriodInDays: 7
+      Environment:
+        Variables:
+          MVM_EXECUTION_ROLE_ARN: !GetAtt AgentExecutionRole.Arn
+          MAX_RELAUNCHES: !Ref MaxRelaunches
+          HEARTBEAT_TIMEOUT_S: 120
+      Policies:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicDurableExecutionRolePolicy
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action: [lambda:RunMicrovm, lambda:GetMicrovm, lambda:ListMicrovms, lambda:TerminateMicrovm]
+              Resource: "*"
+            - Effect: Allow
+              Action: iam:PassRole
+              Resource: !GetAtt AgentExecutionRole.Arn
+            - Effect: Allow
+              Action: lambda:PassNetworkConnector
+              Resource: arn:aws:lambda:*:aws:network-connector:aws-network-connector:*
+            - Effect: Allow
+              Action: servicequotas:GetServiceQuota
+              Resource: "*"
+            - Effect: Allow
+              Action: [codecommit:ListPullRequests, codecommit:GetPullRequest]
+              Resource: "*"
+            - Effect: Allow
+              Action: sts:GetCallerIdentity
+              Resource: "*"
+
+  Webhook:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-webhook
+      CodeUri: ./
+      Handler: webhook.handler
+      Timeout: 15
+      FunctionUrlConfig:
+        AuthType: NONE
+      Environment:
+        Variables:
+          ORCHESTRATOR_FUNCTION: !Sub ${AWS::StackName}-orchestrator:live
+          WEBHOOK_SECRET_ARN: !If [HasWebhookSecret, !Ref WebhookSecretArn, !Ref AWS::NoValue]
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action: lambda:InvokeFunction
+              Resource: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${AWS::StackName}-orchestrator:*
+            - !If
+              - HasWebhookSecret
+              - Effect: Allow
+                Action: secretsmanager:GetSecretValue
+                Resource: !Ref WebhookSecretArn
+              - !Ref AWS::NoValue
+
+  Janitor:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-janitor
+      CodeUri: ./
+      Handler: janitor.handler
+      Timeout: 60
+      Events:
+        Every5Minutes:
+          Type: Schedule
+          Properties:
+            Schedule: rate(5 minutes)
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action: [lambda:ListMicrovms, lambda:TerminateMicrovm, servicequotas:GetServiceQuota, sts:GetCallerIdentity]
+              Resource: "*"
+
+Outputs:
+  OrchestratorAlias:
+    Value: !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${AWS::StackName}-orchestrator:live
+    Description: Invoke this (async) with a task, or point a CodeCommit trigger at it.
+  WebhookUrl:
+    # SAM materializes FunctionUrlConfig as a <Function>Url resource; this is its attribute
+    Value: !GetAtt WebhookUrl.FunctionUrl
+    Description: GitHub webhook target (pull_request events, content type application/json).
+  AgentExecutionRoleArn:
+    Value: !GetAtt AgentExecutionRole.Arn
+    Description: Pass as MVM_EXECUTION_ROLE_ARN when running the agent image by hand.

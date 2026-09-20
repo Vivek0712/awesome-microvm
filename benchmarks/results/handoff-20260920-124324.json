@@ -1,0 +1,116 @@
+{
+  "date": "2026-09-20",
+  "region": "us-east-1",
+  "image": "handoff-agent",
+  "task": {
+    "steps": [
+      "echo bench",
+      "sleep 3"
+    ]
+  },
+  "budget_s": 180,
+  "rates": {
+    "vm_usd_per_s": 3.5027800000000004e-05,
+    "orchestrator_usd": {
+      "sfn": 0.0001,
+      "durable": 2.4e-05,
+      "sqs": 0.0,
+      "eventbridge": 0.0,
+      "http": 0.0
+    }
+  },
+  "summary": {
+    "http": {
+      "runs": 2,
+      "ok": 2,
+      "launch_to_lease_s": {
+        "p50": 0.982,
+        "min": 0.973,
+        "max": 0.992,
+        "n": 2
+      },
+      "work_s": {
+        "p50": 4.715,
+        "min": 4.715,
+        "max": 4.715,
+        "n": 1
+      },
+      "completion_to_resume_s": {
+        "p50": 0.172,
+        "min": 0.172,
+        "max": 0.172,
+        "n": 1
+      },
+      "end_to_end_s": {
+        "p50": 5.842,
+        "min": 5.119,
+        "max": 6.566,
+        "n": 2
+      },
+      "vm_seconds": {
+        "p50": 6.085,
+        "min": 5.442,
+        "max": 6.727,
+        "n": 2
+      },
+      "cost_usd": {
+        "p50": 0.0,
+        "min": 0.0,
+        "max": 0.0,
+        "n": 2
+      }
+    }
+  },
+  "runs": [
+    {
+      "kind": "http",
+      "index": 0,
+      "name": "bench-http-20260920-124324-0",
+      "t0": 1789933406.026701,
+      "vm_id": "microvm-4b81c32b-cac3-394c-8593-2c33c90f9f31",
+      "t_seen": 1789933406.239857,
+      "t_running": 1789933408.328327,
+      "t_lease": 1789933407.0,
+      "work_s": 4.715,
+      "t_vm_done": 1789933412.419817,
+      "t_orch_done": 1789933412.5922718,
+      "t_terminated": 1789933415.055247,
+      "orchestrator_status": "SUCCEEDED",
+      "vm_error": null,
+      "notes": [],
+      "metrics": {
+        "launch_to_lease_s": 0.973,
+        "work_s": 4.715,
+        "completion_to_resume_s": 0.172,
+        "end_to_end_s": 6.566,
+        "vm_seconds": 6.727,
+        "cost_usd": 0.0
+      }
+    },
+    {
+      "kind": "http",
+      "index": 1,
+      "name": "bench-http-20260920-124324-1",
+      "t0": 1789933416.007551,
+      "vm_id": "microvm-3d548331-d1a5-35eb-8d8b-101ff044c13d",
+      "t_seen": 1789933416.2736251,
+      "t_running": 1789933418.071904,
+      "t_lease": 1789933417.0,
+      "work_s": null,
+      "t_vm_done": null,
+      "t_orch_done": 1789933421.126264,
+      "t_terminated": 1789933423.514347,
+      "orchestrator_status": "SUCCEEDED",
+      "vm_error": null,
+      "notes": [],
+      "metrics": {
+        "launch_to_lease_s": 0.992,
+        "work_s": null,
+        "completion_to_resume_s": null,
+        "end_to_end_s": 5.119,
+        "vm_seconds": 5.442,
+        "cost_usd": 0.0
+      }
+    }
+  ]
+}

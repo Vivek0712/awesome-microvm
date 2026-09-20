@@ -1,0 +1,62 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Collector for microvm-ctl http leases: a Lambda Function URL that appends every POST
+  (heartbeat, success, failure) plus its bearer token to an SQS queue a controller polls.
+
+Resources:
+  Queue:
+    Type: AWS::SQS::Queue
+    Properties:
+      MessageRetentionPeriod: 3600
+
+  Collector:
+    Type: AWS::Serverless::Function
+    Properties:
+      Runtime: python3.13
+      Architectures: [arm64]
+      Handler: index.handler
+      MemorySize: 128
+      Timeout: 10
+      FunctionUrlConfig:
+        AuthType: NONE
+      Environment:
+        Variables:
+          QUEUE_URL: !Ref Queue
+      Policies:
+        - SQSSendMessagePolicy:
+            QueueName: !GetAtt Queue.QueueName
+      InlineCode: |
+        import base64, json, os
+        import boto3
+
+        sqs = boto3.client("sqs")
+
+        def _reply(code, body):
+            return {"statusCode": code, "headers": {"Content-Type": "application/json"}, "body": json.dumps(body)}
+
+        def handler(event, context):
+            headers = {k.lower(): v for k, v in (event.get("headers") or {}).items()}
+            auth = headers.get("authorization", "")
+            if not auth.startswith("Bearer ") or len(auth) <= len("Bearer "):
+                return _reply(401, {"error": "Authorization: Bearer <token> is required"})
+            raw = event.get("body") or "{}"
+            if event.get("isBase64Encoded"):
+                raw = base64.b64decode(raw).decode()
+            try:
+                body = json.loads(raw)
+                assert isinstance(body, dict)
+            except (ValueError, AssertionError):
+                return _reply(400, {"error": "body must be a JSON object"})
+            body["token"] = auth[len("Bearer "):]          # not verified here: the controller matches it
+            body.setdefault("lease_id", headers.get("x-microvm-lease"))
+            sqs.send_message(QueueUrl=os.environ["QUEUE_URL"], MessageBody=json.dumps(body))
+            return _reply(200, {"ok": True})
+
+Outputs:
+  CollectorUrl:
+    Description: Pass as `lease.target` (controller.py --target) for kind http
+    Value: !GetAtt CollectorUrl.FunctionUrl
+  QueueUrl:
+    Description: The queue the controller polls (controller.py --queue-url)
+    Value: !Ref Queue
