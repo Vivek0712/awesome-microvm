@@ -1,0 +1,100 @@
+{
+  "date": "2026-09-20",
+  "region": "us-east-1",
+  "image": "handoff-agent-small",
+  "task": {
+    "steps": [
+      "echo bench",
+      "sleep 3"
+    ]
+  },
+  "budget_s": 300,
+  "fanout_image": null,
+  "baseline_mib": null,
+  "rates": {
+    "vm_usd_per_s": 3.5027800000000004e-05,
+    "vm_usd_per_gb_s": 1.7513900000000002e-05,
+    "orchestrator_usd": {
+      "sfn": 0.0001,
+      "durable": 2.4e-05,
+      "sqs": 0.0,
+      "eventbridge": 0.0,
+      "http": 0.0
+    }
+  },
+  "summary": {
+    "durable": {
+      "runs": 1,
+      "ok": 1,
+      "launch_to_lease_s": {
+        "p50": 1.835,
+        "min": 1.835,
+        "max": 1.835,
+        "n": 1
+      },
+      "work_s": null,
+      "completion_to_resume_s": null,
+      "end_to_end_s": {
+        "p50": 8.38,
+        "min": 8.38,
+        "max": 8.38,
+        "n": 1
+      },
+      "vm_seconds": {
+        "p50": 8.292,
+        "min": 8.292,
+        "max": 8.292,
+        "n": 1
+      },
+      "cost_usd": {
+        "p50": 0.000314,
+        "min": 0.000314,
+        "max": 0.000314,
+        "n": 1
+      }
+    }
+  },
+  "fanout_summary": {},
+  "parallel_summary": {},
+  "runs": [
+    {
+      "kind": "durable",
+      "index": 0,
+      "name": "bench-durable-20260920-152526-0",
+      "t0": 1789943128.165159,
+      "vm_id": "microvm-5abf5147-6ce1-3e9c-bcb4-2b39742cf641",
+      "t_seen": 1789943129.332659,
+      "t_running": 1789943134.273155,
+      "t_lease": 1789943130.0,
+      "work_s": null,
+      "t_vm_done": null,
+      "vm_elapsed_s": null,
+      "t_orch_done": 1789943140.315205,
+      "orchestrator_started_at": 1789943128.552,
+      "orchestrator_stopped_at": 1789943136.932,
+      "t_terminating": null,
+      "t_terminated": 1789943140.42714,
+      "started_at": 1789943128.852,
+      "terminated_at": 1789943137.144,
+      "orchestrator_status": "SUCCEEDED",
+      "vm_error": null,
+      "sources": {
+        "end_to_end": "service start/stop",
+        "vm_done": null,
+        "vm_seconds": "startedAt -> terminatedAt"
+      },
+      "notes": [],
+      "metrics": {
+        "launch_to_lease_s": 1.835,
+        "work_s": null,
+        "completion_to_resume_s": null,
+        "end_to_end_s": 8.38,
+        "vm_seconds": 8.292,
+        "cost_usd": 0.000314
+      }
+    }
+  ],
+  "fanouts": [],
+  "in_vm_parallel": [],
+  "refusal_drill": null
+}

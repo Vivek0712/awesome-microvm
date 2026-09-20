@@ -1,2 +1,2 @@
-microvm-ctl[durable]>=0.2.0
+microvm-ctl[durable]>=0.3.0
 boto3>=1.43.0

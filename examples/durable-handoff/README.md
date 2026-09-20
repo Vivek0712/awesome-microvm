@@ -22,6 +22,8 @@ GitHub / CodeCommit ──▶ webhook.py ──▶ orchestrator (durable) ──
 
 ## Run it
 
+The stack in the article was last deployed from PyPI `microvm-ctl[durable]>=0.3.0` with nothing local; a single lease on `handoff-agent-small` then finished in 8.4 s and a four-shard `lease_map` in 17.5 s, both by the service's own start and stop times.
+
 ```console
 pip install microvm-ctl
 mvm bootstrap                                                            # once: bucket + build role
