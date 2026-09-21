@@ -7,7 +7,9 @@ flowchart LR
   subgraph P["ItemProcessor, one per shard"]
     direction TB
     L["Lease<br/>runMicrovm, wait for task token<br/>RunHookPayload carries lease and task<br/>ClientToken per execution, state, index"] --> T["Terminate<br/>terminateMicrovm"]
-    L -. timeout, heartbeat timeout, task failed .-> R["Reap<br/>listMicrovms by image"] --> S["TerminateStale<br/>members older than the cap"] --> F["ShardFailed"]
+    L -. timeout, heartbeat timeout, task failed .-> E{"OnLeaseError<br/>does the cause name a VM?"}
+    E -- typed failure: yes --> X["TerminateFailed<br/>terminateMicrovm by id"] --> R
+    E -- timeout: no --> R["Reap<br/>listMicrovms by image"] --> S["TerminateStale<br/>members older than the cap"] --> F["ShardFailed"]
     T --> O["ShardDone<br/>the VM payload"]
   end
   M --> P
