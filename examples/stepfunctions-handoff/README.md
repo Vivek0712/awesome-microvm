@@ -77,6 +77,6 @@ Both stacks were redeployed from the templates regenerated with microvm-ctl 0.3.
 18:31:37.409  ExecutionFailed                            LeaseFailed, cause {"Error": "Injected", ...}
 ```
 
-8.0 s from start to `Failed`, 0.4 s from the VM's failure to the execution ending, and `GetMicrovm` on the id afterwards reports `TERMINATED` at 18:31:37.785 with `stateReason` "Success.". Under 0.3.0 the same run would have left that VM RUNNING for the rest of its 420 s cap. The fan-out machine was redeployed but not run.
+8.0 s from start to `Failed`, 0.4 s from the VM's failure to the execution ending, and `GetMicrovm` on the id afterwards reports `TERMINATED` at 18:31:37.785 with `stateReason` "Success.". Under 0.3.0 the same run would have left that VM RUNNING for the rest of its 420 s cap. The fan-out machine was redeployed but not run. Every path of this machine, `hang` and the governed fan-outs included, was also run live on a separate agent image and recorded in [microvm-handoff-demo/results/stepfunctions](https://github.com/Vivek0712/microvm-handoff-demo/blob/main/results/stepfunctions/README.md), where `TerminateFailed` ended the failed lease's VM 0.557 s after the typed failure.
 
 Shared image: [handoff-agent](../handoff-agent). Same lease from a Lambda durable function: [durable-handoff](../durable-handoff). From a laptop over SQS, EventBridge, or HTTP: [generic-handoff](../generic-handoff). Contract: [microvm-ctl docs/integrations.md](https://github.com/Vivek0712/microvm-ctl/blob/main/docs/integrations.md).

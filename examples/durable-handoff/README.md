@@ -22,7 +22,7 @@ GitHub / CodeCommit ──▶ webhook.py ──▶ orchestrator (durable) ──
 
 ## Run it
 
-The stack in the article was last deployed from PyPI `microvm-ctl[durable]>=0.3.0` with nothing local; a single lease on `handoff-agent-small` then finished in 8.4 s and a four-shard `lease_map` in 17.5 s, both by the service's own start and stop times. The orchestrator now pins `microvm-ctl[durable]>=0.3.1`, where `lease_microvm` clamps the VM's heartbeat interval to at most a third of `heartbeat_timeout_s` (never under 5 s) through `LeasePolicy.heartbeat_every`, because a policy with `heartbeat_timeout_s=30` and the default 30 s interval lost a callback at 30.1 s before the first heartbeat landed; the deployed stacks have not been redeployed on 0.3.1 yet.
+The stack in the article was last deployed from PyPI `microvm-ctl[durable]>=0.3.0` with nothing local; a single lease on `handoff-agent-small` then finished in 8.4 s and a four-shard `lease_map` in 17.5 s, both by the service's own start and stop times. The orchestrator now pins `microvm-ctl[durable]>=0.3.1`, where `lease_microvm` clamps the VM's heartbeat interval to at most a third of `heartbeat_timeout_s` (never under 5 s) through `LeasePolicy.heartbeat_every`, because a policy with `heartbeat_timeout_s=30` and the default 30 s interval lost a callback at 30.1 s before the first heartbeat landed; the deployed stacks have not been redeployed on 0.3.1 yet. The clamp was verified live on 0.3.1 in [microvm-handoff-demo/results/durable](https://github.com/Vivek0712/microvm-handoff-demo/blob/main/results/durable/README.md), where the `hang` callback that had timed out at 30.1 s now times out at exactly 60 s with 10 s heartbeats landing in between.
 
 ```console
 pip install microvm-ctl

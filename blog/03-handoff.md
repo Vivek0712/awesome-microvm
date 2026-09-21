@@ -318,3 +318,5 @@ python3 controller.py --kind http
 # the IAM each side needs
 mvm lease policy --kind sfn --orchestrator arn:aws:states:us-east-1:123456789012:stateMachine:lease
 ```
+
+If you would rather see all of that run before deploying any of it, the full scenario matrix lives in [microvm-handoff-demo](https://github.com/Vivek0712/microvm-handoff-demo): nine scenarios on Step Functions and on a durable function plus one lease from the CLI, with every execution history, VM log, and orchestrator log checked in, the benchmarks rerun on 0.3.1 (a single lease at a p50 of 4.3 s on both orchestrators, a fan-out of four at 4.6 s on Step Functions and 7.9 s on the durable function, a fan-out of eight at 8.9 s and 13.7 s), and a console screenshot of each execution. Its first pass on 0.3.0 is where the two fixes in 0.3.1 came from.
