@@ -147,6 +147,9 @@ sequenceDiagram
 
 The live record of that clock is [results/durable/hang](https://github.com/Vivek0712/microvm-handoff-demo/tree/main/results/durable/hang) in microvm-handoff-demo: with a 60 s callback timeout and 10 s heartbeats, each callback starts and times out exactly 60 s apart, and the VM's own GET /status counter climbs from 0 to 5 heartbeats over 58 s, one every 10 s.
 
+![The Lambda console's durable operations table for the demo's hang execution: two callbacks, each timed out after 1 min, each followed by a successful launch and terminate step; 2 min 693 ms in all.](../img/demo-durable-hang.png)
+*Two attempts, two 60 s timeouts, two terminates, from the console of the execution recorded in the demo repo.*
+
 ## The rule that is easy to get wrong
 
 The obvious way to guarantee cleanup is try/finally around the wait. In the Python SDK that terminates your VM at the moment the function goes to sleep. callback.result() implements suspension by raising SuspendExecution out of the call when the result is not in yet; the invocation ends, and Lambda re-invokes when the callback completes. A finally block runs on that raise and would call TerminateMicrovm on a VM that had just started working; the replay would then find a closed lease. SuspendExecution derives from BaseException, so a bare except Exception does not catch it, but it would swallow every real error and is no substitute for catching the two CallbackError subclasses by name.

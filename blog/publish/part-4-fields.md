@@ -12,7 +12,11 @@ Cover image: blog/img/cover-03.png
 
 Images to upload, in body order (each replaces its < upload ... > marker in the body):
   1. blog/img/playground-lease.png
-  2. blog/img/arch-09-fanout-map.png
-  3. blog/img/playground-fanout.png
-  4. blog/img/handoff-bench.png
-  5. blog/img/fleet-watch.png
+  2. blog/img/demo-sfn-terminate-failed.png
+  3. blog/img/demo-durable-hang.png
+  4. blog/img/arch-09-fanout-map.png
+  5. blog/img/playground-fanout.png
+  6. blog/img/handoff-bench.png
+  7. blog/img/fleet-watch.png
+  8. blog/img/demo-bench.png
+  9. blog/img/demo-playground-fleet-jobs.png

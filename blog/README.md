@@ -62,10 +62,14 @@ In body order. The cover goes in the cover field, not the body.
 
 **03-handoff.md**: cover `img/cover-03.png`
 - `img/playground-lease.png`
+- `img/demo-sfn-terminate-failed.png`
+- `img/demo-durable-hang.png`
 - `img/arch-09-fanout-map.png`
 - `img/playground-fanout.png`
 - `img/handoff-bench.png`
 - `img/fleet-watch.png`
+- `img/demo-bench.png`
+- `img/demo-playground-fleet-jobs.png`
 
 - `img/arch-08-multi-tenant.png`
 - `img/demo-multi-tenant-agents.png`
