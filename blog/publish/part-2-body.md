@@ -29,7 +29,8 @@ Three rules recur in every section. Uniqueness and secrets are created in /run, 
 
 Every AI product that runs model-generated code needs a hardware-isolated VM per session with a filesystem and pip environment that persist between calls. Containers share the host kernel and a seccomp profile is a filter rather than a wall. A Lambda function cannot promise a per-session filesystem across invocations. A microVM is yours until you terminate it.
 
-< upload arch-01-code-sandbox.png here: Code sandbox architecture: one Firecracker VM per session serving /execute, /pip, and /state >
+< FIGURE 1 of 11: upload blog/img/arch-01-code-sandbox.png here >
+Alt text: Code sandbox architecture: one Firecracker VM per session serving /execute, /pip, and /state
 
 The image is a 13-line Dockerfile with numpy and pandas baked in, and the app wires four hooks. The two that matter most:
 
@@ -48,7 +49,8 @@ def on_run(ctx):
 
 /execute runs code as a subprocess with a per-call timeout, /pip installs a library mid-session, and /state reports the session ID, execution count, and workspace contents.
 
-< upload demo-code-sandbox.png here: Code sandbox live demo: launch, two executions, state check, terminate >
+< FIGURE 2 of 11: upload blog/img/demo-code-sandbox.png here >
+Alt text: Code sandbox live demo: launch, two executions, state check, terminate
 
 The VM was serving 4.8 s after `mvm run`. The first execution, untrusted numpy eigenvalue code, took 1,197.5 ms including a cold subprocess spawn. The second wrote a file to the workspace in 10.4 ms. GET /state shows the same session ID, two executions, the file present, and PID 1. Across 20 warm samples the end-to-end request latency was p50 111.0 ms and p95 122.9 ms, including TLS, proxy auth, and the Python subprocess.
 
@@ -74,7 +76,8 @@ There is no sandboxing inside the VM, no import allowlist, and no seccomp work. 
 
 The design constraint is the snapshot. The Bedrock client is created in /run, never at import time, so its credentials come from the VM's execution role rather than from a variable frozen into 608 MB of cloned RAM. /resume creates it again, because TCP connections do not survive the freeze.
 
-< upload demo-ai-code-runner.png here: AI code runner live demo: one /solve call, the model's first draft runs clean >
+< FIGURE 3 of 11: upload blog/img/demo-ai-code-runner.png here >
+Alt text: AI code runner live demo: one /solve call, the model's first draft runs clean
 
 The task "Compute the first 8 Fibonacci numbers and print them as a Python list" was solved in one iteration, with the subprocess running in 1,250.9 ms. An earlier capture launched without the execution role failed instantly with NoCredentialsError from inside the VM, which is the design working: there was no key anywhere in the image to fall back on.
 
@@ -82,7 +85,8 @@ The task "Compute the first 8 Fibonacci numbers and print them as a Python list"
 
 Contamination ruins eval pipelines quietly. Task 47 installs a package, task 48 inherits it and passes tests it should have failed. Every VM launched from an image is a restored copy of the same memory-and-disk snapshot, which is stronger than "same Dockerfile, rebuilt"; it is the same bytes.
 
-< upload arch-03-agent-eval.png here: Agent eval architecture: the harness scales a fleet through the quota-aware FleetManager and round-robins /evaluate calls over per-VM clients >
+< FIGURE 4 of 11: upload blog/img/arch-03-agent-eval.png here >
+Alt text: Agent eval architecture: the harness scales a fleet through the quota-aware FleetManager and round-robins /evaluate calls over per-VM clients
 
 The harness is where the fleet mechanics live. Scale-out is one call, with a hard lifetime cap because eval fleets are disposable by construction:
 
@@ -98,7 +102,8 @@ clients = [EndpointClient(cfg, vm.microvm_id) for vm in fleet.members()]
 
 Tasks round-robin over the clients on a thread pool, each /evaluate wipes its workspace first, and fleet.drain() terminates everything when the scoreboard prints. The task suite ships a canary that is wrong on purpose, because an eval harness that has never been seen to fail is one you cannot trust.
 
-< upload demo-agent-eval.png here: Agent eval live demo: three tasks, two pass and the canary fails >
+< FIGURE 5 of 11: upload blog/img/demo-agent-eval.png here >
+Alt text: Agent eval live demo: three tasks, two pass and the canary fails
 
 The scoreboard reads exactly as the tasks predict: PASS fibonacci, PASS slugify, FAIL broken-on-purpose. On the fleet path, scale_to(6) took a fresh fleet from 0 to 6 RUNNING microVMs in 9.7 s wall with every launch throttled to the account's applied 1 per second quota, and drain() terminated all six in 0.7 s.
 
@@ -127,7 +132,8 @@ def cell(body, _headers):
     ...
 ```
 
-< upload demo-notebook.png here: Notebook live demo: four cells, a suspend, and a dataframe that survives the resume >
+< FIGURE 6 of 11: upload blog/img/demo-notebook.png here >
+Alt text: Notebook live demo: four cells, a suspend, and a dataframe that survives the resume
 
 Cell 3 returns np.int64(332833500) from a 1,000-row DataFrame. I then suspend the VM, and without calling ResumeMicrovm I POST cell 4, a mean over the same DataFrame. It returns np.float64(332833.5) with the same kernel ID. In this capture the waking request completed in 5.5 s end to end; the dedicated benchmark measured a suspended VM answering its first request in 0.7 s.
 
@@ -137,7 +143,8 @@ Two run flags deserve thought for interactive sessions. `--idle` is how long the
 
 An LLM that writes SQL is an untrusted user with a keyboard. DuckDB will COPY to any path, read any file the process can see, and load extensions. Sanitizing the SQL does not contain that; the boundary around the process does. At the same time, analytics sessions are stateful: an analyst loads a parquet file once and asks it forty questions.
 
-< upload arch-05-data-analytics.png here: Data analytics architecture: SQL and small result sets cross the endpoint, bulk parquet moves between DuckDB and S3 over the execution role >
+< FIGURE 7 of 11: upload blog/img/arch-05-data-analytics.png here >
+Alt text: Data analytics architecture: SQL and small result sets cross the endpoint, bulk parquet moves between DuckDB and S3 over the execution role
 
 One rule makes the design work: bulk data never crosses the endpoint. DuckDB's httpfs extension reads s3:// URIs directly using the execution-role credentials, and only the SQL going in and the result set coming out (capped at 1,000 rows) touch the capped endpoint.
 
@@ -156,7 +163,8 @@ def on_resume(ctx):
     on_run(ctx)  # role credentials rotate; refresh after resume
 ```
 
-< upload demo-data-analytics.png here: Data analytics live demo: a query that fails cleanly on a missing module, then a one-million-row aggregation in 1.2 seconds >
+< FIGURE 8 of 11: upload blog/img/demo-data-analytics.png here >
+Alt text: Data analytics live demo: a query that fails cleanly on a missing module, then a one-million-row aggregation in 1.2 seconds
 
 The first query in the transcript fails on a missing pytz module, and the engine returns it as a 400 JSON body and keeps serving, which is what you want when the SQL author is a model that will read the error and try again. The second query generates and aggregates one million rows into five buckets in 1,189.7 ms measured inside the VM, with the result crossing the endpoint as a few hundred bytes of JSON.
 
@@ -172,7 +180,8 @@ $ mvm run ci-runner --max-duration 900 --payload '{"repo_url": "...", "ref": "ma
 
 maximumDurationInSeconds is the control-plane guarantee that a hung test suite, a fork bomb in a malicious pull request, or a wedged clone cannot outlive its budget. The service terminates the VM for you.
 
-< upload demo-ci-runner.png here: CI runner live demo: clone psf/requests, run ruff, syntax-check the tree, report, terminate >
+< FIGURE 9 of 11: upload blog/img/demo-ci-runner.png here >
+Alt text: CI runner live demo: clone psf/requests, run ruff, syntax-check the tree, report, terminate
 
 The runner was serving 3.5 s after launch. It shallow-cloned psf/requests off the internet in 4.7 s, ran ruff across the source in 6.2 s, ran an ast-based syntax check in 0.1 s, and returned a passing report. About eleven seconds of useful work on a machine that did not exist fifteen seconds earlier and ceased to exist immediately after.
 
@@ -198,7 +207,8 @@ def validate(_ctx):
 
 The handler passes base_url=None to refuse relative resource resolution, the first line of SSRF defense. The VM boundary is the second line, for the day a parser bug makes the first one irrelevant.
 
-< upload demo-pdf-service.png here: PDF service live demo: launch in 3.4 s, one render in 186.3 ms, PDF written to disk, terminate >
+< FIGURE 10 of 11: upload blog/img/demo-pdf-service.png here >
+Alt text: PDF service live demo: launch in 3.4 s, one render in 186.3 ms, PDF written to disk, terminate
 
 3.4 s from `mvm run` to serving, and 186.3 ms to render a 6,098-byte invoice on the first request to a fresh VM with no warmup tricks in the app. That number is the /ready and /validate work paying off. Between bursts the VM suspends and the next POST /render wakes it.
 
@@ -222,7 +232,8 @@ From the cost model in microvm-ctl, on the measured 0.61 GB snapshot:
 | 2 h active + 22 h suspended | $0.2602 | $3.0264 | 91.4% | heavy sessions |
 | Running 24/7 | n/a | about $3.03 per day | n/a | the shape where Fargate wins |
 
-< upload mvm-cost.png here: mvm cost pricing the 30 minutes active plus 8 hours suspended shape >
+< FIGURE 11 of 11: upload blog/img/mvm-cost.png here >
+Alt text: mvm cost pricing the 30 minutes active plus 8 hours suspended shape
 
 ## The gotchas, once
 

@@ -10,10 +10,11 @@ Tags: ["lambda", "serverless", "firecracker", "python", "sandbox"]
 Series: Building on AWS Lambda MicroVMs
 Cover image: blog/img/cover-00.png
 
-Images to upload, in body order (each replaces its < upload ... > marker in the body):
-  1. blog/img/arch-00-plane.png
-  2. blog/img/mvm-image-ls.png
-  3. blog/img/benchmark.png
-  4. blog/img/lifecycle.png
-  5. blog/img/mvm-cost.png
-  6. blog/img/mvm-quotas.png
+Figures, in body order. Each < FIGURE n of N > marker in the body is replaced by the upload; the
+Alt text line under it goes into the image's alt field; the italic line after it is the caption.
+  1. blog/img/arch-00-plane.png  (under "Architecture")
+  2. blog/img/mvm-image-ls.png  (under "From zero to a serving VM in four commands")
+  3. blog/img/benchmark.png  (under "Fleets: scale up, scale down, stay under the quota")
+  4. blog/img/lifecycle.png  (under "Suspend and resume, verified")
+  5. blog/img/mvm-cost.png  (under "Suspend and resume, verified")
+  6. blog/img/mvm-quotas.png  (under "The quota walls")

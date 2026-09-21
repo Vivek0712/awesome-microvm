@@ -10,13 +10,14 @@ Tags: ["lambda", "step-functions", "serverless", "firecracker", "python"]
 Series: Building on AWS Lambda MicroVMs
 Cover image: blog/img/cover-03.png
 
-Images to upload, in body order (each replaces its < upload ... > marker in the body):
-  1. blog/img/playground-lease.png
-  2. blog/img/demo-sfn-terminate-failed.png
-  3. blog/img/demo-durable-hang.png
-  4. blog/img/arch-09-fanout-map.png
-  5. blog/img/playground-fanout.png
-  6. blog/img/handoff-bench.png
-  7. blog/img/fleet-watch.png
-  8. blog/img/demo-bench.png
-  9. blog/img/demo-playground-fleet-jobs.png
+Figures, in body order. Each < FIGURE n of N > marker in the body is replaced by the upload; the
+Alt text line under it goes into the image's alt field; the italic line after it is the caption.
+  1. blog/img/playground-lease.png  (under "One agent image for every orchestrator")
+  2. blog/img/demo-sfn-terminate-failed.png  (under "Step Functions")
+  3. blog/img/demo-durable-hang.png  (under "Step Functions")
+  4. blog/img/arch-09-fanout-map.png  (under "The Map")
+  5. blog/img/playground-fanout.png  (under "By hand and on screen")
+  6. blog/img/handoff-bench.png  (under "What a fan-out measures")
+  7. blog/img/fleet-watch.png  (under "What a fan-out measures")
+  8. blog/img/demo-bench.png  (under "What a fan-out measures")
+  9. blog/img/demo-playground-fleet-jobs.png  (under "What a fan-out measures")

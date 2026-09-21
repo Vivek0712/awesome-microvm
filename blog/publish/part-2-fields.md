@@ -10,15 +10,16 @@ Tags: ["lambda", "firecracker", "python", "ai", "sandbox"]
 Series: Building on AWS Lambda MicroVMs
 Cover image: blog/img/cover-01.png
 
-Images to upload, in body order (each replaces its < upload ... > marker in the body):
-  1. blog/img/arch-01-code-sandbox.png
-  2. blog/img/demo-code-sandbox.png
-  3. blog/img/demo-ai-code-runner.png
-  4. blog/img/arch-03-agent-eval.png
-  5. blog/img/demo-agent-eval.png
-  6. blog/img/demo-notebook.png
-  7. blog/img/arch-05-data-analytics.png
-  8. blog/img/demo-data-analytics.png
-  9. blog/img/demo-ci-runner.png
-  10. blog/img/demo-pdf-service.png
-  11. blog/img/mvm-cost.png
+Figures, in body order. Each < FIGURE n of N > marker in the body is replaced by the upload; the
+Alt text line under it goes into the image's alt field; the italic line after it is the caption.
+  1. blog/img/arch-01-code-sandbox.png  (under "1. A code execution sandbox")
+  2. blog/img/demo-code-sandbox.png  (under "1. A code execution sandbox")
+  3. blog/img/demo-ai-code-runner.png  (under "2. An AI code runner with a self-repair loop")
+  4. blog/img/arch-03-agent-eval.png  (under "3. An agent evaluation fleet")
+  5. blog/img/demo-agent-eval.png  (under "3. An agent evaluation fleet")
+  6. blog/img/demo-notebook.png  (under "4. A notebook kernel that suspends for free")
+  7. blog/img/arch-05-data-analytics.png  (under "5. Sandboxed DuckDB analytics")
+  8. blog/img/demo-data-analytics.png  (under "5. Sandboxed DuckDB analytics")
+  9. blog/img/demo-ci-runner.png  (under "6. An ephemeral CI runner")
+  10. blog/img/demo-pdf-service.png  (under "7. An HTML to PDF service that sleeps between bursts")
+  11. blog/img/mvm-cost.png  (under "What they cost")

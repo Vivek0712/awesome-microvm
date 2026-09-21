@@ -27,7 +27,8 @@ The service API is small: RunMicrovm, SuspendMicrovm, ResumeMicrovm, TerminateMi
 
 ## Architecture
 
-< upload arch-00-plane.png here: microvm-ctl architecture: your side, the control plane, and the execution plane >
+< FIGURE 1 of 6: upload blog/img/arch-00-plane.png here >
+Alt text: microvm-ctl architecture: your side, the control plane, and the execution plane
 
 The design splits into a control plane that talks SigV4 to the service API and an execution plane that talks HTTPS to each VM's endpoint. Nothing in the execution plane holds AWS credentials beyond what token minting needs, and nothing in the control plane touches workload data.
 
@@ -35,7 +36,8 @@ The design splits into a control plane that talks SigV4 to the service API and a
 
 After the eight example images in this series are built, `mvm image ls` looks like this:
 
-< upload mvm-image-ls.png here: mvm image ls listing the nine images used in the series >
+< FIGURE 2 of 6: upload blog/img/mvm-image-ls.png here >
+Alt text: mvm image ls listing the nine images used in the series
 
 ```console
 $ mvm bootstrap                     # S3 artifact bucket + build/execution IAM roles
@@ -88,11 +90,13 @@ Scale-down has an opinion, and the reason is billing. Suspended VMs are terminat
 
 I measured the scale path end to end on that account. scale_to(6) took a fleet from zero to six RUNNING microVMs in 9.7 seconds of wall time, with every launch throttled to the applied one-per-second quota, and drain() terminated all six in 0.7 seconds.
 
-< upload benchmark.png here: Benchmark transcript: launch latency, warm requests, suspend and resume, auto-resume, fleet scale, and session economics >
+< FIGURE 3 of 6: upload blog/img/benchmark.png here >
+Alt text: Benchmark transcript: launch latency, warm requests, suspend and resume, auto-resume, fleet scale, and session economics
 
 ## Suspend and resume, verified
 
-< upload lifecycle.png here: microVM lifecycle states and what each one costs >
+< FIGURE 4 of 6: upload blog/img/lifecycle.png here >
+Alt text: microVM lifecycle states and what each one costs
 
 I ran 21 executions against a sandbox VM, wrote a marker file, and suspended it. Compute billing stopped. On resume:
 
@@ -112,7 +116,8 @@ This is the economic engine of the whole service. My cost model uses the publish
 | 2 h active + 22 h suspended | $0.2602 | $3.03, 91.4% saved |
 | Running 24/7 | about $3.03 per day | the shape where Fargate wins |
 
-< upload mvm-cost.png here: mvm cost pricing the 30 minutes active plus 8 hours suspended shape >
+< FIGURE 5 of 6: upload blog/img/mvm-cost.png here >
+Alt text: mvm cost pricing the 30 minutes active plus 8 hours suspended shape
 
 Two caveats keep this honest. A suspend and resume cycle on my 0.61 GB snapshot costs about $0.0033 in snapshot write plus read, so one-shot jobs should terminate rather than suspend. And idle detection keys off endpoint traffic, so an asynchronous agent that goes quiet mid-task will be suspended mid-task unless you lengthen the idle window or send a heartbeat.
 
@@ -127,7 +132,8 @@ Both lessons are now encoded in the plane: quota-aware throttling, settle-waits 
 
 `mvm quotas` prints the published default, the applied value, and the rate the plane will throttle at, so you can see this before you plan a fleet. This is my account:
 
-< upload mvm-quotas.png here: mvm quotas on a fresh account: 1 launch per second and 8 GB applied against 5 per second and 1,024 GB published >
+< FIGURE 6 of 6: upload blog/img/mvm-quotas.png here >
+Alt text: mvm quotas on a fresh account: 1 launch per second and 8 GB applied against 5 per second and 1,024 GB published
 
 ## Monitoring
 

@@ -10,7 +10,8 @@ Tags: ["lambda", "bedrock", "ai", "multi-tenant", "firecracker"]
 Series: Building on AWS Lambda MicroVMs
 Cover image: blog/img/cover-02.png
 
-Images to upload, in body order (each replaces its < upload ... > marker in the body):
-  1. blog/img/arch-08-multi-tenant.png
-  2. blog/img/demo-multi-tenant-agents.png
-  3. blog/img/mvm-quotas.png
+Figures, in body order. Each < FIGURE n of N > marker in the body is replaced by the upload; the
+Alt text line under it goes into the image's alt field; the italic line after it is the caption.
+  1. blog/img/arch-08-multi-tenant.png  (under "Architecture")
+  2. blog/img/demo-multi-tenant-agents.png  (under "Run it")
+  3. blog/img/mvm-quotas.png  (under "What it costs at tenant scale")
