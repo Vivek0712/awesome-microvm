@@ -120,13 +120,51 @@ Resources:
                   "Assign": {
                     "lease_error": "{% $states.errorOutput %}"
                   },
-                  "Next": "Reap"
+                  "Next": "OnLeaseError"
                 }
               ],
               "Assign": {
                 "vm": "{% $states.result.microvm_id %}"
               },
               "Next": "Terminate"
+            },
+            "OnLeaseError": {
+              "Type": "Choice",
+              "Choices": [
+                {
+                  "Condition": "{% $contains($string($lease_error.Cause), '\"microvm_id\"') %}",
+                  "Next": "TerminateFailed"
+                }
+              ],
+              "Default": "Reap"
+            },
+            "TerminateFailed": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::aws-sdk:lambdamicrovms:terminateMicrovm",
+              "Arguments": {
+                "MicrovmIdentifier": "{% $parse($lease_error.Cause).microvm_id %}"
+              },
+              "Retry": [
+                {
+                  "ErrorEquals": [
+                    "LambdaMicrovms.ThrottlingException",
+                    "LambdaMicrovms.ServiceQuotaExceededException"
+                  ],
+                  "IntervalSeconds": 2,
+                  "MaxAttempts": 8,
+                  "BackoffRate": 2,
+                  "JitterStrategy": "FULL"
+                }
+              ],
+              "Catch": [
+                {
+                  "ErrorEquals": [
+                    "States.ALL"
+                  ],
+                  "Next": "Reap"
+                }
+              ],
+              "Next": "Reap"
             },
             "Terminate": {
               "Type": "Task",

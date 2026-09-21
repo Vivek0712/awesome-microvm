@@ -6,7 +6,8 @@ A Standard workflow leases a Lambda MicroVM to one task with `runMicrovm.waitFor
 start-execution ──▶ Lease (runMicrovm.waitForTaskToken) ──▶ Terminate ──▶ Done: the VM's result
                         │  RunHookPayload = {lease: {kind: sfn, token, region}, task: $states.input}
                         │  TimeoutSeconds = Budget · HeartbeatSeconds = 90 · VM cap = Budget + 120
-                        └─ States.Timeout / HeartbeatTimeout / TaskFailed ──▶ Reap ──▶ TerminateStale ──▶ Failed
+                        └─ States.Timeout / HeartbeatTimeout / TaskFailed ──▶ OnLeaseError ─┬─ cause names microvm_id ──▶ TerminateFailed ─┐
+                                                                                            └─ no id (a timeout) ───────────────────────────┴─▶ Reap ──▶ TerminateStale ──▶ Failed
 ```
 
 ## Deploy, run, watch, clean up
@@ -26,13 +27,19 @@ aws cloudformation delete-stack --stack-name microvm-sfn-handoff
 
 `run.sh` starts an execution with `{"steps": ["echo hello", "python3 -c \"print(2+2)\"", "sleep 5"]}`, lists the fleet once so the leased VM is visible, and prints the execution's output when it ends: the VM's completion payload with `microvm_id`, `elapsed_s`, and `result` (`passed`, one entry per step, the heartbeat count). Any JSON you pass as input becomes the task; the payload is capped at 4,096 characters, so pass pointers, not bodies.
 
-## The timeout branch
+## The failure path
 
-If the VM never completes the token, `TimeoutSeconds` (the `Budget` parameter, 300 s) or `HeartbeatSeconds` (90 s against the VM's 30 s heartbeat) fires, and the `Catch` sends the execution to `Reap` rather than `Terminate`, because a timed-out task returns no output and therefore no microVM id. `Reap` lists the image's microVMs and `TerminateStale` terminates every RUNNING, SUSPENDED, or PENDING one older than `Budget + 120` s, which is also the `maximumDurationInSeconds` every leased VM carries, so a VM the state machine cannot see still dies on its own. The execution then ends in `Failed` with error `LeaseFailed` and the caught error as the cause; the VM's next heartbeat gets `TaskTimedOut`, which sets `lease.lost` inside the VM and stops the work.
+The `Catch` on `Lease` covers `States.TaskFailed`, `States.Timeout`, and `States.HeartbeatTimeout`, and all three land on `OnLeaseError`, a Choice on what the caught error carries.
+
+A typed failure (the VM raised a `LeaseError`, or the runtime sent `Unexpected` or `Terminated`) arrives through `SendTaskFailure` with the VM's own completion payload as the cause, and that payload names `microvm_id`. `OnLeaseError` sees the id and goes to `TerminateFailed`, which terminates that VM at once, then falls through to `Reap`. Before microvm-ctl 0.3.1 a typed failure went straight to `Reap`, which only terminates VMs older than `Budget + 120`, so a VM that had failed in its first few seconds sat RUNNING until its own duration cap ended it.
+
+A timeout is different: `TimeoutSeconds` (the `Budget` parameter, 300 s) or `HeartbeatSeconds` (90 s against the VM's 30 s heartbeat) fires without any output from the VM, so there is no id to terminate by, and `OnLeaseError` goes to `Reap`. `Reap` lists the image's microVMs and `TerminateStale` terminates every RUNNING, SUSPENDED, or PENDING one older than `Budget + 120` s, which is also the `maximumDurationInSeconds` every leased VM carries, so a VM the state machine cannot see still dies on its own inside that bound. Either way the execution ends in `Failed` with error `LeaseFailed` and the caught error as the cause; on a timeout the VM's next heartbeat gets `TaskTimedOut`, which sets `lease.lost` inside the VM and stops the work.
+
+`TerminateFailed` was exercised live after the 0.3.1 redeploy; the history is in the 0.3.1 live run section below.
 
 ## Fan-out with a Map
 
-`template-map.yaml` is the same lease as the item processor of a Step Functions Map (`mvm lease asl --map`, `FanoutSpec(items_expr="$states.input.shards")`): start it with `{"shards": [task, task, ...]}` and every element becomes one VM's task, with the lease id and the `clientToken` carrying the item index (`<execution>-<index>`), so a retried item gets its own VM back and never a neighbour's. The execution output is the array of VM payloads. `MaxConcurrency` (default 4) is how many shards are in flight at once; more shards than that run in waves. The Map does not know the account's memory quota, so set it to the number `mvm lease plan --image handoff-agent --shards 8` prints (the quota divided by the image's baseline), otherwise the shards over the line fail on `ServiceQuotaExceededException` and burn their retries. With `ApprovalTopicArn` set, a `Gate` Choice sends executions with more than `ApproveAboveShards` (default 8) shards through `RequestApproval`, an `sns:publish.waitForTaskToken` whose message carries the shard count, the image, the execution name, and the task token; the approver answers with `aws stepfunctions send-task-success --task-token <token> --task-output '{}'` within an hour, or the execution ends in `Denied`. An empty `ApprovalTopicArn` (the default) deploys the machine without the gate; the template holds both definitions and a Condition picks one. Failures inside a shard follow the same `Reap` path, and it stays age-based over the whole image: a VM of another shard that is older than `Budget + 120` is reaped too, on purpose, because at that age it has already outlived its own lease.
+`template-map.yaml` is the same lease as the item processor of a Step Functions Map (`mvm lease asl --map`, `FanoutSpec(items_expr="$states.input.shards")`): start it with `{"shards": [task, task, ...]}` and every element becomes one VM's task, with the lease id and the `clientToken` carrying the item index (`<execution>-<index>`), so a retried item gets its own VM back and never a neighbour's. The execution output is the array of VM payloads. `MaxConcurrency` (default 4) is how many shards are in flight at once; more shards than that run in waves. The Map does not know the account's memory quota, so set it to the number `mvm lease plan --image handoff-agent --shards 8` prints (the quota divided by the image's baseline), otherwise the shards over the line fail on `ServiceQuotaExceededException` and burn their retries. With `ApprovalTopicArn` set, a `Gate` Choice sends executions with more than `ApproveAboveShards` (default 8) shards through `RequestApproval`, an `sns:publish.waitForTaskToken` whose message carries the shard count, the image, the execution name, and the task token; the approver answers with `aws stepfunctions send-task-success --task-token <token> --task-output '{}'` within an hour, or the execution ends in `Denied`. An empty `ApprovalTopicArn` (the default) deploys the machine without the gate; the template holds both definitions and a Condition picks one. Failures inside a shard follow the same `OnLeaseError` path: a typed failure terminates that shard's VM by id, a timeout goes to `Reap`, and `Reap` stays age-based over the whole image: a VM of another shard that is older than `Budget + 120` is reaped too, on purpose, because at that age it has already outlived its own lease.
 
 ```console
 aws cloudformation deploy --template-file template-map.yaml --stack-name microvm-sfn-handoff-map \
@@ -54,5 +61,22 @@ mvm lease asl --image handoff-agent --execution-role <AgentExecutionRoleArn> --m
 ```
 
 `generate.py` calls `microvm.integrations.stepfunctions.lease_state_machine` with placeholder ARNs for `lease.asl.json`, and with `${ImageName}`, `${AgentExecutionRole.Arn}`, `${AWS::Region}`, and `${Budget}` for the templates' `DefinitionString: !Sub`; for `template-map.yaml` it passes `fanout=FanoutSpec(...)` twice (with and without the approval gate) and swaps sentinel integers for `${MaxConcurrency}` and `${ApproveAboveShards}`, which `Fn::Sub` cannot otherwise place inside a number. JSONata uses `{% %}` and `$states`, never `${`, so `Fn::Sub` leaves the expressions alone; the script refuses to write if any other `${...}` appears, and skips `template-map.yaml` with a note on a microvm-ctl older than 0.3.0. The agent role's `states:SendTask*` grant is scoped to `arn:aws:states:<region>:<account>:stateMachine:<stack>-lease` (`<stack>-map` for the fan-out), which is why the machines are named after the stack: the role must exist before the machine does.
+
+## 0.3.1 live run: the typed-failure branch
+
+Both stacks were redeployed from the templates regenerated with microvm-ctl 0.3.1 on 2026-09-20 (`microvm-sfn-handoff` with `ImageName=handoff-agent Budget=300`, `microvm-sfn-handoff-map` with `ImageName=handoff-agent-small Budget=300 MaxConcurrency=8`), and the single machine was run once with `{"steps": ["echo hello"], "fail_after_s": 5}`, the agent's test aid that raises a retryable `Injected` error after the steps. Execution `arn:aws:states:us-east-1:643603452951:execution:microvm-sfn-handoff-lease:lease-fail-1789954288`, times local (UTC-7):
+
+```
+18:31:29.448  ExecutionStarted
+18:31:29.719  TaskSubmitted             Lease            RunMicrovm accepted; the VM's startedAt is 18:31:29.668
+18:31:36.997  TaskFailed                Injected         SendTaskFailure from the VM, cause = its completion payload
+18:31:37.009  ChoiceStateExited         OnLeaseError     cause contains "microvm_id" -> TerminateFailed
+18:31:37.009  TaskScheduled             TerminateFailed  terminateMicrovm microvm-272a0445-70ed-3118-9d8f-64b2f23c162c
+18:31:37.197  TaskSucceeded             TerminateFailed
+18:31:37.383  TaskSucceeded             Reap             listMicrovms; TerminateStale matched nothing
+18:31:37.409  ExecutionFailed                            LeaseFailed, cause {"Error": "Injected", ...}
+```
+
+8.0 s from start to `Failed`, 0.4 s from the VM's failure to the execution ending, and `GetMicrovm` on the id afterwards reports `TERMINATED` at 18:31:37.785 with `stateReason` "Success.". Under 0.3.0 the same run would have left that VM RUNNING for the rest of its 420 s cap. The fan-out machine was redeployed but not run.
 
 Shared image: [handoff-agent](../handoff-agent). Same lease from a Lambda durable function: [durable-handoff](../durable-handoff). From a laptop over SQS, EventBridge, or HTTP: [generic-handoff](../generic-handoff). Contract: [microvm-ctl docs/integrations.md](https://github.com/Vivek0712/microvm-ctl/blob/main/docs/integrations.md).

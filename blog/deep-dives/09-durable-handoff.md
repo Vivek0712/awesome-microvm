@@ -99,7 +99,7 @@ vm = context.step(
 
 The _launch step body is a single fm.lease(image, lease, task, policy) call that returns the VM id and endpoint for the checkpoint.
 
-The VM heartbeats. The hook runtime, not the agent, owns this: a daemon thread calls SendDurableExecutionCallbackHeartbeat every heartbeat_s seconds. When that call returns CallbackTimeoutException, the orchestrator has stopped waiting; the runtime marks the lease lost, and the agent's lease.check() between phases raises LeaseLost and the pipeline stops. Nobody is waiting, so stop spending.
+The VM heartbeats. The hook runtime, not the agent, owns this: a daemon thread calls SendDurableExecutionCallbackHeartbeat as soon as the lease is accepted and then every heartbeat_s seconds. Since microvm-ctl 0.3.1 lease_microvm passes that interval through LeasePolicy.heartbeat_every, which clamps it to at most a third of heartbeat_timeout_s and never under 5 s; a policy with a 30 s heartbeat timeout and the default 30 s interval lost a callback at 30.1 s, before the first heartbeat had landed, because the callback's clock starts before RunMicrovm returns. When that call returns CallbackTimeoutException, the orchestrator has stopped waiting; the runtime marks the lease lost, and the agent's lease.check() between phases raises LeaseLost and the pipeline stops. Nobody is waiting, so stop spending.
 
 The VM completes with a typed result or a typed failure. The agent is an @app.on_lease handler: whatever it returns goes out as SendDurableExecutionCallbackSuccess, and a LeaseError it raises goes out as SendDurableExecutionCallbackFailure with the error type as ErrorType and the whole completion payload, retryable flag included, as ErrorData. The review agent's vocabulary is CloneFailed, ScanFailed, PostFailed, and BadPayload; the runtime adds Unexpected for anything else and Terminated for a /terminate that lands mid-review. Success stays under the 256 KB callback limit: counts, the top fifty findings, and an S3 key for the full report if a bucket is configured.
 
@@ -135,6 +135,7 @@ sequenceDiagram
     participant O as Durable function
     participant V as MicroVM (agent)
     participant L as Lambda MicroVMs API
+    V->>O: heartbeat (t=0, on accept)
     V->>O: heartbeat (t=30 s)
     V->>O: heartbeat (t=60 s)
     Note over V: process wedged, no more heartbeats
