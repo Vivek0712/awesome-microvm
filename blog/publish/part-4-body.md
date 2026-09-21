@@ -1,5 +1,9 @@
 A Lambda MicroVM gives you a machine with a lifecycle and an endpoint. An orchestrator wants something narrower: hand that machine one job, go to sleep, and wake up when the job is done or when it has clearly gone wrong. Every workload in [part 2](https://builder.aws.com/content/3JJ2oNWY9EsZzivMMx044cSlrFQ/seven-workloads-lambda-could-never-run-until-microvms) of this series was driven from a terminal or a harness that called the VM's endpoint. The customers I work with at Aivar do not run their pipelines from terminals. They run them from Step Functions, from Lambda, and from whatever queue their platform team standardized on years ago, and the question they ask is how a state machine hands a VM a task and waits.
 
+< FIGURE 1 of 10: upload blog/img/hook-03-handoff.png here >
+Alt text: One lease, the VM finishes the job itself: Step Functions, a Lambda durable function, and your own controller each hand their wait token and the task to one RunMicrovm call as runHookPayload; the 512 MiB MicroVM accepts the lease on /run, runs the steps, heartbeats every 10 s, completes the lease through the orchestrator's own API, and a typed failure names its microvm_id; measured live: 4.3 s single lease p50 on both orchestrators, $0.00004 per lease, fan-out of 8 at 8.9 s and 13.7 s, one image for every orchestrator.
+*The whole article in one picture: the orchestrator launches once with its own wait token in the payload and sleeps; the VM does the work and completes the lease itself. Every number is from the live runs in [microvm-handoff-demo](https://github.com/Vivek0712/microvm-handoff-demo).*
+
 Three answers arrived at roughly the same time. Step Functions got SDK integrations for Lambda MicroVMs in August 2026, so a state machine can call RunMicrovm as a task state and wait for a task token. Lambda durable functions have callbacks, a single-use id that an outside process completes. Everyone else has a queue. I did not want three integrations, so I built one contract in [microvm-ctl](https://github.com/Vivek0712/microvm-ctl) and pointed all three at it; the README puts it in one clause, hand a VM a task from Step Functions, Lambda durable functions, or any orchestrator through a lease the VM completes itself. This is part 4 of Building on AWS Lambda MicroVMs, and every number in it was measured on the live service in us-east-1 on 2026-09-20, on an account with a 1 launch per second quota, against a 2 GB image, and a 512 MiB build of the same agent for the fan-outs.
 
 ## The contract
@@ -94,7 +98,7 @@ The image built in 132 s for version 1 and again for version 3. One intermediate
 
 The playground, the browser UI that ships with microvm-ctl, shows the same lease through its Fleet view. Here it is after a kind none lease of four steps that spent 26.7 s in the VM:
 
-< FIGURE 1 of 9: upload blog/img/playground-lease.png here >
+< FIGURE 2 of 10: upload blog/img/playground-lease.png here >
 Alt text: The playground's Fleet view with the Lease card and a completed lease job: playground-demo, 4 steps, 26.7 s in the VM, 0 heartbeats
 
 The 0 heartbeats is honest and will recur in every run below: kind none has no completer to heartbeat against, and every other task in this article finished inside one 30 s heartbeat interval. The heartbeat thread is exercised in the unit tests and in the hang_s drills, not in these timings.
@@ -131,11 +135,11 @@ The run. I deployed the stack and ran ./run.sh, which starts an execution with t
 The failure path has an odd shape, and I exercised it live from a second repo, [microvm-handoff-demo](https://github.com/Vivek0712/microvm-handoff-demo), which drives every lease scenario against deployed stacks rather than the unit tests. Two things came out of that. First, a typed failure is not a timeout. When the agent raises a LeaseError, the runtime sends SendTaskFailure with the VM's whole completion payload as the cause, and that payload names microvm_id; the 0.3.0 machine sent it down the same Catch as a timeout, to Reap, which lists the image's VMs and terminates the ones older than the cap. The failed VM was seconds old, so it survived the reap and sat RUNNING until its own maximumDurationInSeconds ended it, seven minutes of paid time for a task that had already said no. Second, the heartbeat interval and the heartbeat timeout were independent knobs. A durable lease with heartbeat_timeout_s set to 30 and the default 30 s interval lost its callback at 30.1 s, before the first heartbeat had gone out, because the orchestrator's clock starts before RunMicrovm returns and the VM's first heartbeat waited a full interval. 0.3.1 changes both. The Catch now goes to OnLeaseError, a Choice: if the cause contains a microvm_id the machine runs TerminateFailed on that VM, then falls through to Reap; if it does not, which is what a timeout looks like, it goes to Reap as before. Reaping by age stays the right tool for the timeout case, because every leased VM carries the same maximumDurationInSeconds and anything older than the cap on this image is a leak by definition, while anything younger is someone else's live lease. LeasePolicy.heartbeat_every clamps the requested interval to at most a third of heartbeat_timeout_s (never under 5 s), and lease_state_machine, durable.lease_microvm, and mvm lease run all go through it; the hook runtime also sends its first heartbeat the moment the lease is accepted rather than an interval later. The execution still ends in Failed with error LeaseFailed and the caught error as the cause, and on a timeout the VM's next heartbeat gets TaskTimedOut, which sets lease.lost and stops the work. After redeploying the example stack on 0.3.1 I ran one execution with fail_after_s set to 5: the VM failed at 18:31:36.997, OnLeaseError chose TerminateFailed at 18:31:37.009, terminateMicrovm returned at 18:31:37.197, and the execution was in Failed by 18:31:37.409, 8.0 s after it started. The timeout branch itself I have still only driven through the hang_s test aid and the demo repo, not by waiting out the deployed machine's budget.
 
 
-< FIGURE 2 of 9: upload blog/img/demo-sfn-terminate-failed.png here >
+< FIGURE 3 of 10: upload blog/img/demo-sfn-terminate-failed.png here >
 Alt text: The Step Functions console for the demo's retryable-fail execution on microvm-ctl 0.3.1: the execution failed with LeaseFailed, and the graph shows Lease, then the OnLeaseError choice, then TerminateFailed and Reap lit green on the way to the Failed state, with the success-path Terminate and Done untouched.
 *The typed-failure branch, live: OnLeaseError reads the cause, TerminateFailed ends the VM it names, and GetMicrovm shows it terminated 0.557 s after the failure. From [results/stepfunctions/retryable-fail](https://github.com/Vivek0712/microvm-handoff-demo/tree/main/results/stepfunctions/retryable-fail).*
 
-< FIGURE 3 of 9: upload blog/img/demo-durable-hang.png here >
+< FIGURE 4 of 10: upload blog/img/demo-durable-hang.png here >
 Alt text: The Lambda console's durable operations table for the demo's hang execution on 0.3.1: lease-0-callback timed out after 1 min, lease-0-launch and lease-0-terminate succeeded, then lease-1-callback timed out after 1 min and lease-1-launch and lease-1-terminate succeeded; the execution took 2 min 693 ms.
 *The budget timeout, live: each callback times out exactly 60 s after it starts while the VM heartbeats every 10 s in between, the function terminates the VM it holds the id of, and lease_with_relaunch tries once more. From [results/durable/hang](https://github.com/Vivek0712/microvm-handoff-demo/tree/main/results/durable/hang).*
 
@@ -214,7 +218,7 @@ mvm lease plan --image handoff-agent --shards 8 printed concurrency 4 (memory qu
 
 mvm lease asl --map wraps the single-lease machine as the item processor of a Map over $states.input.shards, with MaxConcurrency from fanout_limit when you do not pass one; [template-map.yaml](https://github.com/Vivek0712/awesome-microvm/blob/main/examples/stepfunctions-handoff/template-map.yaml) in the Step Functions example commits the output. Every shard gets the same Lease, Terminate, OnLeaseError, TerminateFailed, Reap, and TerminateStale states, and the execution output is the array of VM payloads.
 
-< FIGURE 4 of 9: upload blog/img/arch-09-fanout-map.png here >
+< FIGURE 5 of 10: upload blog/img/arch-09-fanout-map.png here >
 Alt text: The generated Map state machine: a Gate choice routes large fan-outs through RequestApproval, an SNS publish that waits for a task token, or to Denied; Fanout is a Map whose item processor per shard runs Lease, then Terminate and ShardDone, or Reap, TerminateStale, and ShardFailed on a timeout; Done collects the array of shard payloads
 
 The service taught me two things when this machine first deployed, and both live in the emitter now. Inside a JSONata Map item processor there is no $states.context.Map.Item.Index, so indexed_items_expr wraps each shard as {index, task} and the lease id and ClientToken carry that index; a retried shard gets its own VM back, never a neighbour's. And state names must be unique across the whole definition, not per processor, so the shard's terminal state is ShardDone (MAP_DONE_NAME), not a second Done. The Retry block changed too: the generated machine used to wait 10 s before retrying a throttled RunMicrovm, then 20 s, and on a 1 per second quota that dominated one single-lease run, 14.7 s instead of 5.5 s. _retry_throttling now waits 2 s first, 8 attempts, backoff 2, full jitter. With --approval-topic the machine gains a Gate choice that sends executions with more shards than --approve-above-shards through RequestApproval, an sns:publish.waitForTaskToken, so the approval is in the execution history; no answer within an hour ends in Denied. I deployed and validated that template, but every measured fan-out below ran without the gate.
@@ -227,14 +231,14 @@ The durable version is microvm.integrations.durable.lease_map(context, fm, image
 
 mvm lease run handoff-agent --shards 4 does the same from a terminal, planning first and exiting 2 on a refusal and 3 when the plan needs approval without --approve. mvm watch --image handoff-agent is one live table for every RUNNING member of an image, with a footer of done over total, running, lost, and the slowest member; the playground's fleet job panel is the same table.
 
-< FIGURE 5 of 9: upload blog/img/playground-fanout.png here >
+< FIGURE 6 of 10: upload blog/img/playground-fanout.png here >
 Alt text: The playground's Fleet view during a four-shard fan-out from mvm lease run --shards 4: four RUNNING handoff-agent-small VMs, the fleet job panel with leases shot-0 to shot-3 in step 2/3, and the footer done 0/4, running 4, lost 0
 
 ### What a fan-out measures
 
 The bench drives the deployed Map and the durable fanout mode with 4 and 8 shards of handoff-agent-small, the same agent at a 512 MiB baseline so all eight fit the quota at once, and takes start and stop from the orchestrator's own record; the three lower tables of the bench's figure are these runs, the in-VM comparison, and the refusal drill.
 
-< FIGURE 6 of 9: upload blog/img/handoff-bench.png here >
+< FIGURE 7 of 10: upload blog/img/handoff-bench.png here >
 Alt text: The lease handoff bench's four tables: the single-lease p50 per kind, the fan-out p50 per kind and size, the in-VM parallel comparison, and the refusal drill, with the cost model and source files underneath
 
 | kind | shards | all running | first shard done | slowest shard done | end to end | VM s total | cost per fan-out |
@@ -246,16 +250,16 @@ Alt text: The lease handoff bench's four tables: the single-lease p50 per kind, 
 
 End to end is the service's clock: describe_execution's start and stop for Step Functions, the durable execution's own timestamps for Lambda. The execution history of the first 8-shard Map run, MaxConcurrency 8, reads ExecutionStarted at 0.0 s, all 8 TaskSubmitted by 0.4 s, the first TaskSucceeded at 8.3 s, the last MapIterationSucceeded at 11.0 s, and ExecutionSucceeded at 11.1 s; the 4-shard run took 13.8 s, and the rerun after the retry change is the table row. Eight VMs cost 77 VM-seconds and $0.00147, of which $0.0008 is 32 Step Functions state transitions, so on a half-GB image the orchestrator is more than half the bill. The durable 8-shard row is slower than its first-pass 16.7 s because the bench saw one of the eight VMs RUNNING only 13.8 s after the service's startedAt for it, and the map waited; the dash in its all-running column is honest, the first VM had been terminated before the last was up. The first and slowest shard done columns are /status observations between polls and are informational: the 4-shard sfn row's first shard done lands 0.2 s after its own end to end. Heartbeats stayed 0 in every shard because every task finished inside 30 s.
 
-< FIGURE 7 of 9: upload blog/img/fleet-watch.png here >
+< FIGURE 8 of 10: upload blog/img/fleet-watch.png here >
 Alt text: A frame of mvm watch --image handoff-agent-small during the 8-shard Step Functions fan-out: eight rows, each in step 2/2 with progress 1/2 at 6 s, state running, and the footer done 0/8, running 8, lost 0
 
 The harness lesson, said plainly because it is the mistake you will make too: my first pass reported 43 to 52 s for these fan-outs, because it timed the orchestrator by when its own poll loop saw the terminal state while also polling every member's /status, so the number was the harness, not the service. The fix takes start and stop from describe_execution and get_durable_execution, and VM-seconds from GetMicrovm's startedAt to terminatedAt, and the same runs came back at 11.1 to 16.7 s.
 
-< FIGURE 8 of 9: upload blog/img/demo-bench.png here >
+< FIGURE 9 of 10: upload blog/img/demo-bench.png here >
 Alt text: A bar chart, p50 end to end by the orchestrator's own clock on microvm-ctl 0.3.1 with the demo-agent image at 512 MiB: single lease 4.3 s on Step Functions and 4.3 s on the durable function, fan-out of 4 at 4.6 s and 7.9 s, fan-out of 8 at 8.9 s and 13.7 s.
 *The same lease from both orchestrators, timed only from describe_execution and get_durable_execution: 18 of 18 runs succeeded. The durable function pays for one extra invocation per wave, which is the gap at 4 and 8 shards. From [benchmarks/results](https://github.com/Vivek0712/microvm-handoff-demo/tree/main/benchmarks/results) in microvm-handoff-demo.*
 
-< FIGURE 9 of 9: upload blog/img/demo-playground-fleet-jobs.png here >
+< FIGURE 10 of 10: upload blog/img/demo-playground-fleet-jobs.png here >
 Alt text: The playground's Fleet job panel during a four-shard Step Functions fan-out on the demo-agent image: four rows, each with its microVM id, a lease id of the form playground-fanout-4-...-N, phase step 2/3, progress 1/3, 25 s elapsed, state running; the footer reads done 0/4, running 4, lost 0, polling every 2 s.
 *Job telemetry across a fleet the orchestrator launched, not the playground: the panel finds the image's RUNNING members and asks each for /status. The same table is mvm watch --image demo-agent.*
 

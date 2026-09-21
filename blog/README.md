@@ -61,6 +61,7 @@ In body order. The cover goes in the cover field, not the body.
 **02-multi-tenant-agents.md**: cover `img/cover-02.png`
 
 **03-handoff.md**: cover `img/cover-03.png`
+- `img/hook-03-handoff.png`
 - `img/playground-lease.png`
 - `img/demo-sfn-terminate-failed.png`
 - `img/demo-durable-hang.png`
