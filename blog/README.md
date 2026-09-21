@@ -18,7 +18,7 @@ Four articles, written for the AWS Builder Center in series mode. Each markdown 
 | 1 | [00-control-and-scale.md](00-control-and-scale.md) | Control and scale AWS Lambda MicroVMs with microvm-ctl | [cover-00.png](img/cover-00.png) | [live](https://builder.aws.com/content/3JIDTpz0ZgatSBv24drra3gEod9/control-and-scale-aws-lambda-microvms-with-microvm-ctl) |
 | 2 | [01-seven-workloads.md](01-seven-workloads.md) | Seven workloads Lambda could never run, until MicroVMs | [cover-01.png](img/cover-01.png) | [live](https://builder.aws.com/content/3JJ2oNWY9EsZzivMMx044cSlrFQ/seven-workloads-lambda-could-never-run-until-microvms) |
 | 3 | [02-multi-tenant-agents.md](02-multi-tenant-agents.md) | A kernel for every customer: scaling AI agents to 1,000 tenants on AWS Lambda MicroVMs with microvm-ctl | [cover-02.png](img/cover-02.png) | [live](https://builder.aws.com/content/3JJ7tASPSSUUTrcpWnWtxOuu8g3/a-kernel-for-every-customer-scaling-ai-agents-to-1000-tenants-on-aws-lambda-microvms-with-microvm-ctl) |
-| 4 | [03-handoff.md](03-handoff.md) | Hand a task to a MicroVM from anywhere: one lease, Step Functions, durable functions, or your own controller | [cover-03.png](img/cover-03.png) | unpublished |
+| 4 | [03-handoff.md](03-handoff.md) | Hand a task to a MicroVM from anywhere: one lease, Step Functions, durable functions, or your own controller | [cover-03.png](img/cover-03.png) | [live](https://builder.aws.com/content/3Jcx0VcEOq9QQBtqr59y4S8dVFC/hand-a-task-to-a-microvm-from-anywhere-one-lease-step-functions-durable-functions-or-your-own-controller) |
 
 ## Publishing checklist, per article
 
