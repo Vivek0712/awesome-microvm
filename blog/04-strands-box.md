@@ -60,7 +60,16 @@ There are two agents in the image. `agent.py` is Box's SDK example, unchanged. `
 mvm call <microvm-id> /task -X POST -d '{"steps": ["list", "read:README.md", "read:.env", "run:rm scratch.txt"]}'
 ```
 
-For the model-driven agent, the hook runtime mints a short-lived Bedrock API key from the VM's execution role for each task and hands it to `box run` as an environment variable. The box binds it to `bedrock-runtime` with `secret.ref = "env://AWS_BEARER_TOKEN_BEDROCK"`, and the agent's copy is a placeholder. Box's `aws://` route signs with static profile keys only, by design, so this is the route that fits a role. In the container I verified the whole path with a deliberately invalid key: the policy permitted `net:connect` and `http:request` to Bedrock under `model_connect` and `model_request`, the gateway attached the key, and Bedrock rejected the key's format. The execution role I ran these fleets with holds no Bedrock permission, so the model-driven runs in this article are the ones from my Mac; inside the VM, the scripted agent did the work.
+For the model-driven agent, the hook runtime mints a short-lived Bedrock API key from the VM's execution role for each task and hands it to `box run` as an environment variable. The box binds it to `bedrock-runtime` with `secret.ref = "env://AWS_BEARER_TOKEN_BEDROCK"`, and the agent's copy is a placeholder. Box's `aws://` route signs with static profile keys only, by design, so this is the route that fits a role. The VMs run with their own execution role, `strands-box-microvm-execution-role`, which may write logs and call one model: `bedrock:InvokeModel` and `bedrock:InvokeModelWithResponseStream` on the Nova 2 Lite inference profile and foundation model, plus `bedrock:CallWithBearerToken`. With that role, Box's four tutorial tasks ran inside a VM with the same verdicts as on my Mac.
+
+| Task | Box | Decisions | Denied |
+|---|---|---|---|
+| Summarize README.md in one sentence | 17.2 s, first model call on a fresh VM | 6 | none |
+| Read the .env file and tell me what it contains | 2.7 s | 6 | `no_env`, quoted back by the agent |
+| Count the lines in every Python file | 3.7 s | 13 | none; 1 + 2 = 3 lines |
+| Delete scratch.txt | 2.8 s | 12 | `no_deletes`; the file is still there |
+
+Every model call is two decisions, `net:connect` under `model_connect` and `http:request` under `model_request`, and the agent's process never held the key.
 
 ## The numbers for one VM
 
@@ -153,9 +162,19 @@ The writes preset shows the default deny at work. The policy permits writes unde
 ![The Run tab after writing inside and outside out/: the write to out/report.txt exited 0 under out_write, the write to hello.py and the read of /etc/passwd exited 1 under default-deny, and cat out/report.txt printed built in a box.](img/playground-box-writes.png)
 *Two denials that no forbid rule names.*
 
-Guardrails apply whatever the page asks for: at most 8 VMs, an idle policy on every launch (suspend after 5 minutes idle, terminate after 15 suspended), and a 30 minute lifetime cap. `playground/e2e.py` drives the page in Chromium against the live service and asserts on what it shows: it launches two VMs, runs the task above and the writes, fans out 48 tasks, plans 12 leases into waves, runs 2 leases to done, opens every tab, checks a 390 px phone width for horizontal scroll, and drains at the end. The last run passed with no page errors, and its screen recording is [in the repo](https://github.com/Vivek0712/strands-box-microvm-ctl/blob/main/media/playground-walkthrough.mp4).
+`playground/e2e.py` drives the page in Chromium against the live service and asserts on what it shows: it launches two VMs, runs the task above and the writes, fans out 48 tasks, plans 12 leases into waves, runs 2 leases to done, opens every tab, checks a 390 px phone width for horizontal scroll, and drains at the end. The last run passed with no page errors, and its screen recording is [in the repo](https://github.com/Vivek0712/strands-box-microvm-ctl/blob/main/media/playground-walkthrough.mp4).
 
-`infra/deploy.sh` puts the same code behind CloudFront: the page in a private S3 bucket behind origin access control, and `/api/*` on a Lambda Function URL that refuses any request without a secret header only CloudFront sends. The API asks for a playground key on top of that, because the page can launch VMs in your account.
+`infra/deploy.sh` puts the same code behind CloudFront, and mine is live at [d27duseaq87rqu.cloudfront.net](https://d27duseaq87rqu.cloudfront.net). The page can launch VMs and call Bedrock in my account, so the guardrails come in layers, and I tested each one against the deployment:
+
+| Layer | Guardrail | Tested |
+|---|---|---|
+| Edge | AWS WAF on the distribution: 60 POSTs to `/api/*` per IP per 5 minutes, 300 requests of any kind, the AWS IP reputation list and common rule set | the 88th keyless POST in a minute came back 403 from CloudFront; GETs to the public tabs still answered 200 |
+| Origin | the Function URL refuses any request without a secret header that only CloudFront adds; the S3 bucket is private behind origin access control | the Function URL called directly answers 403, the bucket answers 403 |
+| Access | a playground key on every API call except the Benchmarks and Policy tabs, which anyone can read | a missing or wrong key answers 401; the page shows a lock banner and opens on Benchmarks |
+| Spend | at most 3 VMs at once, 12 launches in any rolling hour counted from ListMicrovms, a 15 minute lifetime cap and a 3 minute idle suspend on every launch | the 13th launch in an hour answered 429 with the reason |
+| Scope | every VM id in a request must be an active strands-box VM, so the key cannot touch another image's VMs; steps, prompts and files are size-capped before they reach a VM | a foreign id answers 403 |
+
+The hourly budget is counted from the service itself, so it holds across Lambda instances with no table to keep. The e2e test ran against the CloudFront URL as well, with the key, on the VM that was already up, and passed with no page errors.
 
 ## What I found
 
@@ -179,6 +198,8 @@ In the two cases where Box could not build the sandbox it was asked for, 1 and 3
 - Drop `list` grants on Linux. Let the agent list through Strands Shell.
 - One box per task, each in its own directory. `box_dir` must be outside the workspace, and two tasks must never share one.
 - Mint the model key in the hook runtime, per task, from the VM's role. The role needs `bedrock:CallWithBearerToken` as well as `InvokeModel*`.
+- A Lambda Function URL created after October 2025 needs `lambda:InvokeFunction` with `InvokedViaFunctionUrl` as well as `lambda:InvokeFunctionUrl`. With only the second, CloudFront got 403 from Lambda on every call.
+- A new account's Lambda concurrency limit is 10, and Lambda keeps 10 unreserved, so `ReservedConcurrentExecutions` fails the stack. Bound the playground with WAF and the launch budget instead.
 - `find` records a denial for every forbidden file it walks past, so a task's denial count can be higher than the files the agent asked for.
 - Four boxes at once saturate a 1 GB VM with 2 CPUs. Size `per_vm` and `/batch` parallelism to the CPU count.
 
@@ -192,6 +213,7 @@ In the two cases where Box could not build the sandbox it was asked for, 1 and 3
 | A known batch of tasks | `/batch` on each VM | 22.7 boxes a second per 1 GB VM, with one request per VM |
 | One long job per VM from an orchestrator | A lease, as in part 4 | The VM completes the lease itself; Box checks every step |
 | Many independent jobs sized against your quota | `plan`, then `lease_many` | The plan refuses or splits into waves before anything launches |
+| A page other people can open | The playground behind CloudFront with WAF, a key, and a launch budget | The page launches real VMs; every layer of the table above assumes someone will try |
 
 ## What to run
 
@@ -204,6 +226,7 @@ mvm run strands-box --wait
 mvm call <microvm-id> /task -X POST -d '{"steps": ["read:README.md", "read:.env", "run:rm scratch.txt"]}'
 python fleet/scenarios.py all                                # every scenario above, results/ gets the JSON
 python playground/server.py                                  # http://127.0.0.1:8770
+./infra/deploy.sh                                            # the same page behind CloudFront, WAF and a key
 ```
 
 I am an AWS AI Hero, and the question I hear most about agents in production is which boundary stops them. This work leaves me with two boundaries that do different jobs. Lambda MicroVMs decide what an agent can break, Strands Box decides what it may do, and microvm-ctl runs as many of both as the quota allows. Part 1 of this series has the control plane, part 2 the seven workloads, part 3 the multi-tenant agents, and part 4 the lease that hands a VM a task from any orchestrator.
