@@ -1,6 +1,6 @@
 # Building on AWS Lambda MicroVMs: the article series
 
-Four articles, written for the AWS Builder Center in series mode. Each markdown file starts with a front matter block holding the Builder Center form fields, followed by the article body ready to paste. The long-form write-up of each example is kept under [deep-dives/](deep-dives/) for readers who want every detail; those are GitHub-only.
+Five articles, written for the AWS Builder Center in series mode. Each markdown file starts with a front matter block holding the Builder Center form fields, followed by the article body ready to paste. The long-form write-up of each example is kept under [deep-dives/](deep-dives/) for readers who want every detail; those are GitHub-only.
 
 ## Series metadata
 
@@ -8,7 +8,7 @@ Four articles, written for the AWS Builder Center in series mode. Each markdown 
 |---|---|
 | Series name | Building on AWS Lambda MicroVMs |
 | Series cover | [img/cover-series.png](img/cover-series.png) (1200 x 675) |
-| Author byline on covers | Vivek Raja, AWS AI Hero, Sr. Solutions Architect, Aivar (AWS Partner Company) |
+| Author byline on covers | Parts 1 to 4: Vivek Raja, AWS AI Hero, Sr. Solutions Architect, Aivar (AWS Partner Company). From part 5: Vivek Raja, AWS AI Hero |
 | Canonical URL | leave empty; the articles are first published on Builder Center |
 
 ## Articles in order
@@ -19,6 +19,7 @@ Four articles, written for the AWS Builder Center in series mode. Each markdown 
 | 2 | [01-seven-workloads.md](01-seven-workloads.md) | Seven workloads Lambda could never run, until MicroVMs | [cover-01.png](img/cover-01.png) | [live](https://builder.aws.com/content/3JJ2oNWY9EsZzivMMx044cSlrFQ/seven-workloads-lambda-could-never-run-until-microvms) |
 | 3 | [02-multi-tenant-agents.md](02-multi-tenant-agents.md) | A kernel for every customer: scaling AI agents to 1,000 tenants on AWS Lambda MicroVMs with microvm-ctl | [cover-02.png](img/cover-02.png) | [live](https://builder.aws.com/content/3JJ7tASPSSUUTrcpWnWtxOuu8g3/a-kernel-for-every-customer-scaling-ai-agents-to-1000-tenants-on-aws-lambda-microvms-with-microvm-ctl) |
 | 4 | [03-handoff.md](03-handoff.md) | Hand a task to a MicroVM from anywhere: one lease, Step Functions, durable functions, or your own controller | [cover-03.png](img/cover-03.png) | [live](https://builder.aws.com/content/3Jcx0VcEOq9QQBtqr59y4S8dVFC/hand-a-task-to-a-microvm-from-anywhere-one-lease-step-functions-durable-functions-or-your-own-controller) |
+| 5 | [04-strands-box.md](04-strands-box.md) | Strands Box on AWS Lambda MicroVMs: a kernel per agent, a policy per command, and a fleet to run them with microvm-ctl | [cover-04.png](img/cover-04.png) | not yet |
 
 ## Publishing checklist, per article
 
@@ -71,6 +72,14 @@ In body order. The cover goes in the cover field, not the body.
 - `img/fleet-watch.png`
 - `img/demo-bench.png`
 - `img/demo-playground-fleet-jobs.png`
+
+**04-strands-box.md**: cover `img/cover-04.png`
+- `img/hook-04-strands-box.png`
+- `img/arch-10-box-in-vm.png`
+- `img/playground-box-bench.png`
+- `img/playground-box-fanout.png`
+- `img/playground-box-run.png`
+- `img/playground-box-writes.png`
 
 - `img/arch-08-multi-tenant.png`
 - `img/demo-multi-tenant-agents.png`

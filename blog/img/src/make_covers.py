@@ -2,7 +2,10 @@
 import random, pathlib
 OUT = pathlib.Path(__file__).parent
 W, H = 1200, 675
-ARTICLES = {"00": "control plane", "01": "seven workloads", "02": "multi-tenant agents", "03": "the handoff lease"}
+ARTICLES = {"00": "control plane", "01": "seven workloads", "02": "multi-tenant agents", "03": "the handoff lease",
+            "04": "strands box fleets"}
+# From part 5 on, the byline is AWS AI Hero only. Covers 00 to 03 are published and keep theirs.
+HERO_ONLY = {"04"}
 RUN, SUS, OFF, HOT = "#34d399", "#60a5fa", "#334155", "#f472b6"
 
 def tiles(seed, cols=14, rows=7, size=52, gap=14, x0=None, y0=None, hot=None):
@@ -26,6 +29,7 @@ def tiles(seed, cols=14, rows=7, size=52, gap=14, x0=None, y0=None, hot=None):
     return "\n".join(out)
 
 def svg(seed, number=None, label=None):
+    hero_only = number in HERO_ONLY
     hot = (3, 5) if number else None
     grid = tiles(seed, cols=11, x0=90, hot=hot) if number else tiles(seed, hot=hot)
     body = f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
@@ -43,7 +47,12 @@ def svg(seed, number=None, label=None):
   <rect x="0" y="{H-104}" width="{W}" height="104" fill="#0b1220" opacity="0.88"/>
   <text x="48" y="{H-58}" font-size="18" fill="#94a3b8" letter-spacing="3">SERIES</text>
   <text x="48" y="{H-26}" font-size="30" font-weight="700" fill="#f8fafc">Building on AWS Lambda MicroVMs</text>
-  <text x="{W-48}" y="{H-58}" font-size="24" font-weight="700" fill="#f8fafc" text-anchor="end">Vivek Raja</text>
+  <text x="{W-48}" y="{H-58}" font-size="24" font-weight="700" fill="#f8fafc" text-anchor="end">Vivek Raja</text>'''
+    if hero_only:
+        body += f'''
+  <text x="{W-48}" y="{H-30}" font-size="17" fill="#cbd5e1" text-anchor="end">AWS AI Hero</text>'''
+    else:
+        body += f'''
   <text x="{W-48}" y="{H-34}" font-size="15" fill="#cbd5e1" text-anchor="end">AWS AI Hero  |  Sr. Solutions Architect, Aivar</text>
   <text x="{W-48}" y="{H-14}" font-size="13" fill="#94a3b8" text-anchor="end">AWS Partner Company</text>'''
     if number:

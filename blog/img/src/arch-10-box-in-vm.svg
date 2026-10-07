@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 1600 900" width="1600" height="900" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0d1a2e"/>
+      <stop offset="1" stop-color="#0a1322"/>
+    </linearGradient>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#cfd8e6"/>
+    </marker>
+    <marker id="arrp" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#f472b6"/>
+    </marker>
+    <marker id="arrg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#34d399"/>
+    </marker>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <text x="80" y="84" font-size="40" font-weight="700" fill="#f3f6fb">One task, one box, inside one microVM</text>
+  <text x="80" y="122" font-size="21" fill="#9fb0c8">The hook runtime is the operator. It renders the box, holds the model key, and reads the decisions back.</text>
+
+  <!-- request -->
+  <rect x="80" y="190" width="300" height="120" rx="14" fill="#13233b" stroke="#2c4a75" stroke-width="2"/>
+  <text x="104" y="228" font-size="15" fill="#60a5fa" letter-spacing="2">CALLER</text>
+  <text x="104" y="262" font-size="19" fill="#f3f6fb" font-family="Menlo, Consolas, monospace">POST /task</text>
+  <text x="104" y="290" font-size="15" fill="#9fb0c8">steps or prompt, files</text>
+  <path d="M380,250 L456,250" fill="none" stroke="#cfd8e6" stroke-width="2.5" marker-end="url(#arr)"/>
+
+  <!-- VM -->
+  <rect x="470" y="160" width="1050" height="680" rx="20" fill="#0f1a2c" stroke="#34d399" stroke-width="3"/>
+  <text x="496" y="198" font-size="15" fill="#34d399" letter-spacing="2">LAMBDA MICROVM (FIRECRACKER), APP RUNS AS ROOT WITH ADDITIONAL OS CAPABILITIES</text>
+
+  <!-- hook runtime -->
+  <rect x="496" y="222" width="460" height="300" rx="14" fill="#13233b" stroke="#2c4a75" stroke-width="2"/>
+  <text x="520" y="258" font-size="15" fill="#60a5fa" letter-spacing="2">HOOK RUNTIME (app.py, sbx.py)</text>
+  <g font-size="17" fill="#f3f6fb">
+    <text x="520" y="296">1  copy the seed project to /work/&lt;id&gt;</text>
+    <text x="520" y="330">2  render box.toml for that directory</text>
+    <text x="520" y="364">3  mint a Bedrock key from the VM role</text>
+    <text x="545" y="388" font-size="14" fill="#9fb0c8">(model tasks only; the role needs Bedrock)</text>
+    <text x="520" y="422">4  box run --config ... -- &lt;steps&gt;</text>
+    <text x="520" y="456">5  read records.jsonl, return decisions</text>
+    <text x="520" y="490">6  delete /work/&lt;id&gt;</text>
+  </g>
+
+  <!-- trusted box process -->
+  <rect x="990" y="222" width="504" height="300" rx="14" fill="#13233b" stroke="#2c4a75" stroke-width="2"/>
+  <text x="1014" y="258" font-size="15" fill="#60a5fa" letter-spacing="2">BOX TRUSTED PROCESS</text>
+  <g font-size="17" fill="#f3f6fb">
+    <rect x="1014" y="280" width="456" height="50" rx="8" fill="#0f1c31" stroke="#2c4a75"/>
+    <text x="1032" y="311">Strands Shell: zsh, cat, rm, find, wc, ...</text>
+    <rect x="1014" y="344" width="456" height="50" rx="8" fill="#0f1c31" stroke="#2c4a75"/>
+    <text x="1032" y="375">egress gateway: swaps in the real key</text>
+    <rect x="1014" y="408" width="456" height="50" rx="8" fill="#1a1230" stroke="#f472b6" stroke-width="2"/>
+    <text x="1032" y="439">Dogwood engine + event history</text>
+    <text x="1014" y="496" font-size="15" fill="#9fb0c8">the key and the policy never enter the sandbox</text>
+  </g>
+  <path d="M956,420 L986,420" fill="none" stroke="#cfd8e6" stroke-width="2.5" marker-end="url(#arr)"/>
+
+  <!-- sandbox -->
+  <rect x="496" y="556" width="998" height="256" rx="14" fill="#0b1424" stroke="#cfd8e6" stroke-width="2" stroke-dasharray="7 6"/>
+  <text x="520" y="592" font-size="15" fill="#cfd8e6" letter-spacing="2">AGENT SANDBOX: USER, MOUNT, PID, NET NAMESPACES AND A SYSCALL FILTER</text>
+  <g font-size="17" fill="#f3f6fb">
+    <text x="520" y="630">python3.12 agent.py   (Strands Agents SDK, three tools)</text>
+    <text x="520" y="664" fill="#9fb0c8" font-size="16">read: the venv, /usr/lib64</text>
+    <text x="900" y="664" fill="#9fb0c8" font-size="16">exec: python3.12, the venv (native wheels)</text>
+    <text x="520" y="692" fill="#9fb0c8" font-size="16">write: its own tmp and home</text>
+    <text x="900" y="692" fill="#9fb0c8" font-size="16">project: no grant at all, only "enter"</text>
+    <text x="520" y="734" font-family="Menlo, Consolas, monospace" font-size="16">subprocess.run(["zsh", "-c", "cat .env"])</text>
+    <text x="520" y="762" font-family="Menlo, Consolas, monospace" font-size="16" fill="#f472b6">strands-shell: cat: policy denied this operation on '/work/.../.env' [policy: no_env]</text>
+    <text x="520" y="790" font-family="Menlo, Consolas, monospace" font-size="16" fill="#9fb0c8">AWS_BEARER_TOKEN_BEDROCK=&lt;stand-in&gt;</text>
+  </g>
+  <path d="M1240,556 L1240,526" fill="none" stroke="#34d399" stroke-width="2.5" marker-end="url(#arrg)"/>
+  <text x="1258" y="545" font-size="14" fill="#34d399">every command, file, connection</text>
+
+  <!-- bedrock -->
+  <path d="M1494,370 C1556,370 1556,250 1556,128" fill="none" stroke="#f472b6" stroke-width="2.5" marker-end="url(#arrp)"/>
+  <text x="1538" y="140" font-size="15" fill="#f472b6" text-anchor="end">to Bedrock, with the real key added by the gateway</text>
+</svg>

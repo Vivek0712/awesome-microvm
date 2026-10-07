@@ -11,7 +11,7 @@ import re
 
 BLOG = pathlib.Path(__file__).resolve().parent.parent
 PARTS = [(1, "00-control-and-scale.md"), (2, "01-seven-workloads.md"), (3, "02-multi-tenant-agents.md"),
-         (4, "03-handoff.md")]
+         (4, "03-handoff.md"), (5, "04-strands-box.md")]
 
 for n, f in PARTS:
     text = (BLOG / f).read_text()

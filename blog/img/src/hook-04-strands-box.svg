@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 1600 900" width="1600" height="900" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0d1a2e"/>
+      <stop offset="1" stop-color="#0a1322"/>
+    </linearGradient>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#cfd8e6"/>
+    </marker>
+    <marker id="arrg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#34d399"/>
+    </marker>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg)"/>
+
+  <text x="80" y="88" font-size="44" font-weight="700" fill="#f3f6fb">A kernel for the fleet, a policy for every command.</text>
+  <text x="80" y="128" font-size="22" fill="#9fb0c8">Lambda MicroVMs isolate the VM. Strands Box decides what the agent inside it may do, one operation at a time.</text>
+
+  <!-- the plane -->
+  <rect x="80" y="196" width="340" height="560" rx="16" fill="#13233b" stroke="#2c4a75" stroke-width="2"/>
+  <text x="104" y="236" font-size="15" fill="#60a5fa" letter-spacing="2">MICROVM-CTL</text>
+  <g font-size="19" fill="#f3f6fb">
+    <rect x="104" y="258" width="292" height="72" rx="10" fill="#0f1c31" stroke="#2c4a75"/>
+    <text x="122" y="290" font-weight="600">Fleet.scale_to(8)</text>
+    <text x="122" y="314" font-size="14" fill="#9fb0c8">8 VMs RUNNING in 15.0 s at 0.8/s</text>
+    <rect x="104" y="346" width="292" height="72" rx="10" fill="#0f1c31" stroke="#2c4a75"/>
+    <text x="122" y="378" font-weight="600">Fleet.dispatch(per_vm=4)</text>
+    <text x="122" y="402" font-size="14" fill="#9fb0c8">many boxes over warm VMs, in order</text>
+    <rect x="104" y="434" width="292" height="72" rx="10" fill="#0f1c31" stroke="#2c4a75"/>
+    <text x="122" y="466" font-weight="600">lease_many(plan first)</text>
+    <text x="122" y="490" font-size="14" fill="#9fb0c8">one task list per VM, sized to quota</text>
+    <rect x="104" y="522" width="292" height="72" rx="10" fill="#0f1c31" stroke="#2c4a75"/>
+    <text x="122" y="554" font-weight="600">suspend, resume, drain</text>
+    <text x="122" y="578" font-size="14" fill="#9fb0c8">auto-resume on the next call: 0.9 s</text>
+  </g>
+  <text x="104" y="640" font-size="15" fill="#9fb0c8">the playground and the scenarios</text>
+  <text x="104" y="662" font-size="15" fill="#9fb0c8">drive the same SDK calls</text>
+  <text x="104" y="718" font-size="15" fill="#cfd8e6" font-family="Menlo, Consolas, monospace">POST /task  /batch</text>
+  <text x="104" y="740" font-size="15" fill="#cfd8e6" font-family="Menlo, Consolas, monospace">runHookPayload lease</text>
+
+  <path d="M420,476 L496,476" fill="none" stroke="#cfd8e6" stroke-width="2.5" marker-end="url(#arr)"/>
+
+  <!-- the fleet: three VMs drawn, one opened -->
+  <g>
+    <rect x="510" y="196" width="700" height="560" rx="18" fill="#0f1a2c" stroke="#34d399" stroke-width="3"/>
+    <text x="536" y="236" font-size="15" fill="#34d399" letter-spacing="2">LAMBDA MICROVM  1 GB  2 VCPU  KERNEL 6.1</text>
+    <text x="536" y="266" font-size="17" fill="#9fb0c8">hook runtime: one task = one fresh box under /work/&lt;task&gt;</text>
+
+    <!-- trusted process -->
+    <rect x="536" y="292" width="648" height="180" rx="12" fill="#13233b" stroke="#2c4a75" stroke-width="2"/>
+    <text x="558" y="326" font-size="15" fill="#60a5fa" letter-spacing="2">BOX TRUSTED PROCESS</text>
+    <g font-size="17" fill="#f3f6fb">
+      <rect x="558" y="344" width="190" height="52" rx="8" fill="#0f1c31" stroke="#2c4a75"/>
+      <text x="576" y="376">Strands Shell</text>
+      <rect x="766" y="344" width="190" height="52" rx="8" fill="#0f1c31" stroke="#2c4a75"/>
+      <text x="784" y="376">egress gateway</text>
+      <rect x="974" y="344" width="190" height="52" rx="8" fill="#0f1c31" stroke="#2c4a75"/>
+      <text x="992" y="376">decision log</text>
+      <rect x="558" y="410" width="606" height="46" rx="8" fill="#1a1230" stroke="#f472b6" stroke-width="2"/>
+      <text x="576" y="440" fill="#f3f6fb">Dogwood policy: permit, forbid, deny by default</text>
+    </g>
+
+    <!-- agent sandbox -->
+    <rect x="536" y="500" width="648" height="230" rx="12" fill="#0b1424" stroke="#cfd8e6" stroke-width="2" stroke-dasharray="7 6"/>
+    <text x="558" y="534" font-size="15" fill="#cfd8e6" letter-spacing="2">AGENT SANDBOX: NAMESPACES + SYSCALL FILTER</text>
+    <text x="558" y="570" font-size="19" fill="#f3f6fb" font-weight="600">Strands Agents SDK agent</text>
+    <text x="558" y="598" font-size="16" fill="#9fb0c8">no grant on the project; Python, its venv, its tmp</text>
+    <g font-size="15" font-family="Menlo, Consolas, monospace">
+      <text y="640" fill="#34d399"><tspan x="558">permit</tspan><tspan x="650">cat README.md</tspan><tspan x="900">project_read</tspan></text>
+      <text y="666" fill="#f472b6"><tspan x="558">deny</tspan><tspan x="650">cat .env</tspan><tspan x="900">no_env</tspan></text>
+      <text y="692" fill="#f472b6"><tspan x="558">deny</tspan><tspan x="650">rm scratch.txt</tspan><tspan x="900">no_deletes</tspan></text>
+      <text y="718" fill="#34d399"><tspan x="558">permit</tspan><tspan x="650">bedrock-runtime:443</tspan><tspan x="900">model_request</tspan></text>
+    </g>
+    <path d="M860,500 L860,472" fill="none" stroke="#34d399" stroke-width="2.5" marker-end="url(#arrg)"/>
+    <text x="878" y="491" font-size="14" fill="#34d399">zsh -c, net</text>
+  </g>
+
+  <!-- stacked VMs behind -->
+  <rect x="1226" y="216" width="70" height="520" rx="14" fill="#0f1a2c" stroke="#34d399" stroke-width="2" opacity="0.7"/>
+  <rect x="1306" y="236" width="60" height="480" rx="14" fill="#0f1a2c" stroke="#34d399" stroke-width="2" opacity="0.45"/>
+  <rect x="1376" y="256" width="50" height="440" rx="14" fill="#0f1a2c" stroke="#60a5fa" stroke-width="2" opacity="0.35"/>
+  <text x="1440" y="300" font-size="15" fill="#9fb0c8">x 8</text>
+
+  <!-- numbers -->
+  <g font-size="17" fill="#f3f6fb">
+    <text x="80" y="814" font-weight="700" fill="#34d399">83 ms</text>
+    <text x="80" y="840" fill="#9fb0c8" font-size="15">one box, warm, in the VM</text>
+    <text x="340" y="814" font-weight="700" fill="#34d399">22.7 boxes/s</text>
+    <text x="340" y="840" fill="#9fb0c8" font-size="15">one 1 GB VM, saturated</text>
+    <text x="640" y="814" font-weight="700" fill="#34d399">64 / 64 correct</text>
+    <text x="640" y="840" fill="#9fb0c8" font-size="15">8 VMs, 1,664 decisions a round</text>
+    <text x="960" y="814" font-weight="700" fill="#34d399">351 ms</text>
+    <text x="960" y="840" fill="#9fb0c8" font-size="15">warm task p50, laptop to VM</text>
+    <text x="1240" y="814" font-weight="700" fill="#f472b6">additionalOsCapabilities</text>
+    <text x="1240" y="840" fill="#9fb0c8" font-size="15">ALL, or Box cannot build its view</text>
+  </g>
+</svg>
