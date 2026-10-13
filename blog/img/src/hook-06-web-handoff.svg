@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 1600 900" width="1600" height="900" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0d1a2e"/>
+      <stop offset="1" stop-color="#0a1322"/>
+    </linearGradient>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#cfd8e6"/>
+    </marker>
+    <marker id="arrg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#34d399"/>
+    </marker>
+    <marker id="arrb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#60a5fa"/>
+    </marker>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg)"/>
+
+  <text x="80" y="88" font-size="44" font-weight="700" fill="#f3f6fb">One endpoint for the caller and for the VM.</text>
+  <text x="80" y="128" font-size="22" fill="#9fb0c8">A Lambda Web Function launches a MicroVM per job with a lease that points back at itself.</text>
+
+  <!-- caller -->
+  <rect x="80" y="300" width="250" height="250" rx="16" fill="#13233b" stroke="#2c4a75" stroke-width="2"/>
+  <text x="104" y="340" font-size="15" fill="#60a5fa" letter-spacing="2">CALLER</text>
+  <text x="104" y="376" font-size="20" fill="#f3f6fb" font-weight="600">curl, a page,</text>
+  <text x="104" y="402" font-size="20" fill="#f3f6fb" font-weight="600">another service</text>
+  <text x="104" y="446" font-size="16" fill="#9fb0c8">x-demo-key</text>
+  <text x="104" y="472" font-size="16" fill="#9fb0c8">steps: one shell</text>
+  <text x="104" y="494" font-size="16" fill="#9fb0c8">command per line</text>
+
+  <!-- web function -->
+  <rect x="440" y="180" width="560" height="620" rx="16" fill="#13233b" stroke="#2c4a75" stroke-width="2"/>
+  <text x="464" y="220" font-size="15" fill="#60a5fa" letter-spacing="2">LAMBDA WEB FUNCTION (NODE 24)</text>
+  <text x="464" y="254" font-size="17" fill="#9fb0c8">one HTTPS endpoint, concurrent requests per environment</text>
+  <g font-size="18" fill="#f3f6fb">
+    <rect x="464" y="276" width="512" height="70" rx="10" fill="#0f1c31" stroke="#2c4a75"/>
+    <text x="484" y="306" font-weight="600">POST /jobs</text>
+    <text x="484" y="331" font-size="15" fill="#9fb0c8">check key, spend one launch, store sha256(lease token)</text>
+    <rect x="464" y="358" width="512" height="70" rx="10" fill="#0f1c31" stroke="#2c4a75"/>
+    <text x="484" y="388" font-weight="600">RunMicrovm</text>
+    <text x="484" y="413" font-size="15" fill="#9fb0c8">run hook: lease kind http, target = this endpoint</text>
+    <rect x="464" y="440" width="512" height="70" rx="10" fill="#0f1c31" stroke="#60a5fa"/>
+    <text x="484" y="470" font-weight="600">stream to the caller (?stream=1)</text>
+    <text x="484" y="495" font-size="15" fill="#9fb0c8">launched, the VM's log from its /events, result</text>
+    <rect x="464" y="522" width="512" height="70" rx="10" fill="#0f1c31" stroke="#34d399"/>
+    <text x="484" y="552" font-weight="600">POST /callbacks/&lt;id&gt;</text>
+    <text x="484" y="577" font-size="15" fill="#9fb0c8">Bearer lease token: heartbeat, success, failure</text>
+    <rect x="464" y="604" width="512" height="70" rx="10" fill="#0f1c31" stroke="#2c4a75"/>
+    <text x="484" y="634" font-weight="600">record once, then TerminateMicrovm</text>
+    <text x="484" y="659" font-size="15" fill="#9fb0c8">conditional write: the first final state wins</text>
+  </g>
+  <rect x="464" y="694" width="512" height="80" rx="10" fill="#0b1626" stroke="#2c4a75" stroke-dasharray="6 6"/>
+  <text x="484" y="724" font-size="16" fill="#cfd8e6" font-weight="600">DynamoDB: job records, hourly launch budget</text>
+  <text x="484" y="752" font-size="15" fill="#9fb0c8">environments can go away; the state does not</text>
+
+  <!-- microvm -->
+  <rect x="1110" y="300" width="410" height="330" rx="16" fill="#13233b" stroke="#2c4a75" stroke-width="2"/>
+  <text x="1134" y="340" font-size="15" fill="#60a5fa" letter-spacing="2">LAMBDA MICROVM</text>
+  <text x="1134" y="376" font-size="20" fill="#f3f6fb" font-weight="600">handoff-agent-small</text>
+  <text x="1134" y="402" font-size="16" fill="#9fb0c8">the image from part 4, unchanged</text>
+  <text x="1134" y="446" font-size="17" fill="#f3f6fb">microvm-ctl hook runtime</text>
+  <text x="1134" y="472" font-size="16" fill="#9fb0c8">reads the lease, runs the steps,</text>
+  <text x="1134" y="496" font-size="16" fill="#9fb0c8">heartbeats every 10 s, reports</text>
+  <text x="1134" y="520" font-size="16" fill="#9fb0c8">the result, fails the lease from</text>
+  <text x="1134" y="544" font-size="16" fill="#9fb0c8">its terminate hook</text>
+  <text x="1134" y="590" font-size="16" fill="#9fb0c8">GET /events: the job's live log</text>
+
+  <!-- arrows -->
+  <line x1="330" y1="380" x2="456" y2="310" stroke="#cfd8e6" stroke-width="2.5" marker-end="url(#arr)"/>
+  <line x1="456" y1="476" x2="336" y2="476" stroke="#60a5fa" stroke-width="2.5" marker-end="url(#arrb)"/>
+  <text x="344" y="462" font-size="14" fill="#60a5fa">SSE</text>
+  <line x1="976" y1="393" x2="1102" y2="393" stroke="#cfd8e6" stroke-width="2.5" marker-end="url(#arr)"/>
+  <line x1="1102" y1="590" x2="984" y2="557" stroke="#34d399" stroke-width="2.5" marker-end="url(#arrg)"/>
+  <text x="1010" y="608" font-size="14" fill="#34d399">callback</text>
+  <line x1="1102" y1="584" x2="984" y2="482" stroke="#60a5fa" stroke-width="2" stroke-dasharray="5 5" marker-end="url(#arrb)"/>
+  <line x1="984" y1="639" x2="1102" y2="625" stroke="#cfd8e6" stroke-width="2" marker-end="url(#arr)"/>
+
+  <text x="80" y="852" font-size="17" fill="#9fb0c8">Live in us-east-1, 2026-10-13: 7 of 7 scenarios, RunMicrovm about 120 ms, first log line at 2.1 s, every VM terminated.</text>
+</svg>
