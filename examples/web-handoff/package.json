@@ -1,0 +1,19 @@
+{
+  "name": "microvm-web-handoff",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A Lambda Web Function that hands jobs to Lambda MicroVMs through a microvm-ctl HTTP lease and streams them back",
+  "scripts": {
+    "build": "esbuild src/server.mjs --bundle --platform=node --target=node24 --format=esm --outfile=dist/index.mjs --banner:js=\"import{createRequire}from'module';const require=createRequire(import.meta.url);\" && node -e \"require('fs').writeFileSync('dist/index.js','import(\\\"./index.mjs\\\");\\n')\"",
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.1150.0",
+    "@aws-sdk/client-lambda-microvms": "^3.1150.0",
+    "@aws-sdk/lib-dynamodb": "^3.1150.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.12"
+  }
+}

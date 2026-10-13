@@ -1,0 +1,112 @@
+{
+  "url": "https://g8b45qhzhvy788q6.gvp.lambda-web.us-east-1.on.aws",
+  "at": "2026-10-13T08:24:14.386Z",
+  "scenarios": {
+    "stream_success": {
+      "status": 200,
+      "launchMs": 123,
+      "firstLogMs": 2149,
+      "totalMs": 7949,
+      "logs": 12,
+      "state": "succeeded",
+      "heartbeats": 0,
+      "microvmId": "microvm-9b3d9e71-a779-3e46-b1ac-253ab1231175",
+      "passed": true
+    },
+    "async_poll": {
+      "status": 202,
+      "acceptMs": 843,
+      "totalMs": 7821,
+      "state": "succeeded",
+      "heartbeats": 0,
+      "passed": true,
+      "launchMs": 101
+    },
+    "failing_step": {
+      "status": 200,
+      "launchMs": 112,
+      "firstLogMs": 2196,
+      "totalMs": 2856,
+      "logs": 0,
+      "state": "failed",
+      "heartbeats": 0,
+      "microvmId": "microvm-fec3587f-b4a0-3dc9-a9e9-dfa77ece5093",
+      "error": {
+        "data": {
+          "cmd": "exit 3",
+          "exit_code": 3,
+          "output_tail": "",
+          "step": 1,
+          "steps": [
+            {
+              "cmd": "echo before",
+              "duration_s": 0.007,
+              "exit_code": 0,
+              "output_tail": "before\n"
+            },
+            {
+              "cmd": "exit 3",
+              "duration_s": 0.001,
+              "exit_code": 3,
+              "output_tail": ""
+            }
+          ]
+        },
+        "error_type": "StepFailed",
+        "message": "step 2/3 exited 3: exit 3",
+        "retryable": false
+      }
+    },
+    "long_job_heartbeats": {
+      "status": 200,
+      "launchMs": 116,
+      "firstLogMs": 1637,
+      "totalMs": 32499,
+      "logs": 7,
+      "state": "succeeded",
+      "heartbeats": 2,
+      "microvmId": "microvm-923ff68b-67c6-3abd-8293-c7745b5fd88e",
+      "passed": true
+    },
+    "terminated_mid_job": {
+      "state": "failed",
+      "heartbeats": 0,
+      "error": {
+        "data": {},
+        "error_type": "Terminated",
+        "message": "microVM terminated before the task finished",
+        "retryable": true
+      },
+      "afterTerminateMs": 1588,
+      "totalMs": 9997
+    },
+    "four_at_once": {
+      "wallMs": 5929,
+      "states": [
+        "succeeded",
+        "succeeded",
+        "succeeded",
+        "succeeded"
+      ],
+      "launchMs": [
+        106,
+        118,
+        130,
+        128
+      ],
+      "totalMs": [
+        5907,
+        5922,
+        5927,
+        5902
+      ],
+      "vms": 4
+    },
+    "guards": {
+      "noKey": 401,
+      "emptySteps": 400,
+      "forgedCallback": 403,
+      "realOutcome": "succeeded"
+    }
+  }
+}

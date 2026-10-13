@@ -37,6 +37,7 @@ Each example is a Dockerfile plus a single-file app on the plane's zero-dependen
 | [circuit-breaker](examples/circuit-breaker) | runaway stop | a metric on running microVM memory, an alarm, and a drain function; the account-wide stop behind the lease policy | [part 4](https://builder.aws.com/content/3Jcx0VcEOq9QQBtqr59y4S8dVFC/hand-a-task-to-a-microvm-from-anywhere-one-lease-step-functions-durable-functions-or-your-own-controller) | [handoff article](blog/03-handoff.md) |
 | [strands-box](examples/strands-box) | policy-checked agents | Strands Box built for aarch64 Linux inside every VM: one box per task, a Dogwood policy on every shell command, file and request; fleets through `Fleet.dispatch`, leases, and a playground ([strands-box-microvm-ctl](https://github.com/Vivek0712/strands-box-microvm-ctl)) | part 5 | [strands box article](blog/04-strands-box.md) |
 | [durable-sdk-worker](examples/durable-sdk-worker) | durable SDK interop | A Python worker for the AWS durable execution SDK's `microvm` and `microvmSession` operations on `HookApp.durable_job`; passed the SDK's own e2e suite 13 of 13 | part 6 | [durable SDK article](blog/05-durable-sdk.md) |
+| [web-handoff](examples/web-handoff) | Web Function orchestrator | A Lambda Web Function launches each job's VM with an HTTP lease back to itself, streams the VM's log to the caller, records the VM's completion in DynamoDB and terminates it | | |
 
 ## The article series
 
@@ -72,7 +73,7 @@ Raw results and SVG terminal transcripts are in [benchmarks/results/](benchmarks
 ## Repo layout
 
 ```
-examples/       15 runnable use cases (Dockerfile + single-file app each; durable-handoff adds a SAM orchestrator, generic-handoff a laptop controller)
+examples/       16 runnable use cases (Dockerfile + single-file app each; durable-handoff adds a SAM orchestrator, generic-handoff a laptop controller)
 blog/           the 3-part series (Builder Center ready), blog/deep-dives/ long write-ups, blog/img/ assets
 benchmarks/     capture_demos.py + recorded results (JSON, SVG transcripts, a rendered PDF)
 ```
