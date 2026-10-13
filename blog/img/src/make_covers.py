@@ -3,9 +3,9 @@ import random, pathlib
 OUT = pathlib.Path(__file__).parent
 W, H = 1200, 675
 ARTICLES = {"00": "control plane", "01": "seven workloads", "02": "multi-tenant agents", "03": "the handoff lease",
-            "04": "strands box fleets"}
+            "04": "strands box fleets", "05": "one contract, two workers"}
 # From part 5 on, the byline is AWS AI Hero only. Covers 00 to 03 are published and keep theirs.
-HERO_ONLY = {"04"}
+HERO_ONLY = {"04", "05"}
 RUN, SUS, OFF, HOT = "#34d399", "#60a5fa", "#334155", "#f472b6"
 
 def tiles(seed, cols=14, rows=7, size=52, gap=14, x0=None, y0=None, hot=None):

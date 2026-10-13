@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 1600 900" width="1600" height="900" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0d1a2e"/>
+      <stop offset="1" stop-color="#0a1322"/>
+    </linearGradient>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#cfd8e6"/>
+    </marker>
+    <marker id="arrg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#34d399"/>
+    </marker>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg)"/>
+
+  <text x="80" y="88" font-size="44" font-weight="700" fill="#f3f6fb">One job contract, two workers, the same 13 of 13.</text>
+  <text x="80" y="128" font-size="22" fill="#9fb0c8">A durable function in TypeScript hands a job to a Lambda MicroVM. The worker inside can be Node or Python.</text>
+
+  <!-- durable function -->
+  <rect x="80" y="190" width="500" height="600" rx="16" fill="#13233b" stroke="#2c4a75" stroke-width="2"/>
+  <text x="104" y="230" font-size="15" fill="#60a5fa" letter-spacing="2">LAMBDA DURABLE FUNCTION (TYPESCRIPT)</text>
+  <text x="104" y="266" font-size="21" fill="#f3f6fb" font-weight="600">microvm(context, "build", input, config)</text>
+  <text x="104" y="294" font-size="17" fill="#9fb0c8">@aws/durable-execution-sdk-js-extras</text>
+  <g font-size="18" fill="#f3f6fb">
+    <rect x="104" y="318" width="452" height="62" rx="10" fill="#0f1c31" stroke="#2c4a75"/>
+    <text x="124" y="346" font-weight="600">1. build.callback</text>
+    <text x="124" y="369" font-size="15" fill="#9fb0c8">the service mints a callback id; checkpointed</text>
+    <rect x="104" y="392" width="452" height="62" rx="10" fill="#0f1c31" stroke="#2c4a75"/>
+    <text x="124" y="420" font-weight="600">2. build.launch: RunMicrovm</text>
+    <text x="124" y="443" font-size="15" fill="#9fb0c8">clientToken = sha256(callbackId); job in the run hook</text>
+    <rect x="104" y="466" width="452" height="62" rx="10" fill="#0f1c31" stroke="#2c4a75"/>
+    <text x="124" y="494" font-weight="600">3. build.request (input over 4,096 code points)</text>
+    <text x="124" y="517" font-size="15" fill="#9fb0c8">auth token, then POST /durable-execution/v1/job</text>
+    <rect x="104" y="540" width="452" height="62" rx="10" fill="#0f1c31" stroke="#34d399"/>
+    <text x="124" y="568" font-weight="600">4. wait for the callback, costs nothing</text>
+    <text x="124" y="591" font-size="15" fill="#9fb0c8">heartbeat timeout fails it if the VM dies</text>
+    <rect x="104" y="614" width="452" height="62" rx="10" fill="#0f1c31" stroke="#2c4a75"/>
+    <text x="124" y="642" font-weight="600">5. build.terminate: TerminateMicrovm</text>
+    <text x="124" y="665" font-size="15" fill="#9fb0c8">after success, failure and timeout alike</text>
+  </g>
+  <text x="104" y="726" font-size="16" fill="#9fb0c8">microvmSession: many jobs, one VM,</text>
+  <text x="104" y="750" font-size="16" fill="#9fb0c8">the worker suspends it between jobs</text>
+
+  <!-- arrows -->
+  <line x1="580" y1="423" x2="890" y2="330" stroke="#cfd8e6" stroke-width="2.5" marker-end="url(#arr)"/>
+  <text x="610" y="336" font-size="16" fill="#cfd8e6">run hook {version: 1, job}</text>
+  <line x1="580" y1="497" x2="890" y2="440" stroke="#cfd8e6" stroke-width="2.5" stroke-dasharray="8 6" marker-end="url(#arr)"/>
+  <text x="610" y="530" font-size="16" fill="#cfd8e6">or HTTP POST, 202 at once</text>
+  <line x1="890" y1="640" x2="580" y2="571" stroke="#34d399" stroke-width="2.5" marker-end="url(#arrg)"/>
+  <text x="620" y="650" font-size="16" fill="#34d399">SendDurableExecutionCallback</text>
+  <text x="620" y="672" font-size="16" fill="#34d399">Heartbeat, Success, Failure</text>
+
+  <!-- workers -->
+  <text x="900" y="230" font-size="15" fill="#60a5fa" letter-spacing="2">INSIDE THE LAMBDA MICROVM, EITHER WORKER</text>
+  <rect x="900" y="250" width="620" height="250" rx="16" fill="#13233b" stroke="#2c4a75" stroke-width="2"/>
+  <text x="926" y="292" font-size="22" fill="#f3f6fb" font-weight="600">Node: AWS's microvm-worker</text>
+  <text x="926" y="320" font-size="17" fill="#9fb0c8">@aws/durable-execution-sdk-js-microvm-worker</text>
+  <text x="926" y="356" font-size="17" fill="#cfd8e6">serves the hooks and job routes, heartbeats,</text>
+  <text x="926" y="380" font-size="17" fill="#cfd8e6">reports, fails jobs on terminate, self-suspends</text>
+  <text x="926" y="430" font-size="34" fill="#34d399" font-weight="700">13 / 13</text>
+  <text x="1060" y="428" font-size="17" fill="#9fb0c8">e2e scenarios, with capacity free</text>
+  <text x="926" y="466" font-size="16" fill="#f472b6">9 / 13 run as shipped on an 8 GB account</text>
+
+  <rect x="900" y="530" width="620" height="260" rx="16" fill="#13233b" stroke="#34d399" stroke-width="2"/>
+  <text x="926" y="572" font-size="22" fill="#f3f6fb" font-weight="600">Python: microvm-ctl HookApp.durable_job</text>
+  <text x="926" y="600" font-size="17" fill="#9fb0c8">microvm-ctl 0.5.0, standard library and boto3</text>
+  <text x="926" y="636" font-size="17" fill="#cfd8e6">same contract, same routes; the durable function,</text>
+  <text x="926" y="660" font-size="17" fill="#cfd8e6">scenarios and assertions unchanged, only the image</text>
+  <text x="926" y="712" font-size="34" fill="#34d399" font-weight="700">13 / 13</text>
+  <text x="1060" y="710" font-size="17" fill="#9fb0c8">e2e scenarios, first run, batched to the quota</text>
+  <text x="926" y="752" font-size="16" fill="#9fb0c8">382 / 382 unit tests in AWS's packages, 2 / 2 examples</text>
+
+  <text x="80" y="850" font-size="16" fill="#6b7f99">Measured live in us-east-1 on 2026-10-13, aws-durable-execution-sdk-js at 571858c7, RunMicrovm quota 1/s, 8 GB memory.</text>
+</svg>

@@ -1,6 +1,6 @@
 # Building on AWS Lambda MicroVMs: the article series
 
-Five articles, written for the AWS Builder Center in series mode. Each markdown file starts with a front matter block holding the Builder Center form fields, followed by the article body ready to paste. The long-form write-up of each example is kept under [deep-dives/](deep-dives/) for readers who want every detail; those are GitHub-only.
+Six articles, written for the AWS Builder Center in series mode. Each markdown file starts with a front matter block holding the Builder Center form fields, followed by the article body ready to paste. The long-form write-up of each example is kept under [deep-dives/](deep-dives/) for readers who want every detail; those are GitHub-only.
 
 ## Series metadata
 
@@ -20,6 +20,7 @@ Five articles, written for the AWS Builder Center in series mode. Each markdown 
 | 3 | [02-multi-tenant-agents.md](02-multi-tenant-agents.md) | A kernel for every customer: scaling AI agents to 1,000 tenants on AWS Lambda MicroVMs with microvm-ctl | [cover-02.png](img/cover-02.png) | [live](https://builder.aws.com/content/3JJ7tASPSSUUTrcpWnWtxOuu8g3/a-kernel-for-every-customer-scaling-ai-agents-to-1000-tenants-on-aws-lambda-microvms-with-microvm-ctl) |
 | 4 | [03-handoff.md](03-handoff.md) | Hand a task to a MicroVM from anywhere: one lease, Step Functions, durable functions, or your own controller | [cover-03.png](img/cover-03.png) | [live](https://builder.aws.com/content/3Jcx0VcEOq9QQBtqr59y4S8dVFC/hand-a-task-to-a-microvm-from-anywhere-one-lease-step-functions-durable-functions-or-your-own-controller) |
 | 5 | [04-strands-box.md](04-strands-box.md) | Strands Box on AWS Lambda MicroVMs: a kernel per agent, a policy per command, and a fleet to run them with microvm-ctl | [cover-04.png](img/cover-04.png) | not yet |
+| 6 | [05-durable-sdk.md](05-durable-sdk.md) | Durable functions meet Lambda MicroVMs in the AWS SDK: I ran microvm and microvmSession live, then served them from a Python worker built on microvm-ctl | [cover-05.png](img/cover-05.png) | not yet |
 
 ## Publishing checklist, per article
 
@@ -84,6 +85,10 @@ In body order. The cover goes in the cover field, not the body.
 - `img/arch-08-multi-tenant.png`
 - `img/demo-multi-tenant-agents.png`
 - `img/mvm-quotas.png`
+
+**05-durable-sdk.md**: cover `img/cover-05.png`
+
+- `img/hook-05-durable-contract.png`
 
 ## Style rules the series follows
 
