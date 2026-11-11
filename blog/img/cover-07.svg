@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" font-family="ui-sans-serif,system-ui,Segoe UI,Roboto,Helvetica,Arial" role="img" aria-label="A win for Strands Box: on the same escaping agent, the policy layer denied 44 of 49 actions and dropped sensitive exposure from 9 kinds to 0">
+  <rect x="0" y="0" width="1200" height="675" fill="#0b0e14"/>
+  <rect x="0" y="0" width="1200" height="675" fill="url(#g)" opacity="0.5"/>
+  <defs><radialGradient id="g" cx="78%" cy="20%" r="80%"><stop offset="0%" stop-color="#1b2140"/><stop offset="100%" stop-color="#0b0e14"/></radialGradient></defs>
+
+  <text x="80" y="104" fill="#818cf8" font-size="22" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" letter-spacing="3">BUILDING ON AWS LAMBDA MICROVMS · PART 8</text>
+  <text x="80" y="188" fill="#e7eaf1" font-size="76" font-weight="700">A win for Strands Box</text>
+  <text x="80" y="246" fill="#c3cad8" font-size="29">13 ways out of a Lambda MicroVM. The policy layer closed the one</text>
+  <text x="80" y="286" fill="#c3cad8" font-size="29">the microVM boundary left open.</text>
+
+  <!-- Panel 1: actions denied at the source -->
+  <g transform="translate(80,360)">
+    <text x="0" y="0" fill="#9aa4b6" font-size="20" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">actions denied at the source (of 49)</text>
+    <!-- loose -->
+    <rect x="0" y="182" width="150" height="6" rx="3" fill="#fbbf24"/>
+    <text x="0" y="214" fill="#fbbf24" font-size="19" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">loose · 0</text>
+    <!-- strands -->
+    <rect x="300" y="26" width="150" height="162" rx="6" fill="#4ade80"/>
+    <text x="300" y="214" fill="#4ade80" font-size="19" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">Strands Box · 44</text>
+  </g>
+
+  <!-- Panel 2: sensitive exposed -->
+  <g transform="translate(680,360)">
+    <text x="0" y="0" fill="#9aa4b6" font-size="20" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">kinds of sensitive data exposed</text>
+    <!-- loose -->
+    <rect x="0" y="28" width="150" height="160" rx="6" fill="#fbbf24"/>
+    <text x="0" y="214" fill="#fbbf24" font-size="19" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">loose · 9</text>
+    <!-- strands -->
+    <rect x="300" y="182" width="150" height="6" rx="3" fill="#4ade80"/>
+    <text x="300" y="214" fill="#4ade80" font-size="19" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">Strands Box · 0</text>
+  </g>
+
+  <line x1="80" y1="624" x2="1120" y2="624" stroke="#2a3342"/>
+  <text x="80" y="656" fill="#6b7689" font-size="18" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">same agent, same goal, measured live in us-east-1 · github.com/Vivek0712/microvm-escape-lab</text>
+</svg>
