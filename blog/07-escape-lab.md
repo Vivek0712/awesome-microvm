@@ -1,5 +1,5 @@
 ---
-title: "Can an AI agent escape a Lambda MicroVM? I gave one 13 ways to try, and measured what held"
+title: "Can an AI agent escape a Lambda MicroVM? I gave one 13 ways, and Strands Box caught the one the boundary missed"
 description: "I put an AI agent in a Lambda MicroVM and told it to escape, with 13 techniques from current security research. The microVM boundary held the flag, the credentials and the control plane on its own, but the agent still tunnelled data out over DNS. A Strands-Box-style policy on every action closed that last gap: on the same agent it blocked 44 of 49 moves and cut sensitive exposure from 9 kinds to 0. Measured live in us-east-1, with a fixed test harness and a live Claude agent, on real MicroVMs."
 series: "Building on AWS Lambda MicroVMs"
 part: 8
