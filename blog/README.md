@@ -22,7 +22,7 @@ Seven articles, written for the AWS Builder Center in series mode. Each markdown
 | 5 | [04-strands-box.md](04-strands-box.md) | Strands Box on AWS Lambda MicroVMs: a kernel per agent, a policy per command, and a fleet to run them with microvm-ctl | [cover-04.png](img/cover-04.png) | not yet |
 | 6 | [05-durable-sdk.md](05-durable-sdk.md) | Durable functions meet Lambda MicroVMs in the AWS SDK: I ran microvm and microvmSession live, then served them from a Python worker built on microvm-ctl | [cover-05.png](img/cover-05.png) | not yet |
 | 7 | [06-web-functions.md](06-web-functions.md) | Lambda Web Functions as the front door to Lambda MicroVMs: launch a job, stream its log, and take the VM's callback on the same endpoint | [cover-06.png](img/cover-06.png) | not yet |
-| 8 | [07-escape-lab.md](07-escape-lab.md) | A win for Strands Box: I gave an agent 13 ways out of a Lambda MicroVM, and the policy layer closed the one the microVM boundary left open | [cover-07.png](img/cover-07.png) | not yet |
+| 8 | [07-escape-lab.md](07-escape-lab.md) | Can an AI agent escape a Lambda MicroVM? I gave one 13 ways to try, and measured what held | [cover-07.png](img/cover-07.png) | not yet |
 
 ## Publishing checklist, per article
 

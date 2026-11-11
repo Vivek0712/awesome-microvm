@@ -1,6 +1,6 @@
 ---
-title: "A win for Strands Box: I gave an agent 13 ways out of a Lambda MicroVM, and the policy layer closed the one the microVM boundary left open"
-description: "I put an agent in a Lambda MicroVM with one goal, escape, and 13 techniques from current research. The Firecracker boundary refused the flag, the credentials and the control plane, but the loose cage still tunnelled data out over DNS. The Strands-Box-style policy layer closed that gap: on the same agent it denied 44 of 49 actions and dropped sensitive exposure from 9 kinds to 0. Measured live in us-east-1, as a fixed harness and a live Claude agent, on real MicroVMs."
+title: "Can an AI agent escape a Lambda MicroVM? I gave one 13 ways to try, and measured what held"
+description: "I put an AI agent in a Lambda MicroVM and told it to escape, with 13 techniques from current security research. The microVM boundary held the flag, the credentials and the control plane on its own, but the agent still tunnelled data out over DNS. A Strands-Box-style policy on every action closed that last gap: on the same agent it blocked 44 of 49 moves and cut sensitive exposure from 9 kinds to 0. Measured live in us-east-1, with a fixed test harness and a live Claude agent, on real MicroVMs."
 series: "Building on AWS Lambda MicroVMs"
 part: 8
 tags: ["lambda", "firecracker", "security", "ai-agents", "python"]
